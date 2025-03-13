@@ -42,3 +42,19 @@ type ConfiguredDirectory =
             Path = ""
             PathExists = false
         }
+
+type PackageVersionInfo =
+    {
+        Id: string
+        PackageName: string
+        CompatibleVersions: string list
+        OtherValues: string list
+    }
+
+type Mod =
+    {
+        Id: string
+        Name: string
+        HighestCompatibleVersion: string
+        PackageVersionInfo: PackageVersionInfo
+    }
