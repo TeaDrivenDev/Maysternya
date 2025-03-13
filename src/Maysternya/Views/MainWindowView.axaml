@@ -1,0 +1,42 @@
+<Window x:Class="Maysternya.Views.MainWindowView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:domain="using:Maysternya.Domain"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:uiUtilities="using:Maysternya.UIUtilities"
+        xmlns:vm="using:Maysternya.ViewModels"
+        Title="Maysternya"
+        Width="1200"
+        d:DesignHeight="450"
+        d:DesignWidth="800"
+        x:DataType="vm:MainWindowViewModel"
+        Design.DataContext="{Binding Source={x:Static vm:MainWindowViewModel.DesignVM}}"
+        Icon="/Assets/avalonia-logo.ico"
+        mc:Ignorable="d">
+    <Window.Styles>
+        <Style Selector="TextBox.Invalid">
+            <Setter Property="Background" Value="DarkRed" />
+        </Style>
+        <Style Selector="TextBox.Valid">
+            <Setter Property="Background" Value="DarkGreen" />
+        </Style>
+
+        <Style Selector="Button.SelectFile">
+            <Setter Property="Content" Value="…" />
+            <Setter Property="Width" Value="25" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="Margin" Value="3 0 0 0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="ProgressBar.Completed">
+            <Setter Property="Foreground" Value="DarkGreen" />
+        </Style>
+        <Style Selector="ProgressBar.Failed">
+            <Setter Property="Foreground" Value="Red" />
+        </Style>
+    </Window.Styles>
+
+    <Grid Margin="5" />
+</Window>
