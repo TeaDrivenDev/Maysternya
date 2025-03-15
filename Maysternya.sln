@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -11,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Maysternya.Tests", "tests\Maysternya.Tests\Maysternya.Tests.fsproj", "{462A032F-E37F-4ED5-BA6A-58EDE7669743}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +24,10 @@ Global
 		{F63A6B51-D08F-4503-AE19-905C861FBA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F63A6B51-D08F-4503-AE19-905C861FBA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F63A6B51-D08F-4503-AE19-905C861FBA31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
