@@ -57,18 +57,23 @@ type ConfiguredDirectory =
             PathExists = false
         }
 
+type CompatibleVersion =
+    | SpecificVersion of string
+    | NotVersionLocked
+
 type PackageVersionInfo =
     {
         Id: string
         PackageName: string
         CompatibleVersions: string list
+        IsInformational: bool
         OtherValues: string list
     }
 
 type Mod =
     {
         Id: string
+        Path: string
         Name: string
-        HighestCompatibleVersion: string
-        PackageVersionInfo: PackageVersionInfo
+        HighestCompatibleVersion: CompatibleVersion
     }
