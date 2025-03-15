@@ -32,16 +32,19 @@ module Constants =
         let SiiNunit = "SiiNunit"
 
         [<Literal>]
-        let DisplayNameKey = "display_name"
+        let DisplayName = "display_name"
 
         [<Literal>]
-        let PackageVersionInfoKey = "package_version_info"
+        let PackageVersionInfo = "package_version_info"
 
         [<Literal>]
-        let PackageNameKey = "package_name"
+        let PackageName = "package_name"
 
         [<Literal>]
-        let CompatibleVersionsKey = "compatible_versions[]"
+        let CompatibleVersions = "compatible_versions[]"
+
+        [<Literal>]
+        let Informational = "informational"
 
 type ConfiguredDirectory =
     {
