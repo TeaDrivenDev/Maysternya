@@ -63,11 +63,9 @@ type CompatibleVersion =
 
 type PackageVersionInfo =
     {
-        Id: string
         PackageName: string
         CompatibleVersions: string list
         IsInformational: bool
-        OtherValues: string list
     }
 
 type Mod =
