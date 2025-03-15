@@ -2,35 +2,46 @@
 
 [<RequireQualifiedAccess>]
 module Constants =
-    [<Literal>]
-    let WorkshopContentPath = @"steamapps\workshop\content"
+    module Games =
+        [<Literal>]
+        let Ets2 = "ETS 2"
 
-    [<Literal>]
-    let Ets2Id = "227300"
+        [<Literal>]
+        let Ats = "ATS"
 
-    [<Literal>]
-    let AtsId = "270880"
+    module Paths =
+        [<Literal>]
+        let WorkshopContentPath = @"steamapps\workshop\content"
 
-    [<Literal>]
-    let VersionsSii = "versions.sii"
+    module SteamIds =
+        [<Literal>]
+        let Ets2 = "227300"
 
-    [<Literal>]
-    let ManifestSii = "manifest.sii"
+        [<Literal>]
+        let Ats = "270880"
 
-    [<Literal>]
-    let SiiNunit = "SiiNunit"
+    module FileNames =
+        [<Literal>]
+        let VersionsSii = "versions.sii"
 
-    [<Literal>]
-    let DisplayNameKey = "display_name"
+        [<Literal>]
+        let ManifestSii = "manifest.sii"
 
-    [<Literal>]
-    let PackageVersionInfoKey = "package_version_info"
+    module PackageFileKeys =
+        [<Literal>]
+        let SiiNunit = "SiiNunit"
 
-    [<Literal>]
-    let PackageNameKey = "package_name"
+        [<Literal>]
+        let DisplayNameKey = "display_name"
 
-    [<Literal>]
-    let CompatibleVersionsKey = "compatible_versions[]"
+        [<Literal>]
+        let PackageVersionInfoKey = "package_version_info"
+
+        [<Literal>]
+        let PackageNameKey = "package_name"
+
+        [<Literal>]
+        let CompatibleVersionsKey = "compatible_versions[]"
 
 type ConfiguredDirectory =
     {
