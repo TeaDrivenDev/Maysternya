@@ -67,3 +67,26 @@ package_version_info : .universal
 
         // Assert
         expectedResult =! actualResult
+
+    [<Theory>]
+    [<InlineData("""
+package_version_info : .universal
+{
+	package_name: "v3_4"
+	compatible_versions[]: "1.48.*"
+	compatible_versions[]: "1.49.*"
+}""", false)>]
+    let ``Package with versions returns correct result`` (input: string, expectedInformational: bool) =
+        // Arrange
+        let expectedResult =
+            {
+                PackageName = "v3_4"
+                CompatibleVersions = ["1.49.*"; "1.48.*"]
+                IsInformational = expectedInformational
+            }
+
+        // Act
+        let actualResult = Logic.parsePackageVersionInfo input
+
+        // Assert
+        expectedResult =! actualResult

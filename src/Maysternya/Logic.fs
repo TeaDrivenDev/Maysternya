@@ -30,14 +30,21 @@ module Logic =
 
         let packageName =
             contents[Constants.PackageFileKeys.PackageName] |> Seq.head |> getStringValue
+
         let informational =
             contents[Constants.PackageFileKeys.Informational]
             |> Seq.tryHead
             |> Option.map bool.Parse
             |> Option.defaultValue false
 
+        let compatibleVersions =
+            contents[Constants.PackageFileKeys.CompatibleVersions]
+            |> Seq.map getStringValue
+            |> Seq.sortDescending
+            |> Seq.toList
+
         {
             PackageName = packageName
-            CompatibleVersions = []
+            CompatibleVersions = compatibleVersions
             IsInformational = informational
         }
