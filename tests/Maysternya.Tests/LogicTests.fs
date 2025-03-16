@@ -148,3 +148,62 @@ package_version_info : .universal
 
         // Assert
         expectedResult =! actualResult
+
+module ParseVersionsTests =
+    open Maysternya
+    open Maysternya.Domain
+
+    [<Fact>]
+    let ``Package versions are parsed correctly from file`` () =
+        // Arrange
+        let input = """
+SiiNunit
+{
+package_version_info : .info.compatible.versions
+{
+    package_name: "compatibility_info"
+    informational: true
+}
+
+package_version_info : .150
+{
+	package_name: "150"
+	compatible_versions[]: "1.50.*"
+}
+
+package_version_info : .151
+{
+	package_name: "151"
+	compatible_versions[]: "1.51.*"
+	compatible_versions[]: "1.52.*"
+	compatible_versions[]: "1.53.*"
+	compatible_versions[]: "1.54.*"
+}
+}"""
+
+        let expectedResult =
+            [
+                {
+                    PackageName = "compatibility_info"
+                    CompatibleVersions = []
+                    IsInformational = true
+                }
+
+                {
+                    PackageName = "150"
+                    CompatibleVersions = [ "1.50.*" ]
+                    IsInformational = false
+                }
+
+                {
+                    PackageName = "151"
+                    CompatibleVersions = [ "1.54.*"; "1.53.*"; "1.52.*"; "1.51.*" ]
+                    IsInformational = false
+                }
+            ]
+
+        // Act
+        let actualResult = Logic.parseVersions input
+
+        // Assert
+        expectedResult =! actualResult

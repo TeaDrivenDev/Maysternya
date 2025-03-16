@@ -60,3 +60,8 @@ module Logic =
             CompatibleVersions = compatibleVersions
             IsInformational = informational
         }
+
+    let parseVersions (versionsFileString: string) =
+        versionsFileString
+        |> getPackageStrings
+        |> List.map parsePackageVersionInfo
