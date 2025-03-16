@@ -5,23 +5,31 @@ open Swensen.Unquote
 
 module GetPackageContentsTest =
     open Maysternya
+    open Maysternya.Domain
 
     [<Fact>]
-    let grah () =
+    let ``Package contents are parsed correctly`` () =
         // Arrange
         let input = """
 package_version_info : .universal
 {
 	package_name: "v3_4"
+    informational: false
+	compatible_versions[]: "1.48.*"
+	compatible_versions[]: "1.49.*"
 }"""
 
-        let expectedResult = "\"v3_4\""
+        let expectedPackageName = "\"v3_4\""
+        let expectedInformational = "false"
+        let expectedCompatibleVersions = ["\"1.48.*\""; "\"1.49.*\""]
 
         // Act
         let actualResult = Logic.getPackageContents input
 
         // Assert
-        expectedResult =! (actualResult[Domain.Constants.PackageFileKeys.PackageName] |> Seq.head)
+        expectedPackageName =! (actualResult[Constants.PackageFileKeys.PackageName] |> Seq.head)
+        expectedInformational =! (actualResult[Constants.PackageFileKeys.Informational] |> Seq.head)
+        expectedCompatibleVersions =! (actualResult[Constants.PackageFileKeys.CompatibleVersions] |> Seq.toList)
 
 module ParsePackageVersionInfoTests =
     open Maysternya

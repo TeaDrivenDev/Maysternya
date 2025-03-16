@@ -9,7 +9,7 @@ module Logic =
 
     let private packageValueRegex =
         Regex(
-            @"^\s*(?<key>\w+):\s+(?<value>[^\s]*)\s+$",
+            @"^\s*(?<key>[\w\[\]]+):\s+(?<value>[^\s]*)\s+$",
             RegexOptions.Multiline ||| RegexOptions.Compiled)
 
     let private stringValueRegex = Regex("\"(?<value>.*)\"", RegexOptions.Compiled)
