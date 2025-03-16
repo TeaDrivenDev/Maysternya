@@ -27,20 +27,31 @@ module ParsePackageVersionInfoTests =
     open Maysternya
     open Maysternya.Domain
 
-    [<Fact>]
-    let ``Package with only name returns correct result`` () =
-        // Arrange
-        let input = """
+    [<Theory>]
+    [<InlineData("""
 package_version_info : .universal
 {
 	package_name: "v3_4"
-}"""
-
+}""", false)>]
+    [<InlineData("""
+package_version_info : .universal
+{
+	package_name: "v3_4"
+    informational: false
+}""", false)>]
+    [<InlineData("""
+package_version_info : .universal
+{
+	package_name: "v3_4"
+    informational: true
+}""", true)>]
+    let ``Package without versions returns correct result`` (input: string, expectedInformational: bool) =
+        // Arrange
         let expectedResult =
             {
                 PackageName = "v3_4"
                 CompatibleVersions = []
-                IsInformational = false
+                IsInformational = expectedInformational
             }
 
         // Act
