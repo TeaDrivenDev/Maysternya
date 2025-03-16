@@ -3,6 +3,64 @@
 open Xunit
 open Swensen.Unquote
 
+module GetPackageStringsTests =
+    open Maysternya
+
+    [<Fact>]
+    let ``File is split correctly into package strings`` () =
+        // Arrange
+        let input = """
+SiiNunit
+{
+package_version_info : .info.compatible.versions {
+    package_name: "compatibility_info"
+    informational: true
+}
+
+package_version_info : .150
+{
+	package_name: "150"
+	compatible_versions[]: "1.50.*"
+}
+
+package_version_info : .151
+{
+	package_name: "151"
+	compatible_versions[]: "1.51.*"
+	compatible_versions[]: "1.52.*"
+	compatible_versions[]: "1.53.*"
+	compatible_versions[]: "1.54.*"
+}
+}"""
+
+        let expectedResult =
+            [
+                """package_version_info : .info.compatible.versions {
+    package_name: "compatibility_info"
+    informational: true
+}"""
+                """package_version_info : .150
+{
+	package_name: "150"
+	compatible_versions[]: "1.50.*"
+}"""
+
+                """package_version_info : .151
+{
+	package_name: "151"
+	compatible_versions[]: "1.51.*"
+	compatible_versions[]: "1.52.*"
+	compatible_versions[]: "1.53.*"
+	compatible_versions[]: "1.54.*"
+}"""
+            ]
+
+        // Act
+        let actualResult = Logic.getPackageStrings input
+
+        // Assert
+        expectedResult =! actualResult
+
 module GetPackageContentsTest =
     open Maysternya
     open Maysternya.Domain

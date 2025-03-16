@@ -7,6 +7,15 @@ module Logic =
 
     open Maysternya.Domain
 
+    [<Literal>]
+    let whitespaceOrLineBreak = @"\s|\r\n?|\n"
+    let characterWhitespaceOrLineBreak = $".|{whitespaceOrLineBreak}"
+
+    let private packageStringRegex =
+        Regex(
+        $@"{Constants.PackageFileKeys.PackageVersionInfo}\s?:\s?.*({whitespaceOrLineBreak})*\{{({characterWhitespaceOrLineBreak})+?\}}",
+        RegexOptions.Compiled)
+
     let private packageValueRegex =
         Regex(
             @"^\s*(?<key>[\w\[\]]+):\s+(?<value>[^\s]*)\s+$",
@@ -16,6 +25,9 @@ module Logic =
 
     let private getStringValue value =
         stringValueRegex.Match(value).Groups["value"].Value
+
+    let getPackageStrings (fileString: string) =
+        packageStringRegex.Matches fileString |> Seq.map _.Value |> Seq.toList
 
     let getPackageContents (packageString: string) =
         let matches = packageValueRegex.Matches packageString
