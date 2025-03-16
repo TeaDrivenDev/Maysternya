@@ -68,6 +68,13 @@ type PackageVersionInfo =
         IsInformational: bool
     }
 
+type RelevantPackages =
+    {
+        MetadataPackage: PackageVersionInfo option
+        ContentPackage: PackageVersionInfo option
+        HighestCompatibleVersion: CompatibleVersion
+    }
+
 type Mod =
     {
         Id: string

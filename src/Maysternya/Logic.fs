@@ -65,3 +65,12 @@ module Logic =
         versionsFileString
         |> getPackageStrings
         |> List.map parsePackageVersionInfo
+
+    let determineRelevantPackages allPackages =
+        let package = List.head allPackages
+
+        {
+            MetadataPackage = Some package
+            ContentPackage = Some package
+            HighestCompatibleVersion = NotVersionLocked
+        }

@@ -61,7 +61,7 @@ package_version_info : .151
         // Assert
         expectedResult =! actualResult
 
-module GetPackageContentsTest =
+module GetPackageContentsTests =
     open Maysternya
     open Maysternya.Domain
 
@@ -204,6 +204,33 @@ package_version_info : .151
 
         // Act
         let actualResult = Logic.parseVersions input
+
+        // Assert
+        expectedResult =! actualResult
+
+module DetermineRelevantPackagesTests =
+    open Maysternya
+    open Maysternya.Domain
+
+    [<Fact>]
+    let ``Simple non informational package is returned for metadata and content`` () =
+        // Arrange
+        let package =
+            {
+                PackageName = "package"
+                CompatibleVersions = []
+                IsInformational = false
+            }
+
+        let expectedResult =
+            {
+                MetadataPackage = Some package
+                ContentPackage = Some package
+                HighestCompatibleVersion = NotVersionLocked
+            }
+
+        // Act
+        let actualResult = Logic.determineRelevantPackages [package]
 
         // Assert
         expectedResult =! actualResult
