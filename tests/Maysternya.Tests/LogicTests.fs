@@ -234,3 +234,33 @@ module DetermineRelevantPackagesTests =
 
         // Assert
         expectedResult =! actualResult
+
+    [<Fact>]
+    let ``Informational and content packages are returned for metadata and content`` () =
+        // Arrange
+        let informationalPackage =
+            {
+                PackageName = "informational"
+                CompatibleVersions = []
+                IsInformational = true
+            }
+
+        let contentPackage =
+            {
+                PackageName = "content"
+                CompatibleVersions = []
+                IsInformational = false
+            }
+
+        let expectedResult =
+            {
+                MetadataPackage = Some informationalPackage
+                ContentPackage = Some contentPackage
+                HighestCompatibleVersion = NotVersionLocked
+            }
+
+        // Act
+        let actualResult = Logic.determineRelevantPackages [informationalPackage; contentPackage]
+
+        // Assert
+        expectedResult =! actualResult
