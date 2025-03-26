@@ -67,19 +67,22 @@ module Logic =
         |> List.map parsePackageVersionInfo
 
     let determineRelevantPackages allPackages =
+        let tryWithoutVersions = List.tryFind (_.CompatibleVersions >> List.isEmpty)
+
         let informationalPackages, contentPackages =
             allPackages |> List.partition _.IsInformational
 
-        let relevantContentPackage = List.tryHead contentPackages
+        let relevantContentPackage = tryWithoutVersions contentPackages
 
-        let informationalPackage =
-            List.tryHead informationalPackages
+        let relevantInformationalPackage =
+            informationalPackages
+            |> tryWithoutVersions
             |> function
                 | None -> relevantContentPackage
                 | package -> package
 
         {
-            MetadataPackage = informationalPackage
+            MetadataPackage = relevantInformationalPackage
             ContentPackage = relevantContentPackage
             HighestCompatibleVersion = NotVersionLocked
         }

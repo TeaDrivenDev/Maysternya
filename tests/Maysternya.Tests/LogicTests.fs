@@ -264,3 +264,62 @@ module DetermineRelevantPackagesTests =
 
         // Assert
         expectedResult =! actualResult
+
+    [<Fact>]
+    let ``Packages without compatible versions are returned as relevant`` () =
+        // Arrange
+        let informationalPackageOld =
+            {
+                PackageName = "informationalOld"
+                CompatibleVersions = [ "1.34.*" ]
+                IsInformational = true
+            }
+
+        let informationalPackageNew =
+            {
+                PackageName = "informationalNew"
+                CompatibleVersions = []
+                IsInformational = true
+            }
+
+        let contentPackageOld1 =
+            {
+                PackageName = "contentOld1"
+                CompatibleVersions = [ "1.50.*" ]
+                IsInformational = false
+            }
+
+        let contentPackageOld2 =
+            {
+                PackageName = "contentOld2"
+                CompatibleVersions = [ "1.49.*" ]
+                IsInformational = false
+            }
+
+        let contentPackageNew =
+            {
+                PackageName = "contentNew"
+                CompatibleVersions = []
+                IsInformational = false
+            }
+
+        let expectedResult =
+            {
+                MetadataPackage = Some informationalPackageNew
+                ContentPackage = Some contentPackageNew
+                HighestCompatibleVersion = NotVersionLocked
+            }
+
+        // Act
+        let actualResult =
+            Logic.determineRelevantPackages
+                [
+                    informationalPackageOld
+                    informationalPackageNew
+                    contentPackageOld1
+                    contentPackageNew
+                    contentPackageOld2
+                ]
+
+        // Assert
+        expectedResult =! actualResult
