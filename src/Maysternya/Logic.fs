@@ -5,8 +5,6 @@ module Logic =
     open System.Linq
     open System.Text.RegularExpressions
 
-    open Prelude
-
     open Maysternya.Domain
 
     [<Literal>]
@@ -80,8 +78,9 @@ module Logic =
         let relevantContentPackage, highestCompatibleVersion =
             contentPackagesWithoutCompatibleVersions
             |> List.tryHead
-            |> function
-                | None ->
+            |> Option.map (fun package -> Some package, NotVersionLocked)
+            |> Option.defaultWith
+                (fun () ->
                     contentPackagesWithCompatibleVersions
                     |> function
                         | [] -> None, NotVersionLocked
@@ -92,15 +91,12 @@ module Logic =
                                     (fun package -> package, (package.CompatibleVersions |> List.max))
                                 |> List.maxBy snd
 
-                            Some package, SpecificVersion latestVersion
-                | package -> package, NotVersionLocked
+                            Some package, SpecificVersion latestVersion)
 
         let relevantInformationalPackage =
             informationalPackages
             |> List.tryFind noSpecificCompatibleVersions
-            |> function
-                | None -> relevantContentPackage
-                | package -> package
+            |> Option.orElse relevantContentPackage
 
         {
             MetadataPackage = relevantInformationalPackage
