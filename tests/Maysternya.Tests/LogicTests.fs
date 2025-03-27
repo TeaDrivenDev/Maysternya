@@ -323,3 +323,44 @@ module DetermineRelevantPackagesTests =
 
         // Assert
         expectedResult =! actualResult
+
+    [<Fact>]
+    let ``Content package with highest compatible version is returned if none without versions are present`` () =
+        // Arrange
+        let latestVersion = "1.53.*"
+
+        let contentPackage1 =
+            {
+                PackageName = "content1"
+                CompatibleVersions = [ "1.50.*"; "1.48.*" ]
+                IsInformational = false
+            }
+
+        let contentPackageNewest =
+            {
+                PackageName = "contentNewest"
+                CompatibleVersions = [ "1.49.*"; latestVersion ]
+                IsInformational = false
+            }
+
+        let contentPackage2 =
+            {
+                PackageName = "content2"
+                CompatibleVersions = [ "1.51.*"; "1.52.*" ]
+                IsInformational = false
+            }
+
+        let expectedResult =
+            {
+                MetadataPackage = Some contentPackageNewest
+                ContentPackage = Some contentPackageNewest
+                HighestCompatibleVersion = SpecificVersion latestVersion
+            }
+
+        // Act
+        let actualResult =
+            Logic.determineRelevantPackages
+                [ contentPackage1; contentPackageNewest; contentPackage2 ]
+
+        // Assert
+        expectedResult =! actualResult

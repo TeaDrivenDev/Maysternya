@@ -5,6 +5,8 @@ module Logic =
     open System.Linq
     open System.Text.RegularExpressions
 
+    open Prelude
+
     open Maysternya.Domain
 
     [<Literal>]
@@ -67,16 +69,35 @@ module Logic =
         |> List.map parsePackageVersionInfo
 
     let determineRelevantPackages allPackages =
-        let tryWithoutVersions = List.tryFind (_.CompatibleVersions >> List.isEmpty)
+        let noSpecificCompatibleVersions = _.CompatibleVersions >> List.isEmpty
 
         let informationalPackages, contentPackages =
             allPackages |> List.partition _.IsInformational
 
-        let relevantContentPackage = tryWithoutVersions contentPackages
+        let contentPackagesWithoutCompatibleVersions, contentPackagesWithCompatibleVersions =
+            contentPackages |> List.partition noSpecificCompatibleVersions
+
+        let relevantContentPackage, highestCompatibleVersion =
+            contentPackagesWithoutCompatibleVersions
+            |> List.tryHead
+            |> function
+                | None ->
+                    contentPackagesWithCompatibleVersions
+                    |> function
+                        | [] -> None, NotVersionLocked
+                        | packages ->
+                            let package, latestVersion =
+                                packages
+                                |> List.map
+                                    (fun package -> package, (package.CompatibleVersions |> List.max))
+                                |> List.maxBy snd
+
+                            Some package, SpecificVersion latestVersion
+                | package -> package, NotVersionLocked
 
         let relevantInformationalPackage =
             informationalPackages
-            |> tryWithoutVersions
+            |> List.tryFind noSpecificCompatibleVersions
             |> function
                 | None -> relevantContentPackage
                 | package -> package
@@ -84,5 +105,5 @@ module Logic =
         {
             MetadataPackage = relevantInformationalPackage
             ContentPackage = relevantContentPackage
-            HighestCompatibleVersion = NotVersionLocked
+            HighestCompatibleVersion = highestCompatibleVersion
         }
