@@ -1,10 +1,10 @@
 ﻿namespace Maysternya.Tests
 
-open Xunit
 open Swensen.Unquote
+open Xunit
 
 module GetPackageStringsTests =
-    open Maysternya
+    open Maysternya.Logic
 
     [<Fact>]
     let ``File is split correctly into package strings`` () =
@@ -56,14 +56,14 @@ package_version_info : .151
             ]
 
         // Act
-        let actualResult = Logic.getPackageStrings input
+        let actualResult = Package.getPackageStrings input
 
         // Assert
         expectedResult =! actualResult
 
 module GetPackageContentsTests =
-    open Maysternya
     open Maysternya.Domain
+    open Maysternya.Logic
 
     [<Fact>]
     let ``Package contents are parsed correctly`` () =
@@ -82,7 +82,7 @@ package_version_info : .universal
         let expectedCompatibleVersions = ["\"1.48.*\""; "\"1.49.*\""]
 
         // Act
-        let actualResult = Logic.getPackageContents input
+        let actualResult = Package.getPackageContents input
 
         // Assert
         expectedPackageName =! (actualResult[Constants.PackageFileKeys.PackageName] |> Seq.head)
@@ -90,8 +90,8 @@ package_version_info : .universal
         expectedCompatibleVersions =! (actualResult[Constants.PackageFileKeys.CompatibleVersions] |> Seq.toList)
 
 module ParsePackageVersionInfoTests =
-    open Maysternya
     open Maysternya.Domain
+    open Maysternya.Logic
 
     [<Theory>]
     [<InlineData("""
@@ -121,7 +121,7 @@ package_version_info : .universal
             }
 
         // Act
-        let actualResult = Logic.parsePackageVersionInfo input
+        let actualResult = Package.parsePackageVersionInfo input
 
         // Assert
         expectedResult =! actualResult
@@ -144,14 +144,14 @@ package_version_info : .universal
             }
 
         // Act
-        let actualResult = Logic.parsePackageVersionInfo input
+        let actualResult = Package.parsePackageVersionInfo input
 
         // Assert
         expectedResult =! actualResult
 
 module ParseVersionsTests =
-    open Maysternya
     open Maysternya.Domain
+    open Maysternya.Logic
 
     [<Fact>]
     let ``Package versions are parsed correctly from file`` () =
@@ -203,14 +203,14 @@ package_version_info : .151
             ]
 
         // Act
-        let actualResult = Logic.parseVersions input
+        let actualResult = Package.parseVersions input
 
         // Assert
         expectedResult =! actualResult
 
 module DetermineRelevantPackagesTests =
-    open Maysternya
     open Maysternya.Domain
+    open Maysternya.Logic
 
     [<Fact>]
     let ``Simple non informational package is returned for metadata and content`` () =
@@ -230,7 +230,7 @@ module DetermineRelevantPackagesTests =
             }
 
         // Act
-        let actualResult = Logic.determineRelevantPackages [package]
+        let actualResult = Package.determineRelevantPackages [package]
 
         // Assert
         expectedResult =! actualResult
@@ -260,7 +260,7 @@ module DetermineRelevantPackagesTests =
             }
 
         // Act
-        let actualResult = Logic.determineRelevantPackages [informationalPackage; contentPackage]
+        let actualResult = Package.determineRelevantPackages [informationalPackage; contentPackage]
 
         // Assert
         expectedResult =! actualResult
@@ -312,7 +312,7 @@ module DetermineRelevantPackagesTests =
 
         // Act
         let actualResult =
-            Logic.determineRelevantPackages
+            Package.determineRelevantPackages
                 [
                     informationalPackageOld
                     informationalPackageNew
@@ -359,7 +359,7 @@ module DetermineRelevantPackagesTests =
 
         // Act
         let actualResult =
-            Logic.determineRelevantPackages
+            Package.determineRelevantPackages
                 [ contentPackage1; contentPackageNewest; contentPackage2 ]
 
         // Assert
