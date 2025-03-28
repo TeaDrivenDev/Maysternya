@@ -1,4 +1,4 @@
-﻿namespace Maysternya.Domain
+﻿namespace TeaDriven.Maysternya.Domain
 
 [<RequireQualifiedAccess>]
 module Constants =

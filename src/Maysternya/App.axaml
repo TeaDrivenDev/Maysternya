@@ -1,7 +1,7 @@
-<Application x:Class="Maysternya.App"
+<Application x:Class="TeaDriven.Maysternya.App"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:Maysternya"
+             xmlns:local="using:TeaDriven.Maysternya"
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme DensityStyle="Compact">

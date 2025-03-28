@@ -1,4 +1,4 @@
-﻿namespace Maysternya.UIUtilities
+﻿namespace TeaDriven.Maysternya.UIUtilities
 
 open System
 

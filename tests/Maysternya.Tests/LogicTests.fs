@@ -1,10 +1,10 @@
-﻿namespace Maysternya.Tests
+﻿namespace TeaDriven.Maysternya.Tests
 
 open Swensen.Unquote
 open Xunit
 
 module GetPackageStringsTests =
-    open Maysternya.Logic
+    open TeaDriven.Maysternya.Logic
 
     [<Fact>]
     let ``File is split correctly into package strings`` () =
@@ -62,8 +62,8 @@ package_version_info : .151
         expectedResult =! actualResult
 
 module GetPackageContentsTests =
-    open Maysternya.Domain
-    open Maysternya.Logic
+    open TeaDriven.Maysternya.Domain
+    open TeaDriven.Maysternya.Logic
 
     [<Fact>]
     let ``Package contents are parsed correctly`` () =
@@ -90,8 +90,8 @@ package_version_info : .universal
         expectedCompatibleVersions =! (actualResult[Constants.PackageFileKeys.CompatibleVersions] |> Seq.toList)
 
 module ParsePackageVersionInfoTests =
-    open Maysternya.Domain
-    open Maysternya.Logic
+    open TeaDriven.Maysternya.Domain
+    open TeaDriven.Maysternya.Logic
 
     [<Theory>]
     [<InlineData("""
@@ -150,8 +150,8 @@ package_version_info : .universal
         expectedResult =! actualResult
 
 module ParseVersionsTests =
-    open Maysternya.Domain
-    open Maysternya.Logic
+    open TeaDriven.Maysternya.Domain
+    open TeaDriven.Maysternya.Logic
 
     [<Fact>]
     let ``Package versions are parsed correctly from file`` () =
@@ -209,8 +209,8 @@ package_version_info : .151
         expectedResult =! actualResult
 
 module DetermineRelevantPackagesTests =
-    open Maysternya.Domain
-    open Maysternya.Logic
+    open TeaDriven.Maysternya.Domain
+    open TeaDriven.Maysternya.Logic
 
     [<Fact>]
     let ``Simple non informational package is returned for metadata and content`` () =

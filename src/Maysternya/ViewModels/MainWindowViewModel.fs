@@ -1,8 +1,8 @@
-﻿namespace Maysternya.ViewModels
+﻿namespace TeaDriven.Maysternya.ViewModels
 
 open ReactiveElmish
 
-open Maysternya
+open TeaDriven.Maysternya
 
 type MainWindowViewModel(folderPicker: Services.FolderPickerService) =
     inherit ReactiveElmishViewModel()

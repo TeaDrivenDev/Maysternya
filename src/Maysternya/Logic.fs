@@ -1,4 +1,4 @@
-﻿namespace Maysternya
+﻿namespace TeaDriven.Maysternya
 
 module Logic =
     [<RequireQualifiedAccess>]
@@ -6,7 +6,7 @@ module Logic =
         open System.Linq
         open System.Text.RegularExpressions
 
-        open Maysternya.Domain
+        open TeaDriven.Maysternya.Domain
 
         [<Literal>]
         let whitespaceOrLineBreak = @"\s|\r\n?|\n"

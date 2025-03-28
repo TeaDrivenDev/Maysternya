@@ -1,4 +1,4 @@
-namespace Maysternya
+namespace TeaDriven.Maysternya
 
 open Avalonia
 open Avalonia.Controls

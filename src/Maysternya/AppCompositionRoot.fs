@@ -1,11 +1,11 @@
-﻿namespace Maysternya
+﻿namespace TeaDriven.Maysternya
 
 open Microsoft.Extensions.DependencyInjection
 
 open ReactiveElmish.Avalonia
 
-open Maysternya.ViewModels
-open Maysternya.Views
+open TeaDriven.Maysternya.ViewModels
+open TeaDriven.Maysternya.Views
 
 type AppCompositionRoot() =
     inherit CompositionRoot()

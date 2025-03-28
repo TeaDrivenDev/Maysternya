@@ -1,4 +1,4 @@
-namespace Maysternya.Views
+namespace TeaDriven.Maysternya.Views
 
 open Avalonia
 open Avalonia.Controls

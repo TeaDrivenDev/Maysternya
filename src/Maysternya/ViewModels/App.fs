@@ -1,4 +1,4 @@
-﻿namespace Maysternya.ViewModels
+﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
 open System.IO
@@ -6,7 +6,7 @@ open System.IO
 open Elmish
 open ReactiveElmish.Avalonia
 
-open Maysternya.Domain
+open TeaDriven.Maysternya.Domain
 
 module App =
     let withoutCommand model = model, Cmd.none

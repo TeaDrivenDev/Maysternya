@@ -1,4 +1,4 @@
-namespace Maysternya.Services
+namespace TeaDriven.Maysternya.Services
 
 open Avalonia.Controls
 open Avalonia.Platform.Storage

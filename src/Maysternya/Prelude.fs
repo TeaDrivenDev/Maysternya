@@ -1,4 +1,4 @@
-﻿namespace Maysternya
+﻿namespace TeaDriven.Maysternya
 
 module Prelude =
     let asFst second first = first, second
