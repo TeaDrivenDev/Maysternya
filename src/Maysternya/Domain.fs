@@ -46,6 +46,10 @@ module Constants =
         [<Literal>]
         let Informational = "informational"
 
+    module ManifestFileKeys =
+        [<Literal>]
+        let ModPackage = "mod_package"
+
 type ConfiguredDirectory =
     {
         Path: string

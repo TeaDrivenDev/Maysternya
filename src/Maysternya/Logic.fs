@@ -108,3 +108,12 @@ module Logic =
                 ContentPackage = relevantContentPackage
                 HighestCompatibleVersion = highestCompatibleVersion
             }
+
+    module Metadata =
+        let private packageStringRegex =
+            Regex(
+                Constants.ManifestFileKeys.ModPackage + blockStringRegex,
+                RegexOptions.Compiled)
+
+        let getModPackageString (fileString: string) =
+            packageStringRegex.Matches fileString |> Seq.map _.Value |> Seq.head
