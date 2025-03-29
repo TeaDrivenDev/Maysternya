@@ -1,6 +1,6 @@
 ﻿namespace TeaDriven.Maysternya
 
-module Logic =
+module Parsing =
     open System.Text.RegularExpressions
 
     open TeaDriven.Maysternya.Domain

@@ -4,7 +4,7 @@ open Swensen.Unquote
 open Xunit
 
 module GetModPackageStringTests =
-    open TeaDriven.Maysternya.Logic
+    open TeaDriven.Maysternya.Parsing
 
     [<Fact>]
     let ``Simple package string without comments is returned`` () =

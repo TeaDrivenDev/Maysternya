@@ -4,7 +4,7 @@ open Swensen.Unquote
 open Xunit
 
 module GetPackageStringsTests =
-    open TeaDriven.Maysternya.Logic
+    open TeaDriven.Maysternya.Parsing
 
     [<Fact>]
     let ``File is split correctly into package strings`` () =
@@ -63,7 +63,7 @@ package_version_info : .151
 
 module GetPackageContentsTests =
     open TeaDriven.Maysternya.Domain
-    open TeaDriven.Maysternya.Logic
+    open TeaDriven.Maysternya.Parsing
 
     [<Fact>]
     let ``Package contents are parsed correctly`` () =
@@ -91,7 +91,7 @@ package_version_info : .universal
 
 module ParsePackageVersionInfoTests =
     open TeaDriven.Maysternya.Domain
-    open TeaDriven.Maysternya.Logic
+    open TeaDriven.Maysternya.Parsing
 
     [<Theory>]
     [<InlineData("""
@@ -151,7 +151,7 @@ package_version_info : .universal
 
 module ParseVersionsTests =
     open TeaDriven.Maysternya.Domain
-    open TeaDriven.Maysternya.Logic
+    open TeaDriven.Maysternya.Parsing
 
     [<Fact>]
     let ``Package versions are parsed correctly from file`` () =
@@ -210,7 +210,7 @@ package_version_info : .151
 
 module DetermineRelevantPackagesTests =
     open TeaDriven.Maysternya.Domain
-    open TeaDriven.Maysternya.Logic
+    open TeaDriven.Maysternya.Parsing
 
     [<Fact>]
     let ``Simple non informational package is returned for metadata and content`` () =
