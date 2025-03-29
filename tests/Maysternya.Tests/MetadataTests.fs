@@ -43,3 +43,61 @@ mod_package : .package_name
 
         // Assert
         expectedResult =! actualResult
+
+    [<Fact>]
+    let ``Package string with comments is returned`` () =
+        // Arrange
+        let input =
+            """SiiNunit
+{
+# ".package_name" does not matter as the dot at the beginning of the file means that this unit is anonymous.
+# Please keep this form to not make any conflicts with other mod packages (name collisions).
+mod_package : .package_name {
+
+    # Package version can be any string with any length.
+    package_version: "2.7"
+
+    # Display name can be any string with any length.
+    display_name: "Freightliner Argosy v2.7"
+
+    # Author can be any string with any length.
+    author: "Harven, Lucasi, H.Trucker, odd_fellow"
+
+    # Categories is an array of strings.
+    category[]: "truck"
+
+    # Icon inside the root directory of the mod.
+    icon: "argosy.jpg"
+
+    # Description file inside the root directory of the mod.
+    description_file: "descr.txt"
+}
+}"""
+
+        let expectedResult =
+            """mod_package : .package_name {
+
+    # Package version can be any string with any length.
+    package_version: "2.7"
+
+    # Display name can be any string with any length.
+    display_name: "Freightliner Argosy v2.7"
+
+    # Author can be any string with any length.
+    author: "Harven, Lucasi, H.Trucker, odd_fellow"
+
+    # Categories is an array of strings.
+    category[]: "truck"
+
+    # Icon inside the root directory of the mod.
+    icon: "argosy.jpg"
+
+    # Description file inside the root directory of the mod.
+    description_file: "descr.txt"
+}"""
+
+        // Act
+        let actualResult = Metadata.getModPackageString input
+
+        // Assert
+        expectedResult =! actualResult
