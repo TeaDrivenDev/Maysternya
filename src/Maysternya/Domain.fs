@@ -50,6 +50,17 @@ module Constants =
         [<Literal>]
         let ModPackage = "mod_package"
 
+        [<Literal>]
+        let PackageVersion = "package_version"
+
+        [<Literal>]
+        let DisplayName = "display_name"
+        [<Literal>]
+        let DlcDependencies = "dlc_dependencies[]"
+
+        [<Literal>]
+        let MpModOptional = "mp_mod_optional"
+
 type ConfiguredDirectory =
     {
         Path: string

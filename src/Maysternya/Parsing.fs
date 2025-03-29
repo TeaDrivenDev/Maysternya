@@ -15,12 +15,12 @@ module Parsing =
 
     let private packageValueRegex =
         Regex(
-            @"^\s*(?<key>[\w\[\]]+):\s+(?<value>[^\s]*)\s+$",
+            @"^\s*(?<key>[\w\[\]]+):\s+(?<value>(\\""(.*)\\""|.*))\s+$",
             RegexOptions.Multiline ||| RegexOptions.Compiled)
 
     let private stringValueRegex = Regex("\"(?<value>.*)\"", RegexOptions.Compiled)
 
-    let private getStringValue value =
+    let getStringValue value =
         stringValueRegex.Match(value).Groups["value"].Value
 
     let getPackageContents (packageString: string) =
