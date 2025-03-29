@@ -1,6 +1,7 @@
 ﻿namespace TeaDriven.Maysternya
 
 module Parsing =
+    open System.Linq
     open System.Text.RegularExpressions
 
     open TeaDriven.Maysternya.Domain
@@ -22,10 +23,16 @@ module Parsing =
     let private getStringValue value =
         stringValueRegex.Match(value).Groups["value"].Value
 
+    let getPackageContents (packageString: string) =
+        let matches = packageValueRegex.Matches packageString
+        let contents =
+            (matches |> Seq.map (fun m -> m.Groups["key"].Value, m.Groups["value"].Value))
+                .ToLookup(fst, snd)
+
+        contents
+
     [<RequireQualifiedAccess>]
     module Package =
-        open System.Linq
-
         let private packageStringRegex =
             Regex(
                 Constants.PackageFileKeys.PackageVersionInfo + blockStringRegex,
@@ -33,14 +40,6 @@ module Parsing =
 
         let getPackageStrings (fileString: string) =
             packageStringRegex.Matches fileString |> Seq.map _.Value |> Seq.toList
-
-        let getPackageContents (packageString: string) =
-            let matches = packageValueRegex.Matches packageString
-            let contents =
-                (matches |> Seq.map (fun m -> m.Groups["key"].Value, m.Groups["value"].Value))
-                    .ToLookup(fst, snd)
-
-            contents
 
         let parsePackageVersionInfo (packageString: string) =
             let contents = getPackageContents packageString
