@@ -13,12 +13,12 @@ module Parsing =
     let private blockStringRegex =
         $@"\s?:\s?.*({whitespaceOrLineBreak})*\{{({characterWhitespaceOrLineBreak})+?\}}"
 
-    let private packageValueRegex =
+    let private stringValueRegex = Regex("\"(?<value>.*)\"", RegexOptions.Compiled)
+
+    let packageValueRegex =
         Regex(
             @"^\s*(?<key>[\w\[\]]+):\s+(?<value>(\\""(.*)\\""|.*))\s+$",
             RegexOptions.Multiline ||| RegexOptions.Compiled)
-
-    let private stringValueRegex = Regex("\"(?<value>.*)\"", RegexOptions.Compiled)
 
     let getStringValue value =
         stringValueRegex.Match(value).Groups["value"].Value

@@ -3,6 +3,24 @@
 open Swensen.Unquote
 open Xunit
 
+module PackageValueRegexTests =
+    open TeaDriven.Maysternya
+
+    [<Theory>]
+    [<InlineData("""	package_version: "1.0" """, true)>]
+    [<InlineData("""        display_name: "Advanced SCS Traffic" """, true)>]
+    [<InlineData("""        dlc_dependencies[]: "dlc_north" """, true)>]
+    [<InlineData("""        # compatible_versions[]: "1.37" # Mod is compatible with 1.19.X..""", false)>]
+    let ``Package value lines are matched correctly`` (input: string, expectedIsMatch: bool) =
+        // Arrange
+
+        // Act
+        let ``match`` = Parsing.packageValueRegex.Match input
+        let actualIsMatch = ``match``.Success
+
+        // Assert
+        expectedIsMatch =! actualIsMatch
+
 module GetPackageContentsTests =
     open TeaDriven.Maysternya
     open TeaDriven.Maysternya.Domain
