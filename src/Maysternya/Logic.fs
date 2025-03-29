@@ -1,31 +1,35 @@
 ﻿namespace TeaDriven.Maysternya
 
 module Logic =
+    open System.Text.RegularExpressions
+
+    open TeaDriven.Maysternya.Domain
+
+    [<Literal>]
+    let private whitespaceOrLineBreak = @"\s|\r\n?|\n"
+    let private characterWhitespaceOrLineBreak = $".|{whitespaceOrLineBreak}"
+
+    let private blockStringRegex =
+        $@"\s?:\s?.*({whitespaceOrLineBreak})*\{{({characterWhitespaceOrLineBreak})+?\}}"
+
+    let private packageValueRegex =
+        Regex(
+            @"^\s*(?<key>[\w\[\]]+):\s+(?<value>[^\s]*)\s+$",
+            RegexOptions.Multiline ||| RegexOptions.Compiled)
+
+    let private stringValueRegex = Regex("\"(?<value>.*)\"", RegexOptions.Compiled)
+
+    let private getStringValue value =
+        stringValueRegex.Match(value).Groups["value"].Value
+
     [<RequireQualifiedAccess>]
     module Package =
         open System.Linq
-        open System.Text.RegularExpressions
-
-        open TeaDriven.Maysternya.Domain
-
-        [<Literal>]
-        let whitespaceOrLineBreak = @"\s|\r\n?|\n"
-        let characterWhitespaceOrLineBreak = $".|{whitespaceOrLineBreak}"
 
         let private packageStringRegex =
             Regex(
-            $@"{Constants.PackageFileKeys.PackageVersionInfo}\s?:\s?.*({whitespaceOrLineBreak})*\{{({characterWhitespaceOrLineBreak})+?\}}",
-            RegexOptions.Compiled)
-
-        let private packageValueRegex =
-            Regex(
-                @"^\s*(?<key>[\w\[\]]+):\s+(?<value>[^\s]*)\s+$",
-                RegexOptions.Multiline ||| RegexOptions.Compiled)
-
-        let private stringValueRegex = Regex("\"(?<value>.*)\"", RegexOptions.Compiled)
-
-        let private getStringValue value =
-            stringValueRegex.Match(value).Groups["value"].Value
+                Constants.PackageFileKeys.PackageVersionInfo + blockStringRegex,
+                RegexOptions.Compiled)
 
         let getPackageStrings (fileString: string) =
             packageStringRegex.Matches fileString |> Seq.map _.Value |> Seq.toList
