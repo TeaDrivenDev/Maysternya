@@ -102,5 +102,5 @@ type Mod =
         Id: string
         Path: string
         Name: string
-        HighestCompatibleVersion: CompatibleVersion
+        Version: string
     }
