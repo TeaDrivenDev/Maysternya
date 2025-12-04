@@ -11,6 +11,9 @@ module Constants =
 
     module Paths =
         [<Literal>]
+        let DefaultSteamPath = @"C:\Program Files (x86)\Steam"
+
+        [<Literal>]
         let WorkshopContentPath = @"steamapps\workshop\content"
 
     module SteamIds =
