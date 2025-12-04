@@ -55,6 +55,13 @@ module Constants =
 
         [<Literal>]
         let DisplayName = "display_name"
+
+        [<Literal>]
+        let Author = "author"
+
+        [<Literal>]
+        let Icon = "icon"
+
         [<Literal>]
         let DlcDependencies = "dlc_dependencies[]"
 
