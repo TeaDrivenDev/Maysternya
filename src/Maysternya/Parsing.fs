@@ -94,8 +94,7 @@ module Parsing =
                             | packages ->
                                 let package, latestVersion =
                                     packages
-                                    |> List.map
-                                        (fun package -> package, (package.CompatibleVersions |> List.max))
+                                    |> List.map (fun package -> package, List.max package.CompatibleVersions)
                                     |> List.maxBy snd
 
                                 Some package, SpecificVersion latestVersion)
