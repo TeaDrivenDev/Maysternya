@@ -17,16 +17,19 @@ module Parsing =
 
     let packageValueRegex =
         Regex(
-            @"^\s*(?<key>[\w\[\]]+):\s+(?<value>(\\""(.*)\\""|.*))\s+$",
+            // TODO Fix to remove possible trailing \r and avoid requiring additional sanitization
+            @"^\s*(?<key>[\w\[\]]+):\s+(?<value>(\\""(.+?)\\""|.*))\s*#?\s*(\r\n?|\n)*$",
             RegexOptions.Multiline ||| RegexOptions.Compiled)
 
     let getStringValue value =
         stringValueRegex.Match(value).Groups["value"].Value
 
     let getPackageContents (packageString: string) =
+        let sanitize (value: string) = value.Replace("\r", "") // TODO Remove after fixing packageValueRegex
+
         let matches = packageValueRegex.Matches packageString
         let contents =
-            (matches |> Seq.map (fun m -> m.Groups["key"].Value, m.Groups["value"].Value))
+            (matches |> Seq.map (fun m -> m.Groups["key"].Value, m.Groups["value"].Value |> sanitize))
                 .ToLookup(fst, snd)
 
         contents

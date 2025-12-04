@@ -11,7 +11,9 @@ module PackageValueRegexTests =
     [<InlineData("""        display_name: "Advanced SCS Traffic" """, true)>]
     [<InlineData("""        dlc_dependencies[]: "dlc_north" """, true)>]
     [<InlineData("""        # compatible_versions[]: "1.37" # Mod is compatible with 1.19.X..""", false)>]
-    let ``Package value lines are matched correctly`` (input: string, expectedIsMatch: bool) =
+    [<InlineData("""        compatible_versions[]: "1.37" # Mod is compatible with 1.19.X..""", true)>]
+    [<InlineData("""        mp_mod_optional: true""", true)>]
+    let ``Relevant package value lines are matched`` (input: string, expectedIsMatch: bool) =
         // Arrange
 
         // Act
