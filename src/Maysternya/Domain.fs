@@ -97,6 +97,16 @@ type RelevantPackages =
         HighestCompatibleVersion: CompatibleVersion
     }
 
+type Metadata =
+    {
+        DisplayName: string
+        Version: string
+        Author: string
+        Categories: string list
+        Icon: string
+        MultiplayerOptional: bool
+    }
+
 type Mod =
     {
         Id: string
