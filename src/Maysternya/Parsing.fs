@@ -28,6 +28,7 @@ module Parsing =
         let sanitize (value: string) = value.Replace("\r", "") // TODO Remove after fixing packageValueRegex
 
         let matches = packageValueRegex.Matches packageString
+        // TODO Keep exact match too
         let contents =
             (matches |> Seq.map (fun m -> m.Groups["key"].Value, m.Groups["value"].Value |> sanitize))
                 .ToLookup(fst, snd)
