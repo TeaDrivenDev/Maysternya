@@ -6,6 +6,7 @@
 /.idea.Maysternya.iml
 /contentModel.xml
 /projectSettingsUpdater.xml
+/avalonia.xml
 # Ignored default folder with query files
 /queries/
 # Datasource local storage ignored files
