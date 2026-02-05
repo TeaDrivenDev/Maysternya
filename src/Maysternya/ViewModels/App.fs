@@ -19,7 +19,7 @@ module App =
 
     type Model =
         {
-            WorkshopDirectory: ConfiguredDirectory
+            SteamDirectory: ConfiguredDirectory
         }
 
     type Message =
@@ -27,7 +27,7 @@ module App =
 
     let init () =
         {
-            WorkshopDirectory = ConfiguredDirectory.Empty
+            SteamDirectory = ConfiguredDirectory.Empty
         }
         |> withoutCommand
 
