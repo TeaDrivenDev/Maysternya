@@ -15,7 +15,11 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
 
     member this.IsSteamDirectoryValid: bool = this.Bind(store, _.SteamDirectory.PathExists)
 
-    member this.SelectSourceDirectory() = ()
+    member this.SelectSteamDirectory() =
+        task {
+            let! path = folderPicker.TryPickFolder()
+            return store.Dispatch(UpdateSteamDirectory path)
+        }
 
     static member DesignVM =
         new MainWindowViewModel(Design.stub)

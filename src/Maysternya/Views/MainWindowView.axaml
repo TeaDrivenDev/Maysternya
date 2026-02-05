@@ -38,11 +38,11 @@
                          Classes.Invalid="{Binding !IsSteamDirectoryValid}"
                          Classes.Valid="{Binding IsSteamDirectoryValid}"
                          Text="{Binding SteamDirectory}"
-                         Watermark="Source Directory" />
+                         Watermark="Steam Directory" />
                 <Button Grid.Column="1"
                         Margin="2 0 0 0"
                         Classes="SelectFile"
-                        Command="{Binding SelectSourceDirectory}" />
+                        Command="{Binding SelectSteamDirectory}" />
             </Grid>
         </Grid>
     </Grid>
