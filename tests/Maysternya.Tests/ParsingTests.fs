@@ -3,6 +3,9 @@
 open Swensen.Unquote
 open Xunit
 
+// The mix of tabs and spaces for indentation in the JSON fragments is intentional to verify the
+// parsing code can handle both.
+
 module PackageValueRegexTests =
     open TeaDriven.Maysternya
 
