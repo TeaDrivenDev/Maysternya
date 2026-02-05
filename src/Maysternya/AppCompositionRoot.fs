@@ -20,3 +20,5 @@ type AppCompositionRoot() =
         Map [
             VM.Key<MainWindowViewModel>(), View.Singleton(mainView)
         ]
+
+    static member val Instance = AppCompositionRoot()

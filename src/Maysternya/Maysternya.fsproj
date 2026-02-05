@@ -21,6 +21,7 @@
     <Compile Include="Views\MainWindowView.axaml.fs" />
     <Compile Include="UIUtilities.fs" />
     <Compile Include="AppCompositionRoot.fs" />
+    <Compile Include="ViewLocator.fs" />
     <Compile Include="App.axaml.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
