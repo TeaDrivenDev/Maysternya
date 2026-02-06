@@ -7,6 +7,11 @@ open TeaDriven.Maysternya.Domain
 
 open App
 
+type ModViewModel(``mod``: Mod) =
+    inherit ReactiveElmishViewModel()
+
+    member _.Id = ``mod``.Id
+
 type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
     inherit ReactiveElmishViewModel()
 
@@ -62,6 +67,11 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
         this.Bind(store, _.AtsModsDirectory.PathExists)
 
     member this.SelectedGame = this.Bind(store, _.SelectedGame)
+
+    member this.Mods =
+        this.Bind(
+            store,
+            fun model -> model.Mods |> List.map (fun ``mod`` -> new ModViewModel(``mod``)))
 
     member this.SelectSteamDirectory() =
         task {

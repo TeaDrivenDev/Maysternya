@@ -86,6 +86,10 @@
                     </RadioButton.IsChecked>
                 </RadioButton>
             </Grid>
+
+            <Grid Grid.Row="2" Background="DimGray">
+                <DataGrid ItemsSource="{Binding Mods}" AutoGenerateColumns="True"></DataGrid>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

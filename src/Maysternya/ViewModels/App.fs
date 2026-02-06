@@ -31,6 +31,7 @@ module App =
             Ets2ModsDirectory: ConfiguredDirectory
             AtsModsDirectory: ConfiguredDirectory
             SelectedGame: SelectedGame
+            Mods: Mod list
         }
         with
             static member Default =
@@ -40,6 +41,7 @@ module App =
                     Ets2ModsDirectory = ConfiguredDirectory.Empty
                     AtsModsDirectory = ConfiguredDirectory.Empty
                     SelectedGame = NoGame
+                    Mods = []
                 }
 
     let updatePaths model paths =
@@ -70,7 +72,36 @@ module App =
                 (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
             |> withoutCommand
         | SelectGame game ->
-            { model with SelectedGame = game } |> withoutCommand
+            let modsPath =
+                match game with
+                | Ets2 -> model.Ets2ModsDirectory.Path |> Some
+                | Ats -> model.AtsModsDirectory.Path |> Some
+                | NoGame -> None
+
+            let mods =
+                modsPath
+                |> Option.map
+                    (fun path ->
+                        path
+                        |> Directory.GetDirectories
+                        |> List.ofArray
+                        |> List.map
+                            (fun directory ->
+                                let modId = Path.GetFileName directory
+
+                                {
+                                    Id = modId
+                                    Path = directory
+                                    Name = modId
+                                    Version = ""
+                                }))
+
+            {
+                model with
+                    SelectedGame = game
+                    Mods = mods |> Option.defaultValue []
+            }
+            |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =
