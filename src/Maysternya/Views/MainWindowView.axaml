@@ -59,6 +59,12 @@
                              Content="{Binding Ets2ModsDirectoryMessage}"
                              IsEnabled="{Binding IsEts2ModsDirectoryFound}"
                              Tag="{x:Static domain:SelectedGame.Ets2}">
+                    <RadioButton.IsChecked>
+                        <MultiBinding Converter="{x:Static uiUtilities:ValuesEqualMultiConverter.Instance}">
+                            <Binding Path="SelectedGame" />
+                            <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                        </MultiBinding>
+                    </RadioButton.IsChecked>
                 </RadioButton>
 
                 <RadioButton Grid.Column="1"
@@ -69,6 +75,12 @@
                              Content="{Binding AtsModsDirectoryMessage}"
                              IsEnabled="{Binding IsAtsModsDirectoryFound}"
                              Tag="{x:Static domain:SelectedGame.Ats}">
+                    <RadioButton.IsChecked>
+                        <MultiBinding Converter="{x:Static uiUtilities:ValuesEqualMultiConverter.Instance}">
+                            <Binding Path="SelectedGame" />
+                            <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                        </MultiBinding>
+                    </RadioButton.IsChecked>
                 </RadioButton>
             </Grid>
         </Grid>

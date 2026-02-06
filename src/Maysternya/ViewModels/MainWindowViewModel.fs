@@ -61,6 +61,8 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
     member this.IsAtsModsDirectoryFound =
         this.Bind(store, _.AtsModsDirectory.PathExists)
 
+    member this.SelectedGame = this.Bind(store, _.SelectedGame)
+
     member this.SelectSteamDirectory() =
         task {
             let! path = folderPicker.TryPickFolder()

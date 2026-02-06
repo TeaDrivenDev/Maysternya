@@ -1,6 +1,8 @@
 ﻿namespace TeaDriven.Maysternya.UIUtilities
 
 open System
+open System.Collections.Generic
+open System.Globalization
 
 open Avalonia.Data.Converters
 
@@ -26,3 +28,12 @@ type ValueEqualsParameterConverter() =
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
             raise (NotSupportedException())
+
+type ValuesEqualMultiConverter() =
+    static member Instance = ValuesEqualMultiConverter() :> IMultiValueConverter
+
+    interface IMultiValueConverter with
+        member this.Convert(values: IList<obj>, targetType: Type, parameter: obj, culture: CultureInfo) =
+            if values.Count > 1
+            then values[0] = values[1]
+            else false
