@@ -50,14 +50,22 @@
                            Grid.ColumnSpan="2"
                            Text="{Binding WorkshopDirectoryMessage}"
                            IsVisible="{Binding IsShowWorkshopDirectoryMessage}" />
-                <TextBlock Grid.Column="0"
-                           Margin="0 0 2 0"
-                           Text="{Binding Ets2ModsDirectoryMessage}"
-                           IsVisible="{Binding !IsShowWorkshopDirectoryMessage}" />
-                <TextBlock Grid.Column="1"
-                           Margin="2 0 0 0"
-                           Text="{Binding AtsModsDirectoryMessage}"
-                           IsVisible="{Binding !IsShowWorkshopDirectoryMessage}" />
+
+                <RadioButton Grid.Column="0"
+                             Margin="0 0 2 0"
+                             GroupName="SelectedGame"
+                             IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
+                             Content="{Binding Ets2ModsDirectoryMessage}"
+                             IsEnabled="{Binding IsEts2ModsDirectoryFound}">
+                </RadioButton>
+
+                <RadioButton Grid.Column="1"
+                             Margin="2 0 0 0"
+                             GroupName="SelectedGame"
+                             IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
+                             Content="{Binding AtsModsDirectoryMessage}"
+                             IsEnabled="{Binding IsAtsModsDirectoryFound}">
+                </RadioButton>
             </Grid>
         </Grid>
     </Grid>

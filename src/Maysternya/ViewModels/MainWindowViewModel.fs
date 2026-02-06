@@ -46,6 +46,9 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
                 then ets2ModsDirectoryFoundMessage
                 else noEts2ModsDirectoryFoundMessage)
 
+    member this.IsEts2ModsDirectoryFound =
+        this.Bind(store, _.Ets2ModsDirectory.PathExists)
+
     member this.AtsModsDirectoryMessage =
         this.Bind(
             store,
@@ -53,6 +56,9 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
                 if model.AtsModsDirectory.PathExists
                 then atsModsDirectoryFoundMessage
                 else noAtsModsDirectoryFoundMessage)
+
+    member this.IsAtsModsDirectoryFound =
+        this.Bind(store, _.AtsModsDirectory.PathExists)
 
     member this.SelectSteamDirectory() =
         task {
