@@ -56,6 +56,7 @@ module App =
     type Message =
         | UpdateSteamDirectory of string option
         | SelectGame of SelectedGame
+        | RefreshModsList
         | Terminate
 
     let init () =
@@ -72,8 +73,10 @@ module App =
                 (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
             |> withoutCommand
         | SelectGame game ->
+            { model with SelectedGame = game }, Cmd.ofMsg RefreshModsList
+        | RefreshModsList ->
             let modsPath =
-                match game with
+                match model.SelectedGame with
                 | Ets2 -> model.Ets2ModsDirectory.Path |> Some
                 | Ats -> model.AtsModsDirectory.Path |> Some
                 | NoGame -> None
@@ -95,13 +98,9 @@ module App =
                                     Name = modId
                                     Version = ""
                                 }))
+                |> Option.defaultValue []
 
-            {
-                model with
-                    SelectedGame = game
-                    Mods = mods |> Option.defaultValue []
-            }
-            |> withoutCommand
+            { model with Mods = mods } |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =
