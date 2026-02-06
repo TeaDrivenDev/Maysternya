@@ -33,7 +33,8 @@
 
     <Grid Margin="5">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto"
+                  Margin="0 0 0 5">
                 <TextBox Grid.Column="0"
                          Classes.Invalid="{Binding !IsSteamDirectoryValid}"
                          Classes.Valid="{Binding IsSteamDirectoryValid}"
@@ -44,21 +45,20 @@
                         Command="{Binding SelectSteamDirectory}" />
             </Grid>
 
-            <TextBox Grid.Row="1"
-                     Classes.Invalid="{Binding !IsWorkshopDirectoryValid}"
-                     Classes.Valid="{Binding IsWorkshopDirectoryValid}"
-                     Text="{Binding WorkshopDirectory}"
-                     Watermark="Steam Directory" />
-            <TextBox Grid.Row="2"
-                     Classes.Invalid="{Binding !IsEts2ModsDirectoryValid}"
-                     Classes.Valid="{Binding IsEts2ModsDirectoryValid}"
-                     Text="{Binding Ets2ModsDirectory}"
-                     Watermark="Steam Directory" />
-            <TextBox Grid.Row="3"
-                     Classes.Invalid="{Binding !IsAtsModsDirectoryValid}"
-                     Classes.Valid="{Binding IsAtsModsDirectoryValid}"
-                     Text="{Binding AtsModsDirectory}"
-                     Watermark="Steam Directory" />
+            <Grid Grid.Row="1" ColumnDefinitions="*,*">
+                <TextBlock Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Text="{Binding WorkshopDirectoryMessage}"
+                           IsVisible="{Binding IsShowWorkshopDirectoryMessage}" />
+                <TextBlock Grid.Column="0"
+                           Margin="0 0 2 0"
+                           Text="{Binding Ets2ModsDirectoryMessage}"
+                           IsVisible="{Binding !IsShowWorkshopDirectoryMessage}" />
+                <TextBlock Grid.Column="1"
+                           Margin="2 0 0 0"
+                           Text="{Binding AtsModsDirectoryMessage}"
+                           IsVisible="{Binding !IsShowWorkshopDirectoryMessage}" />
+            </Grid>
         </Grid>
     </Grid>
 </Window>
