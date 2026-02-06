@@ -88,7 +88,13 @@
             </Grid>
 
             <Grid Grid.Row="2" Background="DimGray">
-                <DataGrid ItemsSource="{Binding Mods}" AutoGenerateColumns="True"></DataGrid>
+                <DataGrid ItemsSource="{Binding Mods}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="150" Binding="{Binding Id}" Header="ID" />
+                        <DataGridTextColumn Width="*" Binding="{Binding Name}" Header="Name" />
+                        <DataGridTextColumn Width="150" Binding="{Binding Version}" Header="Mod Version" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
         </Grid>
     </Grid>
