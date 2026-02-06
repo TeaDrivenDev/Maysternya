@@ -6,7 +6,9 @@ open System.IO
 open Elmish
 open ReactiveElmish.Avalonia
 
+open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
+open TeaDriven.Maysternya.FileSystemTypes
 
 module App =
     let withoutCommand model = model, Cmd.none
@@ -25,6 +27,26 @@ module App =
     type Model =
         {
             SteamDirectory: ConfiguredDirectory
+            WorkshopDirectory: ConfiguredDirectory
+            Ets2ModsDirectory: ConfiguredDirectory
+            AtsModsDirectory: ConfiguredDirectory
+        }
+        with
+            static member Default =
+                {
+                    SteamDirectory = ConfiguredDirectory.Empty
+                    WorkshopDirectory = ConfiguredDirectory.Empty
+                    Ets2ModsDirectory = ConfiguredDirectory.Empty
+                    AtsModsDirectory = ConfiguredDirectory.Empty
+                }
+
+    let updatePaths model paths =
+        {
+            model with
+                SteamDirectory = createConfiguredDirectory paths.SteamPath
+                WorkshopDirectory = createConfiguredDirectory paths.WorkshopContentPath
+                Ets2ModsDirectory = createConfiguredDirectory paths.Ets2ModsPath
+                AtsModsDirectory = createConfiguredDirectory paths.AtsModsPath
         }
 
     type Message =
@@ -32,9 +54,9 @@ module App =
         | Terminate
 
     let init () =
-        {
-            SteamDirectory = createConfiguredDirectory Constants.Paths.DefaultSteamPath
-        }
+        Constants.Paths.DefaultSteamPath
+        |> FileSystem.determinePaths
+        |> updatePaths Model.Default
         |> withoutCommand
 
     let update message model =
@@ -42,7 +64,7 @@ module App =
         | UpdateSteamDirectory value ->
             (model, value)
             ||> updateIfSome
-                (fun model path -> { model with SteamDirectory = createConfiguredDirectory path })
+                (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
             |> withoutCommand
         | Terminate -> model |> withoutCommand
 

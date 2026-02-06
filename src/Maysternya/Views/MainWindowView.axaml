@@ -32,7 +32,7 @@
     </Window.Styles>
 
     <Grid Margin="5">
-        <Grid RowDefinitions="Auto,*">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBox Grid.Column="0"
                          Classes.Invalid="{Binding !IsSteamDirectoryValid}"
@@ -40,10 +40,25 @@
                          Text="{Binding SteamDirectory}"
                          Watermark="Steam Directory" />
                 <Button Grid.Column="1"
-                        Margin="2 0 0 0"
                         Classes="SelectFile"
                         Command="{Binding SelectSteamDirectory}" />
             </Grid>
+
+            <TextBox Grid.Row="1"
+                     Classes.Invalid="{Binding !IsWorkshopDirectoryValid}"
+                     Classes.Valid="{Binding IsWorkshopDirectoryValid}"
+                     Text="{Binding WorkshopDirectory}"
+                     Watermark="Steam Directory" />
+            <TextBox Grid.Row="2"
+                     Classes.Invalid="{Binding !IsEts2ModsDirectoryValid}"
+                     Classes.Valid="{Binding IsEts2ModsDirectoryValid}"
+                     Text="{Binding Ets2ModsDirectory}"
+                     Watermark="Steam Directory" />
+            <TextBox Grid.Row="3"
+                     Classes.Invalid="{Binding !IsAtsModsDirectoryValid}"
+                     Classes.Valid="{Binding IsAtsModsDirectoryValid}"
+                     Text="{Binding AtsModsDirectory}"
+                     Watermark="Steam Directory" />
         </Grid>
     </Grid>
 </Window>
