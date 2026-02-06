@@ -45,7 +45,7 @@
                         Command="{Binding SelectSteamDirectory}" />
             </Grid>
 
-            <Grid Grid.Row="1" ColumnDefinitions="*,*">
+            <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="2 0">
                 <TextBlock Grid.Column="0"
                            Grid.ColumnSpan="2"
                            Text="{Binding WorkshopDirectoryMessage}"
