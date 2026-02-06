@@ -21,7 +21,7 @@
                 <ColorPaletteResources x:Key="Dark"
                                        Accent="DodgerBlue"
                                        ErrorText="Red"
-                                       RegionColor="Black" />
+                                       RegionColor="#111" />
             </FluentTheme.Palettes>
         </FluentTheme>
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
