@@ -30,6 +30,7 @@ module App =
             WorkshopDirectory: ConfiguredDirectory
             Ets2ModsDirectory: ConfiguredDirectory
             AtsModsDirectory: ConfiguredDirectory
+            SelectedGame: SelectedGame
         }
         with
             static member Default =
@@ -38,6 +39,7 @@ module App =
                     WorkshopDirectory = ConfiguredDirectory.Empty
                     Ets2ModsDirectory = ConfiguredDirectory.Empty
                     AtsModsDirectory = ConfiguredDirectory.Empty
+                    SelectedGame = NoGame
                 }
 
     let updatePaths model paths =
@@ -51,6 +53,7 @@ module App =
 
     type Message =
         | UpdateSteamDirectory of string option
+        | SelectGame of SelectedGame
         | Terminate
 
     let init () =
@@ -66,6 +69,8 @@ module App =
             ||> updateIfSome
                 (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
             |> withoutCommand
+        | SelectGame game ->
+            { model with SelectedGame = game } |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =

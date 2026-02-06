@@ -54,17 +54,21 @@
                 <RadioButton Grid.Column="0"
                              Margin="0 0 2 0"
                              GroupName="SelectedGame"
+                             IsCheckedChanged="SelectedGame_OnIsCheckedChanged"
                              IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
                              Content="{Binding Ets2ModsDirectoryMessage}"
-                             IsEnabled="{Binding IsEts2ModsDirectoryFound}">
+                             IsEnabled="{Binding IsEts2ModsDirectoryFound}"
+                             Tag="{x:Static domain:SelectedGame.Ets2}">
                 </RadioButton>
 
                 <RadioButton Grid.Column="1"
                              Margin="2 0 0 0"
                              GroupName="SelectedGame"
+                             IsCheckedChanged="SelectedGame_OnIsCheckedChanged"
                              IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
                              Content="{Binding AtsModsDirectoryMessage}"
-                             IsEnabled="{Binding IsAtsModsDirectoryFound}">
+                             IsEnabled="{Binding IsAtsModsDirectoryFound}"
+                             Tag="{x:Static domain:SelectedGame.Ats}">
                 </RadioButton>
             </Grid>
         </Grid>

@@ -3,6 +3,7 @@
 open ReactiveElmish
 
 open TeaDriven.Maysternya
+open TeaDriven.Maysternya.Domain
 
 open App
 
@@ -65,6 +66,9 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
             let! path = folderPicker.TryPickFolder()
             return store.Dispatch(UpdateSteamDirectory path)
         }
+
+    member this.SetSelectedGame(selectedGame: SelectedGame) =
+        store.Dispatch(SelectGame selectedGame)
 
     static member DesignVM =
         new MainWindowViewModel(Design.stub)

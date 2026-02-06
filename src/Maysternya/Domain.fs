@@ -82,6 +82,8 @@ type ConfiguredDirectory =
             PathExists = false
         }
 
+type SelectedGame = NoGame | Ets2 | Ats
+
 type CompatibleVersion =
     | SpecificVersion of string
     | NotVersionLocked
