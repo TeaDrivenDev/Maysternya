@@ -1,22 +1,7 @@
 ﻿namespace Maysternya.SiiUnit.Parsing;
 
-internal class Token
+internal record Token(string Text, TokenKind Kind, TextSpan Span, string FileName, object Tag)
 {
-    public Token(string text, TokenKind kind, TextSpan span, string fileName, object tag)
-    {
-        this.Text = text;
-        this.Kind = kind;
-        this.Span = span;
-        this.FileName = fileName;
-        this.Tag = tag;
-    }
-
-    public string Text { get; }
-    public TokenKind Kind { get; }
-    public TextSpan Span { get; }
-    public string FileName { get; }
-    public object Tag { get; }
-
     public override string ToString()
     {
         switch (this.Kind)
