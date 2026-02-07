@@ -1,15 +1,7 @@
 ﻿namespace Maysternya.SiiUnit.Parsing;
 
-public sealed class TextSpan
+public sealed record TextSpan(Location Start, Location End)
 {
-    internal TextSpan(Location start, Location end)
-    {
-        this.Start = start;
-        this.End = end;
-    }
-
-    public Location Start { get; }
-    public Location End { get; }
     public int Length => this.End?.Offset - this.Start?.Offset ?? -1;
 
     internal TextSpan WithEnd(Location end)
