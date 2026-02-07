@@ -181,7 +181,7 @@ internal sealed class Lexer
     private bool TryLexDirective(char c, out Token token)
     {
         // If the next 3 characters are inc... its an enclude
-        if (c == '@' && (this.Peek(-1) == '\r' || this.Peek(-1) == '\n'))
+        if (c is '@' && (this.Peek(-1) is '\r' || this.Peek(-1) is '\n'))
         {
             this.MarkStart();
             var text = this.TakeWhile(ch => ch != '\n' && ch != '\r');
@@ -202,7 +202,7 @@ internal sealed class Lexer
         }
 
         this.MarkStart();
-        var text = this.TakeWhile(ch => Char.IsLetterOrDigit(ch) || ch == '_' || ch == '?');
+        var text = this.TakeWhile(ch => Char.IsLetterOrDigit(ch) || ch is '_' or '?');
         var kind = Keywords.GetValueOrDefault(text, TokenKind.Identifier);
         token = this.MakeToken(kind, text);
         return true;
@@ -218,7 +218,7 @@ internal sealed class Lexer
 
         this.MarkStart();
         var text = default(string);
-        if (c == '&')
+        if (c is '&')
         {
             this.Take();
             text = this.TakeWhile(ch => Char.IsDigit(ch) || HexDigits.Contains(ch));
@@ -252,9 +252,9 @@ internal sealed class Lexer
 
                     var next = this.Peek(1);
 
-                    if (tokenKind == TokenKind.Number)
+                    if (tokenKind is TokenKind.Number)
                     {
-                        if (Char.IsLetter(ch) || ch == '_' || ch == '?')
+                        if (Char.IsLetter(ch) || ch is '_' or '?')
                         {
                             if (ch is 'e' or 'E')
                             {
@@ -290,13 +290,13 @@ internal sealed class Lexer
                         }
 
                         // Negative number?
-                        if (ch == '-' && !isNegative && Char.IsDigit(next))
+                        if (ch is '-' && !isNegative && Char.IsDigit(next))
                         {
                             isNegative = true;
                             return true;
                         }
 
-                        if (ch == '.' && Char.IsDigit(next))
+                        if (ch is '.' && Char.IsDigit(next))
                         {
                             if (hasDecimal)
                             {
@@ -313,7 +313,7 @@ internal sealed class Lexer
                         return Char.IsDigit(ch);
                     }
 
-                    return Char.IsLetterOrDigit(ch) || ch == '_' || ch == '?';
+                    return Char.IsLetterOrDigit(ch) || ch is '_' or '?';
                 });
 
         token = this.MakeToken(tokenKind, text, format);
@@ -335,14 +335,14 @@ internal sealed class Lexer
         while (!this.EndOfInput)
         {
             var current = default(char);
-            if ((current = this.Peek()) == '"')
+            if ((current = this.Peek()) is '"')
             {
                 this.Take();
                 closed = true;
                 break;
             }
 
-            if (current == '\\')
+            if (current is '\\')
             {
                 if (this.EndOfInput)
                 {
@@ -493,18 +493,18 @@ internal sealed class Lexer
         var current = this.Peek();
         var next = this.Peek(1);
 
-        if (current == '\r')
+        if (current is '\r')
         {
             ++this.line;
             this.column = 0;
 
-            if (next == '\n')
+            if (next is '\n')
             {
                 ++this.index;
                 current = next;
             }
         }
-        else if (current == '\n')
+        else if (current is '\n')
         {
             ++this.line;
             this.column = 0;

@@ -358,7 +358,7 @@ internal sealed class Parser
 
             // Grab initial seperator
             var kind = this.Take([TokenKind.Comma, TokenKind.SemiColon]).Kind;
-            if (kind == TokenKind.SemiColon && type != typeof(Quaternion))
+            if (kind is TokenKind.SemiColon && type != typeof(Quaternion))
             {
                 throw new SiiException($"Type mismatch. Expected Quaternion but found {type.Name}");
             }
@@ -433,13 +433,13 @@ internal sealed class Parser
                 }
 
                 // Parse Hex Floats using the SiiConverter class
-                if (format == NumberFormat.HexFloat)
+                if (format is NumberFormat.HexFloat)
                 {
                     return SiiConverter.FromHexString(token.Text);
                 }
 
                 // Check for type mismatch
-                if (format == NumberFormat.Float && !FloatTypes.Contains(type))
+                if (format is NumberFormat.Float && !FloatTypes.Contains(type))
                 {
                     throw new SiiException(
                         $"Type mismatch. Expected {type.Name}, got float on line {token.Span.Start.Line}");
@@ -465,7 +465,7 @@ internal sealed class Parser
                         $"Type mismatch. Expected bool, got {type.Name} on line {token.Span.Start.Line}");
                 }
 
-                return token.Kind == TokenKind.True ? true : false;
+                return token.Kind is TokenKind.True;
 
             case TokenKind.Dot:
                 // Grab the dot
