@@ -36,6 +36,9 @@ module SiiUnitTests =
         [<SiiAttribute("description_file")>]
         member val DescriptionFile: string = null with get, set
 
+        [<SiiAttribute("dlc_dependencies")>]
+        member val DlcDependencies: string array = null with get, set
+
     [<Theory>]
     [<InlineData("""
 SiiNunit
@@ -147,6 +150,9 @@ mod_package : .package_name
 
     # Description file inside the root directory of the mod.
     description_file: "mod_description.txt"
+
+    dlc_dependencies[]: "dlc_kenworth_t680"
+    dlc_dependencies[]: "dlc_kenworth_w900"
 }
 }"""
 
@@ -156,6 +162,7 @@ mod_package : .package_name
         let expectedCategory = [| "tuning_parts"; "truck" |]
         let expectedIcon = "mod_icon.jpg"
         let expectedDescriptionFile = "mod_description.txt"
+        let expectedDlcDependencies = [| "dlc_kenworth_t680"; "dlc_kenworth_w900" |]
 
         let document = SiiDocument(typeof<ModPackage>)
 
@@ -171,3 +178,4 @@ mod_package : .package_name
         Assert.Equal<string array>(expectedCategory, definition.Category)
         Assert.Equal(expectedIcon, definition.Icon)
         Assert.Equal(expectedDescriptionFile, definition.DescriptionFile)
+        Assert.Equal<string array>(expectedDlcDependencies, definition.DlcDependencies)
