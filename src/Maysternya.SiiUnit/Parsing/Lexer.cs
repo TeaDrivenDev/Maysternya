@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Sii.Parsing
+namespace Maysternya.SiiUnit.Parsing
 {
     internal sealed class Lexer
     {
@@ -102,7 +102,7 @@ namespace Sii.Parsing
             this.MarkStart();
             var eof = this.MakeToken( TokenKind.EndOfInput, null );
             tokens.Add( eof );
-            
+
             return tokens.AsReadOnly();
         }
 

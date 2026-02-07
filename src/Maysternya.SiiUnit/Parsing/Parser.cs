@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Sii.Parsing
+namespace Maysternya.SiiUnit.Parsing
 {
     internal sealed class Parser
     {
@@ -416,12 +416,12 @@ namespace Sii.Parsing
 
                     // Grab the Parse method from the numeric type
                     var style = format == NumberFormat.Float ? NumberStyles.Float : NumberStyles.Integer;
-                    var parser = type.GetMethod( 
-                        "Parse", 
-                        BindingFlags.Public | BindingFlags.Static, 
-                        null, 
-                        new[] { typeof( string ), typeof( NumberStyles ), typeof( IFormatProvider ) }, 
-                        null 
+                    var parser = type.GetMethod(
+                        "Parse",
+                        BindingFlags.Public | BindingFlags.Static,
+                        null,
+                        new[] { typeof( string ), typeof( NumberStyles ), typeof( IFormatProvider ) },
+                        null
                     );
                     return parser.Invoke( null, new object[] { token.Text, style, CultureInfo.InvariantCulture } );
 
@@ -492,7 +492,7 @@ namespace Sii.Parsing
         /// <summary>
         /// Takes the next token
         /// </summary>
-        /// <param name="kinds">Specifies the expected following Token. If these token do 
+        /// <param name="kinds">Specifies the expected following Token. If these token do
         /// not match the specified token, an parser error occurs</param>
         /// <returns></returns>
         private Token Take(TokenKind[] kinds)

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sii
+namespace Maysternya.SiiUnit
 {
     public class SiiException : Exception
     {

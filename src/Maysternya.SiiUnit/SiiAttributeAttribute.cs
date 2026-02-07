@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sii
+namespace Maysternya.SiiUnit
 {
     [AttributeUsage( AttributeTargets.Field | AttributeTargets.Property )]
     public sealed class SiiAttributeAttribute : Attribute
