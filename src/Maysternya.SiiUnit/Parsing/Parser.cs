@@ -14,50 +14,48 @@ namespace Maysternya.SiiUnit.Parsing;
 internal sealed class Parser
 {
     /// <summary>
-    /// Flags for loading MemberInfo's
+    ///     Flags for loading MemberInfo's
     /// </summary>
-    const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+    private const BindingFlags Flags =
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
     private static readonly ReadOnlyCollection<Type> IntegralTypes;
     private static readonly ReadOnlyCollection<Type> FloatTypes;
     private static readonly ReadOnlyCollection<Type> NumericTypes;
     private static readonly ReadOnlyCollection<Type> VectorTypes;
+    private readonly Dictionary<string, object> ClassMap = new Dictionary<string, object>();
+    private readonly Token EndOfInput;
+    private readonly int Length;
+    private readonly Lexer Lexer;
+
+    private readonly ReadOnlyCollection<Token> Tokens;
+    private int Index;
 
     static Parser()
     {
-        IntegralTypes = new ReadOnlyCollection<Type>(new[]
-        {
-            typeof( sbyte ), typeof( byte ),
-            typeof( short ), typeof( ushort ),
-            typeof( int ), typeof( uint ),
-            typeof( long ), typeof( ulong ),
-        });
+        IntegralTypes =
+            new ReadOnlyCollection<Type>(
+                new[]
+                {
+                    typeof(sbyte),
+                    typeof(byte),
+                    typeof(short),
+                    typeof(ushort),
+                    typeof(int),
+                    typeof(uint),
+                    typeof(long),
+                    typeof(ulong),
+                });
 
-        FloatTypes = new ReadOnlyCollection<Type>(new[]
-        {
-            typeof( float ), typeof( double ),
-            typeof( decimal ),
-        });
+        FloatTypes =
+            new ReadOnlyCollection<Type>(new[] { typeof(float), typeof(double), typeof(decimal) });
 
-        NumericTypes = IntegralTypes.Concat(FloatTypes)
-            .ToList()
-            .AsReadOnly();
+        NumericTypes = IntegralTypes.Concat(FloatTypes).ToList().AsReadOnly();
 
-        VectorTypes = new ReadOnlyCollection<Type>(new[]
-        {
-            typeof( Vector2 ),
-            typeof( Vector3 ),
-            typeof( Vector4 ),
-            typeof( Quaternion )
-        });
+        VectorTypes =
+            new ReadOnlyCollection<Type>(
+                new[] { typeof(Vector2), typeof(Vector3), typeof(Vector4), typeof(Quaternion) });
     }
-
-    private readonly ReadOnlyCollection<Token> Tokens;
-    private readonly Token EndOfInput;
-    private readonly int Length;
-    private int Index;
-    private Lexer Lexer;
-    private Dictionary<string, object> ClassMap = new Dictionary<string, object>();
 
     public Parser(Lexer lexer)
     {
@@ -68,7 +66,7 @@ internal sealed class Parser
     }
 
     /// <summary>
-    /// Parses the SiiDocument using the specified C# types
+    ///     Parses the SiiDocument using the specified C# types
     /// </summary>
     /// <param name="types">An array of custom object types, which can be parsed into from this SiiDocument</param>
     /// <returns></returns>
@@ -79,14 +77,17 @@ internal sealed class Parser
 
         // Take the initial SiiNunit line
         if (!this.MatchAndTake(TokenKind.Identifier, out first) || first.Text != "SiiNunit")
+        {
             throw new SiiSyntaxException(this.Peek(), "SII unit files must begin with 'SiiNunit'");
+        }
 
         // Take the Brace on line 2
         this.Take(TokenKind.LeftBrace);
 
         // Compile our Class List, mapping name => type
-        var classes = types.Where(t => t.GetCustomAttribute<SiiUnitAttribute>() != null)
-            .ToDictionary(t => t.GetCustomAttribute<SiiUnitAttribute>().ClassName, t => t);
+        var classes =
+            types.Where(t => t.GetCustomAttribute<SiiUnitAttribute>() != null)
+                .ToDictionary(t => t.GetCustomAttribute<SiiUnitAttribute>().ClassName, t => t);
         var classDict = new ReadOnlyDictionary<string, Type>(classes);
 
         // Grab all the structs in the document, and create their
@@ -94,112 +95,124 @@ internal sealed class Parser
         // no matter where in the file they are defined
         foreach (var item in classDict)
         {
-            string pattern = @"^[\s\t]*" + item.Key + @"[\s\t]*:[\s\t]*(?<name>[\.a-z0-9_]+)[\s\t]*$";
-            Regex reg = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            MatchCollection matches = reg.Matches(Lexer.Source);
+            var pattern = @"^[\s\t]*" + item.Key + @"[\s\t]*:[\s\t]*(?<name>[\.a-z0-9_]+)[\s\t]*$";
+            var reg = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            var matches = reg.Matches(this.Lexer.Source);
 
             // Add each struct to the ClassMap Dictionary
             foreach (Match m in matches)
             {
-                if (!ClassMap.ContainsKey(m.Groups["name"].Value))
+                if (!this.ClassMap.ContainsKey(m.Groups["name"].Value))
                 {
                     var instance = Activator.CreateInstance(item.Value);
-                    ClassMap.Add(m.Groups["name"].Value, instance);
+                    this.ClassMap.Add(m.Groups["name"].Value, instance);
                 }
             }
         }
 
         // Parse all the objects in the Sii file
-        foreach (string cl in classDict.Keys)
+        foreach (var cl in classDict.Keys)
         {
             // If we hit a right brace here, we are at the EOF
             while (!this.Match(TokenKind.RightBrace))
             {
                 var pair = this.ParseDefinition(classDict);
                 if (pair == null)
+                {
                     continue;
+                }
 
                 map.Add(pair.Value.Key, pair.Value.Value);
             }
         }
 
         // Take the last brace, and the EOF token
-        this.Take( TokenKind.RightBrace );
-        this.Take( TokenKind.EndOfInput );
+        this.Take(TokenKind.RightBrace);
+        this.Take(TokenKind.EndOfInput);
 
-        return new ReadOnlyDictionary<string, object>( map );
+        return new ReadOnlyDictionary<string, object>(map);
     }
 
     /// <summary>
-    /// Parses an entire object and its properties
+    ///     Parses an entire object and its properties
     /// </summary>
     /// <param name="classes">className => C# InstanceType</param>
     /// <returns></returns>
-    private KeyValuePair<string, object>? ParseDefinition( ReadOnlyDictionary<string, Type> classes )
+    private KeyValuePair<string, object>? ParseDefinition(ReadOnlyDictionary<string, Type> classes)
     {
         // Check for directives
         if (this.MatchAndTake(TokenKind.Directive))
+        {
             return null;
+        }
 
         // Grab the classname
-        var className = this.Take( TokenKind.Identifier ).Text;
-        this.Take( TokenKind.Colon );
+        var className = this.Take(TokenKind.Identifier).Text;
+        this.Take(TokenKind.Colon);
 
         // is this an anonymous classs?
-        var nameless = this.Match( TokenKind.Dot );
+        var nameless = this.Match(TokenKind.Dot);
 
         // Begin fetching the class name
         var builder = new StringBuilder();
-        if( nameless )
-            builder.Append( this.Take().Text );
+        if (nameless)
+        {
+            builder.Append(this.Take().Text);
+        }
 
         // Parse the object name, taking all sections seperated by dots
-        builder.Append( this.Take(new[] { TokenKind.Identifier, TokenKind.Number }).Text );
-        var dot = default( Token );
-        while( this.MatchAndTake( TokenKind.Dot, out dot ) )
+        builder.Append(this.Take(new[] { TokenKind.Identifier, TokenKind.Number }).Text);
+        var dot = default(Token);
+        while (this.MatchAndTake(TokenKind.Dot, out dot))
         {
-            builder.Append( dot.Text );
-            builder.Append( this.Take( new[] { TokenKind.Identifier, TokenKind.Number } ).Text );
+            builder.Append(dot.Text);
+            builder.Append(this.Take(new[] { TokenKind.Identifier, TokenKind.Number }).Text);
         }
 
         // Fetch the C# class type, so we can create an object instance
         var name = builder.ToString();
-        var type = default( Type );
-        if( !classes.TryGetValue( className, out type ) )
-            throw new SiiException( $"No type for {name} (class {className})" );
+        var type = default(Type);
+        if (!classes.TryGetValue(className, out type))
+        {
+            throw new SiiException($"No type for {name} (class {className})");
+        }
 
         // Start fetching the class properties
-        var instance = ClassMap[name];
-        var members = type.GetFields( Flags )
-            .Where( f => f.GetCustomAttribute<SiiAttributeAttribute>() != null )
-            .Where( f => !f.IsSpecialName )
-            .Cast<MemberInfo>()
-            .Concat( type.GetProperties( Flags )
-                .Where( p => p.GetCustomAttribute<SiiAttributeAttribute>() != null )
-                .Where( p => !p.IsSpecialName )
-            ).ToArray();
+        var instance = this.ClassMap[name];
+        var members =
+            type.GetFields(Flags)
+                .Where(f => f.GetCustomAttribute<SiiAttributeAttribute>() != null)
+                .Where(f => !f.IsSpecialName)
+                .Cast<MemberInfo>()
+                .Concat(
+                    type.GetProperties(Flags)
+                        .Where(p => p.GetCustomAttribute<SiiAttributeAttribute>() != null)
+                        .Where(p => !p.IsSpecialName))
+                .ToArray();
 
         // Array of [C# ArrayMember => ListOfArrayValues]
         var arrays = new Dictionary<MemberInfo, List<object>>();
         var memberType = default(Type);
-        this.Take( TokenKind.LeftBrace );
+        this.Take(TokenKind.LeftBrace);
 
         // Parse through until we find the Right Brace
-        while( !this.MatchAndTake( TokenKind.RightBrace ) )
+        while (!this.MatchAndTake(TokenKind.RightBrace))
         {
             // Check for directives
-            if( this.MatchAndTake(TokenKind.Directive) )
+            if (this.MatchAndTake(TokenKind.Directive))
+            {
                 continue;
+            }
 
             // Grab the attribute name
-            var attribute = this.Take( TokenKind.Identifier ).Text;
+            var attribute = this.Take(TokenKind.Identifier).Text;
             // Check for array
-            var isArray = this.MatchAndTake( TokenKind.LeftSquare );
+            var isArray = this.MatchAndTake(TokenKind.LeftSquare);
 
-            var member = default( MemberInfo );
-            var value = default( object );
+            var member = default(MemberInfo);
+            var value = default(object);
 
-            if( isArray )
+            if (isArray)
             {
                 // Attempt to grab the array index. We cant actually use it (as of yet) since
                 // we are using a list (since most array's don't define size)
@@ -207,15 +220,15 @@ internal sealed class Parser
                 this.MatchAndTake(TokenKind.Number, out arrayIndex);
 
                 // Grab the right square and colon
-                this.Take( TokenKind.RightSquare );
-                this.Take( TokenKind.Colon );
+                this.Take(TokenKind.RightSquare);
+                this.Take(TokenKind.Colon);
 
                 // First we find the proper C# property for this array value
                 // We search the cache'd array members first
                 var list = new List<object>();
-                foreach( var pair in arrays )
+                foreach (var pair in arrays)
                 {
-                    if( pair.Key.GetCustomAttribute<SiiAttributeAttribute>()?.Name == attribute )
+                    if (pair.Key.GetCustomAttribute<SiiAttributeAttribute>()?.Name == attribute)
                     {
                         member = pair.Key;
                         list = pair.Value;
@@ -224,12 +237,12 @@ internal sealed class Parser
                 }
 
                 // If we didnt find the property, this is our first access
-                if( member == null )
+                if (member == null)
                 {
                     // Search all members
-                    foreach( var m in members )
+                    foreach (var m in members)
                     {
-                        if( m.GetCustomAttribute<SiiAttributeAttribute>()?.Name == attribute )
+                        if (m.GetCustomAttribute<SiiAttributeAttribute>()?.Name == attribute)
                         {
                             member = m;
                             break;
@@ -239,29 +252,36 @@ internal sealed class Parser
 
                 // If there is no member to this attribute, throw an exception
                 if (member == null)
-                    throw new SiiException($"No property for {attribute} found in (type {type.Name}) for (class {className})");
+                {
+                    throw new SiiException(
+                        $"No property for {attribute} found in (type {type.Name}) for (class {className})");
+                }
 
                 // Ensure that our C# member is an array type
-                memberType = this.GetDeclaredType( member );
-                if( !memberType.IsArray )
-                    throw new SiiException( $"{member.Name} is not an array" );
+                memberType = this.GetDeclaredType(member);
+                if (!memberType.IsArray)
+                {
+                    throw new SiiException($"{member.Name} is not an array");
+                }
 
                 // Grab the value of this attribute from the Sii object
-                value = this.ParseValue( memberType.GetElementType() );
-                list.Add( value );
+                value = this.ParseValue(memberType.GetElementType());
+                list.Add(value);
 
                 // Add this member to the arrayMembers cache
-                if( !arrays.ContainsKey( member ) )
-                    arrays.Add( member, list );
+                if (!arrays.ContainsKey(member))
+                {
+                    arrays.Add(member, list);
+                }
 
                 continue;
             }
 
             // Non-array.. Grab the colon and move on
-            this.Take( TokenKind.Colon );
-            foreach ( var m in members )
+            this.Take(TokenKind.Colon);
+            foreach (var m in members)
             {
-                if( m.GetCustomAttribute<SiiAttributeAttribute>()?.Name == attribute )
+                if (m.GetCustomAttribute<SiiAttributeAttribute>()?.Name == attribute)
                 {
                     member = m;
                     break;
@@ -270,128 +290,146 @@ internal sealed class Parser
 
             // If we forgot to assign a member to this attribute, throw it up
             if (member == null)
-                throw new SiiException($"No property for {attribute} found in (type {type.Name}) for (class {className})");
+            {
+                throw new SiiException(
+                    $"No property for {attribute} found in (type {type.Name}) for (class {className})");
+            }
 
             // Grab the C# attribute (Field or Property) type, and parse the value
-            memberType = this.GetDeclaredType( member );
-            value = this.ParseValue( memberType );
+            memberType = this.GetDeclaredType(member);
+            value = this.ParseValue(memberType);
 
             // Apply the parsed value from the Sii Object into the C# member
-            if( member is PropertyInfo )
+            if (member is PropertyInfo)
             {
                 var property = member as PropertyInfo;
-                var setter = property.GetSetMethod( true );
-                setter?.Invoke( instance, new[] { value } );
+                var setter = property.GetSetMethod(true);
+                setter?.Invoke(instance, new[] { value });
             }
             else
             {
                 var field = member as FieldInfo;
-                field.SetValue( instance, value );
+                field.SetValue(instance, value);
             }
         }
 
         // Now that we have parsed this Object completly, Its time to
         // fill the array values on the C# members
-        foreach( var pair in arrays )
+        foreach (var pair in arrays)
         {
-            memberType = this.GetDeclaredType( pair.Key );
+            memberType = this.GetDeclaredType(pair.Key);
             var length = pair.Value.Count;
             var elementType = memberType.GetElementType();
 
             // Create the Array
-            var array = Array.CreateInstance( elementType, length );
+            var array = Array.CreateInstance(elementType, length);
 
             // Set each array index value
-            for( var i = 0; i < length; ++i )
-                array.SetValue( pair.Value[i], i );
+            for (var i = 0; i < length; ++i) array.SetValue(pair.Value[i], i);
 
             // Set the C# member value to the newly filled array
-            if( pair.Key is PropertyInfo )
+            if (pair.Key is PropertyInfo)
             {
                 var property = pair.Key as PropertyInfo;
-                var setter = property.GetSetMethod( true );
-                setter?.Invoke( instance, new[] { array } );
+                var setter = property.GetSetMethod(true);
+                setter?.Invoke(instance, new[] { array });
             }
             else
             {
                 var field = pair.Key as FieldInfo;
-                field.SetValue( instance, array );
+                field.SetValue(instance, array);
             }
         }
 
         // Do not return nameless objects
-        return nameless ? (KeyValuePair<string, object>?) null : new KeyValuePair<string, object>( name, instance );
+        return nameless ? null : new KeyValuePair<string, object>(name, instance);
     }
 
     /// <summary>
-    /// Parses the next token based on the C# member type
+    ///     Parses the next token based on the C# member type
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    private object ParseValue( Type type )
+    private object ParseValue(Type type)
     {
-        var token = default( Token );
+        var token = default(Token);
 
         // If we can take a left parentesis, then we have a Vector
-        if( this.MatchAndTake( TokenKind.LeftParen, out token ) )
+        if (this.MatchAndTake(TokenKind.LeftParen, out token))
         {
-            if( !VectorTypes.Contains( type ) )
-                throw new SiiException( $"Type mismatch. Expected {type.Name} but found vector" );
+            if (!VectorTypes.Contains(type))
+            {
+                throw new SiiException($"Type mismatch. Expected {type.Name} but found vector");
+            }
 
-            var fieldType = type.GetField( "X", BindingFlags.Public | BindingFlags.Instance ).FieldType;
+            var fieldType =
+                type.GetField("X", BindingFlags.Public | BindingFlags.Instance).FieldType;
 
             var values = new List<object>();
-            values.Add( this.ParseScalarValue( fieldType ) );
+            values.Add(this.ParseScalarValue(fieldType));
 
             // Grab initial seperator
-            var kind = this.Take( new[] { TokenKind.Comma, TokenKind.SemiColon } ).Kind;
+            var kind = this.Take(new[] { TokenKind.Comma, TokenKind.SemiColon }).Kind;
             if (kind == TokenKind.SemiColon && type != typeof(Quaternion))
+            {
                 throw new SiiException($"Type mismatch. Expected Quaternion but found {type.Name}");
+            }
 
             // Grab all the remaining values
-            do values.Add( this.ParseScalarValue( fieldType ) );
-            while( this.MatchAndTake( TokenKind.Comma ) );
+            do
+            {
+                values.Add(this.ParseScalarValue(fieldType));
+            }
+            while (this.MatchAndTake(TokenKind.Comma));
 
             // End
-            this.Take( TokenKind.RightParen );
+            this.Take(TokenKind.RightParen);
 
             // Make sure the sizes of the Vectors match
-            var size = Marshal.SizeOf( type ) / Marshal.SizeOf( fieldType );
-            if( values.Count != size )
-                throw new SiiException( $"Too {( values.Count > size ? "many" : "few" )} values for {type.Name}, expected {size}, got {values.Count}" );
+            var size = Marshal.SizeOf(type) / Marshal.SizeOf(fieldType);
+            if (values.Count != size)
+            {
+                throw new SiiException(
+                    $"Too {(values.Count > size ? "many" : "few")} values for {type.Name}, expected {size}, got {values.Count}");
+            }
 
-            return Activator.CreateInstance( type, values.ToArray() );
+            return Activator.CreateInstance(type, values.ToArray());
         }
 
-        return this.ParseScalarValue( type );
+        return this.ParseScalarValue(type);
     }
 
     /// <summary>
-    /// Returns the C# Member type
+    ///     Returns the C# Member type
     /// </summary>
     /// <param name="member"></param>
     /// <returns></returns>
-    private Type GetDeclaredType( MemberInfo member )
+    private Type GetDeclaredType(MemberInfo member)
     {
-        if( member is PropertyInfo )
-            return ( member as PropertyInfo ).PropertyType;
-        else
-            return ( member as FieldInfo ).FieldType;
+        if (member is PropertyInfo)
+        {
+            return (member as PropertyInfo).PropertyType;
+        }
+
+        return (member as FieldInfo).FieldType;
     }
 
     /// <summary>
-    /// Parses and converts a token value from the Sii attribute into a C# data type
+    ///     Parses and converts a token value from the Sii attribute into a C# data type
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    private object ParseScalarValue( Type type )
+    private object ParseScalarValue(Type type)
     {
         var token = this.Take();
-        switch( token.Kind )
+        switch (token.Kind)
         {
             case TokenKind.String:
-                if( type != typeof( string ) )
-                    throw new SiiException( $"Type mistmatch. Expected string, got {type.Name} on line {token.Span.Start.Line}" );
+                if (type != typeof(string))
+                {
+                    throw new SiiException(
+                        $"Type mistmatch. Expected string, got {type.Name} on line {token.Span.Start.Line}");
+                }
 
                 return token.Text;
 
@@ -399,36 +437,52 @@ internal sealed class Parser
                 var format = (NumberFormat)token.Tag;
 
                 // Check for arrays
-                if( type.IsArray && format == NumberFormat.Integer )
+                if (type.IsArray && format == NumberFormat.Integer)
+                {
                     return null;
+                }
 
                 // Ensure supported numeric type
-                if( !NumericTypes.Contains( type ) )
-                    throw new SiiException( $"Type mismatch. Expected numeric type, got {type.Name} on line {token.Span.Start.Line}" );
+                if (!NumericTypes.Contains(type))
+                {
+                    throw new SiiException(
+                        $"Type mismatch. Expected numeric type, got {type.Name} on line {token.Span.Start.Line}");
+                }
 
                 // Parse Hex Floats using the SiiConverter class
-                if( format == NumberFormat.HexFloat )
+                if (format == NumberFormat.HexFloat)
+                {
                     return SiiConverter.FromHexString(token.Text);
+                }
 
                 // Check for type mismatch
-                if( ( format == NumberFormat.Float ) && !FloatTypes.Contains( type ) )
-                    throw new SiiException( $"Type mismatch. Expected {type.Name}, got float on line {token.Span.Start.Line}" );
+                if (format == NumberFormat.Float && !FloatTypes.Contains(type))
+                {
+                    throw new SiiException(
+                        $"Type mismatch. Expected {type.Name}, got float on line {token.Span.Start.Line}");
+                }
 
                 // Grab the Parse method from the numeric type
-                var style = format == NumberFormat.Float ? NumberStyles.Float : NumberStyles.Integer;
-                var parser = type.GetMethod(
-                    "Parse",
-                    BindingFlags.Public | BindingFlags.Static,
+                var style =
+                    format == NumberFormat.Float ? NumberStyles.Float : NumberStyles.Integer;
+                var parser =
+                    type.GetMethod(
+                        "Parse",
+                        BindingFlags.Public | BindingFlags.Static,
+                        null,
+                        new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider) },
+                        null);
+                return parser.Invoke(
                     null,
-                    new[] { typeof( string ), typeof( NumberStyles ), typeof( IFormatProvider ) },
-                    null
-                );
-                return parser.Invoke( null, new object[] { token.Text, style, CultureInfo.InvariantCulture } );
+                    new object[] { token.Text, style, CultureInfo.InvariantCulture });
 
             case TokenKind.True:
             case TokenKind.False:
-                if( type != typeof( bool ) )
-                    throw new SiiException( $"Type mismatch. Expected bool, got {type.Name} on line {token.Span.Start.Line}" );
+                if (type != typeof(bool))
+                {
+                    throw new SiiException(
+                        $"Type mismatch. Expected bool, got {type.Name} on line {token.Span.Start.Line}");
+                }
 
                 return token.Kind == TokenKind.True ? true : false;
 
@@ -442,63 +496,76 @@ internal sealed class Parser
                 while (this.MatchAndTake(TokenKind.Dot, out dot))
                 {
                     builder.Append(dot.Text);
-                    builder.Append(this.Take(new[] { TokenKind.Identifier, TokenKind.Number }).Text);
+                    builder.Append(
+                        this.Take(new[] { TokenKind.Identifier, TokenKind.Number }).Text);
                 }
 
                 // Fetch the C# class type, so we can return an object instance
                 var name = builder.ToString();
-                if (!ClassMap.ContainsKey(name))
-                    throw new SiiException($"Access to an undefined object \"{name}\" found on line {token.Span.Start.Line}");
+                if (!this.ClassMap.ContainsKey(name))
+                {
+                    throw new SiiException(
+                        $"Access to an undefined object \"{name}\" found on line {token.Span.Start.Line}");
+                }
 
-                return ClassMap[name];
+                return this.ClassMap[name];
             default:
-                throw new SiiException( $"Unsupported value type {token.Kind.ToString().ToLowerInvariant()} on line {token.Span.Start.Line}" );
+                throw new SiiException(
+                    $"Unsupported value type {token.Kind.ToString().ToLowerInvariant()} on line {token.Span.Start.Line}");
         }
     }
 
     /// <summary>
-    /// Returns the <see cref="Token"/> at the secified index, offset by
-    /// the current index
+    ///     Returns the <see cref="Token" /> at the secified index, offset by
+    ///     the current index
     /// </summary>
     /// <param name="distance"></param>
     /// <returns></returns>
-    private Token Peek( int distance = 0 )
+    private Token Peek(int distance = 0)
     {
         var newIndex = this.Index + distance;
-        if( newIndex < 0 || newIndex >= this.Length )
+        if (newIndex < 0 || newIndex >= this.Length)
+        {
             return this.EndOfInput;
+        }
 
         return this.Tokens[newIndex];
     }
 
     /// <summary>
-    /// Takes the next token
+    ///     Takes the next token
     /// </summary>
     /// <param name="kind">If the new token does not match the specified token, an parser error occurs</param>
     /// <returns></returns>
-    private Token Take( TokenKind? kind = null )
+    private Token Take(TokenKind? kind = null)
     {
-        if( kind == null )
+        if (kind == null)
+        {
             return this.Tokens[this.Index++];
+        }
 
         var current = this.Peek();
-        if( current.Kind != kind.Value )
-            throw new SiiSyntaxException( current, $"Unexpected {current}" );
+        if (current.Kind != kind.Value)
+        {
+            throw new SiiSyntaxException(current, $"Unexpected {current}");
+        }
 
         ++this.Index;
         return current;
     }
 
     /// <summary>
-    /// Takes the next token
+    ///     Takes the next token
     /// </summary>
-    /// <param name="kinds">Specifies the expected following Token. If these token do
-    /// not match the specified token, an parser error occurs</param>
+    /// <param name="kinds">
+    ///     Specifies the expected following Token. If these token do
+    ///     not match the specified token, an parser error occurs
+    /// </param>
     /// <returns></returns>
     private Token Take(TokenKind[] kinds)
     {
         var current = this.Peek();
-        foreach (TokenKind token in kinds)
+        foreach (var token in kinds)
         {
             if (token == current.Kind)
             {
@@ -511,32 +578,35 @@ internal sealed class Parser
     }
 
     /// <summary>
-    /// Returns if the Next token matches the specified token type
+    ///     Returns if the Next token matches the specified token type
     /// </summary>
     /// <param name="kind"></param>
     /// <returns></returns>
-    private bool Match( TokenKind kind ) => this.Peek().Kind == kind;
-
-    /// <summary>
-    /// Takes the next token if the specified tokenkind matches.
-    /// </summary>
-    /// <param name="kind"></param>
-    /// <returns></returns>
-    private bool MatchAndTake( TokenKind kind )
+    private bool Match(TokenKind kind)
     {
-        var dummy = default( Token );
-        return this.MatchAndTake( kind, out dummy );
+        return this.Peek().Kind == kind;
     }
 
     /// <summary>
-    /// Takes the next token if the specified tokenkind matches.
+    ///     Takes the next token if the specified tokenkind matches.
+    /// </summary>
+    /// <param name="kind"></param>
+    /// <returns></returns>
+    private bool MatchAndTake(TokenKind kind)
+    {
+        var dummy = default(Token);
+        return this.MatchAndTake(kind, out dummy);
+    }
+
+    /// <summary>
+    ///     Takes the next token if the specified tokenkind matches.
     /// </summary>
     /// <param name="kind"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    private bool MatchAndTake( TokenKind kind, out Token token )
+    private bool MatchAndTake(TokenKind kind, out Token token)
     {
-        if( this.Match( kind ) )
+        if (this.Match(kind))
         {
             token = this.Take();
             return true;

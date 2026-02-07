@@ -2,16 +2,18 @@
 
 namespace Maysternya.SiiUnit;
 
-[AttributeUsage( AttributeTargets.Field | AttributeTargets.Property )]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public sealed class SiiAttributeAttribute : Attribute
 {
-    public string Name { get; }
-
-    public SiiAttributeAttribute( string name )
+    public SiiAttributeAttribute(string name)
     {
-        if( String.IsNullOrWhiteSpace( name ) )
-            throw new ArgumentNullException( nameof( name ) );
+        if (String.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
 
         this.Name = name;
     }
+
+    public string Name { get; }
 }

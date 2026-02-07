@@ -9,70 +9,69 @@ namespace Maysternya.SiiUnit.Parsing;
 
 internal sealed class Lexer
 {
-    private delegate bool Lexeme( char c, out Token token );
-
     private static readonly ReadOnlyDictionary<string, TokenKind> Keywords;
     private static readonly ReadOnlyDictionary<char, TokenKind> Punctuation;
     private static readonly ReadOnlyCollection<char> HexDigits;
 
-    static Lexer()
-    {
-        var punctuation = new Dictionary<char, TokenKind>
-        {
-            ['('] = TokenKind.LeftParen,
-            [')'] = TokenKind.RightParen,
-            ['['] = TokenKind.LeftSquare,
-            [']'] = TokenKind.RightSquare,
-            ['{'] = TokenKind.LeftBrace,
-            ['}'] = TokenKind.RightBrace,
-            [':'] = TokenKind.Colon,
-            [';'] = TokenKind.SemiColon,
-            ['.'] = TokenKind.Dot,
-            [','] = TokenKind.Comma
-        };
-
-        var keywords = new Dictionary<string, TokenKind>
-        {
-            ["true"] = TokenKind.True,
-            ["false"] = TokenKind.False,
-        };
-
-        Keywords = new ReadOnlyDictionary<string, TokenKind>( keywords );
-        Punctuation = new ReadOnlyDictionary<char, TokenKind>( punctuation );
-        HexDigits = new ReadOnlyCollection<char>( new[]
-        {
-            'a', 'b', 'c', 'd', 'e', 'f',
-            'A', 'B', 'C', 'D', 'E', 'F',
-        } );
-    }
-
     private readonly string FileName;
-    internal readonly string Source;
     private readonly int Length;
-    private int Index;
-    private int Line;
-    private int Column;
+    private readonly ReadOnlyCollection<Lexeme> Lexemes;
+    internal readonly string Source;
 
     private readonly Stack<TextSpan> Spans;
-    private readonly ReadOnlyCollection<Lexeme> Lexemes;
+    private int Column;
+    private int Index;
+    private int Line;
 
-    private bool EndOfInput => this.Index >= this.Length;
+    static Lexer()
+    {
+        var punctuation =
+            new Dictionary<char, TokenKind>
+            {
+                ['('] = TokenKind.LeftParen,
+                [')'] = TokenKind.RightParen,
+                ['['] = TokenKind.LeftSquare,
+                [']'] = TokenKind.RightSquare,
+                ['{'] = TokenKind.LeftBrace,
+                ['}'] = TokenKind.RightBrace,
+                [':'] = TokenKind.Colon,
+                [';'] = TokenKind.SemiColon,
+                ['.'] = TokenKind.Dot,
+                [','] = TokenKind.Comma,
+            };
 
-    public Lexer( string source, string fileName )
+        var keywords =
+            new Dictionary<string, TokenKind>
+            {
+                ["true"] = TokenKind.True, ["false"] = TokenKind.False,
+            };
+
+        Keywords = new ReadOnlyDictionary<string, TokenKind>(keywords);
+        Punctuation = new ReadOnlyDictionary<char, TokenKind>(punctuation);
+        HexDigits =
+            new ReadOnlyCollection<char>(
+                new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F' });
+    }
+
+    public Lexer(string source, string fileName)
     {
         this.FileName = fileName;
         this.Source = source;
         this.Length = source.Length;
         this.Spans = new Stack<TextSpan>();
-        this.Lexemes = new ReadOnlyCollection<Lexeme>( new Lexeme[]
-        {
-            this.TryLexDirective,
-            this.TryLexNumber,
-            this.TryLexIdentifier,
-            this.TryLexString,
-            this.TryLexPunctuation,
-        } );
+        this.Lexemes =
+            new ReadOnlyCollection<Lexeme>(
+                new Lexeme[]
+                {
+                    this.TryLexDirective,
+                    this.TryLexNumber,
+                    this.TryLexIdentifier,
+                    this.TryLexString,
+                    this.TryLexPunctuation,
+                });
     }
+
+    private bool EndOfInput => this.Index >= this.Length;
 
     public ReadOnlyCollection<Token> Tokenize()
     {
@@ -81,76 +80,88 @@ internal sealed class Lexer
         this.Column = 1;
 
         var tokens = new List<Token>();
-        while( !this.EndOfInput )
+        while (!this.EndOfInput)
         {
-            this.SkipWhile( Char.IsWhiteSpace );
+            this.SkipWhile(Char.IsWhiteSpace);
 
             var current = this.Peek();
-            if( this.SkipComments( current ) )
+            if (this.SkipComments(current))
+            {
                 continue;
+            }
 
             this.MarkStart();
-            var token = default( Token );
-            var success = this.Lexemes.Any( lexeme => lexeme( current, out token ) );
-            if( !success )
-                throw new SiiSyntaxException( this.MarkEnd(), $"Unexpected character '{current}' (0x{Convert.ToUInt16( current ):X4})" );
+            var token = default(Token);
+            var success = this.Lexemes.Any(lexeme => lexeme(current, out token));
+            if (!success)
+            {
+                throw new SiiSyntaxException(
+                    this.MarkEnd(),
+                    $"Unexpected character '{current}' (0x{Convert.ToUInt16(current):X4})");
+            }
 
-            tokens.Add( token );
+            tokens.Add(token);
             this.Spans.Pop();
         }
 
         this.MarkStart();
-        var eof = this.MakeToken( TokenKind.EndOfInput, null );
-        tokens.Add( eof );
+        var eof = this.MakeToken(TokenKind.EndOfInput, null);
+        tokens.Add(eof);
 
         return tokens.AsReadOnly();
     }
 
     private void MarkStart()
     {
-        var location = new Location( this.Line, this.Column, this.Index );
-        var span = new TextSpan( location, null );
-        this.Spans.Push( span );
+        var location = new Location(this.Line, this.Column, this.Index);
+        var span = new TextSpan(location, null);
+        this.Spans.Push(span);
     }
 
     private TextSpan MarkEnd()
     {
-        var location = new Location( this.Line, this.Column, this.Index );
-        return this.Spans.Pop().WithEnd( location );
+        var location = new Location(this.Line, this.Column, this.Index);
+        return this.Spans.Pop().WithEnd(location);
     }
 
-    private Token MakeToken( TokenKind kind, string text, object tag = null )
+    private Token MakeToken(TokenKind kind, string text, object tag = null)
     {
         var span = this.MarkEnd();
-        return new Token( text, kind, span, this.FileName, tag );
+        return new Token(text, kind, span, this.FileName, tag);
     }
 
-    private bool SkipComments( char c )
-        => this.SkipLineComments( c ) || this.SkipBlockComments( c );
+    private bool SkipComments(char c)
+    {
+        return this.SkipLineComments(c) || this.SkipBlockComments(c);
+    }
 
-    private bool SkipLineComments( char c )
+    private bool SkipLineComments(char c)
     {
         // skip both types of inline comments
-        if( c != '#' && !this.IsNext("//") )
+        if (c != '#' && !this.IsNext("//"))
+        {
             return false;
+        }
 
         // Skip comment or directive until we hit a new line
-        this.SkipWhile( ch => ch != '\n' && ch != '\r' );
+        this.SkipWhile(ch => ch != '\n' && ch != '\r');
         return true;
     }
 
-    private bool SkipBlockComments( char c )
+    private bool SkipBlockComments(char c)
     {
-        if( !this.IsNext( "/*" ) )
+        if (!this.IsNext("/*"))
+        {
             return false;
+        }
 
         this.MarkStart();
-        this.Skip( 2 );
+        this.Skip(2);
 
         var closed = false;
-        while( !this.EndOfInput )
+        while (!this.EndOfInput)
         {
-            if( this.TakeIfNext( "*/" ) )
+            if (this.TakeIfNext("*/"))
             {
                 closed = true;
                 break;
@@ -159,17 +170,21 @@ internal sealed class Lexer
             this.Take();
         }
 
-        if( !closed )
-            throw new SiiSyntaxException( this.MarkEnd(), "Unexpected end-of-input (unclosed multi-line comment)" );
+        if (!closed)
+        {
+            throw new SiiSyntaxException(
+                this.MarkEnd(),
+                "Unexpected end-of-input (unclosed multi-line comment)");
+        }
 
         this.Spans.Pop();
         return true;
     }
 
-    private bool TryLexDirective(char c, out Token token )
+    private bool TryLexDirective(char c, out Token token)
     {
         // If the next 3 characters are inc... its an enclude
-        if( c == '@' && (this.Peek(-1) == '\r' || this.Peek(-1) == '\n') )
+        if (c == '@' && (this.Peek(-1) == '\r' || this.Peek(-1) == '\n'))
         {
             this.MarkStart();
             var text = this.TakeWhile(ch => ch != '\n' && ch != '\r');
@@ -181,39 +196,43 @@ internal sealed class Lexer
         return false;
     }
 
-    private bool TryLexIdentifier( char c, out Token token )
+    private bool TryLexIdentifier(char c, out Token token)
     {
-        if( !Char.IsLetter( c ) && c != '_'  && c != '?')
+        if (!Char.IsLetter(c) && c != '_' && c != '?')
         {
             token = null;
             return false;
         }
 
         this.MarkStart();
-        var text = this.TakeWhile( ch => Char.IsLetterOrDigit( ch ) || ch == '_' || ch == '?' );
-        var kind = Keywords.ContainsKey( text ) ? Keywords[text] : TokenKind.Identifier;
-        token = this.MakeToken( kind, text );
+        var text = this.TakeWhile(ch => Char.IsLetterOrDigit(ch) || ch == '_' || ch == '?');
+        var kind = Keywords.ContainsKey(text) ? Keywords[text] : TokenKind.Identifier;
+        token = this.MakeToken(kind, text);
         return true;
     }
 
-    private bool TryLexNumber( char c, out Token token )
+    private bool TryLexNumber(char c, out Token token)
     {
-        if( c != '&' && c != '-' && !Char.IsDigit( c ) && c != '_')
+        if (c != '&' && c != '-' && !Char.IsDigit(c) && c != '_')
         {
             token = null;
             return false;
         }
 
         this.MarkStart();
-        var text = default( string );
-        if( c == '&' )
+        var text = default(string);
+        if (c == '&')
         {
             this.Take();
-            text = this.TakeWhile( ch => Char.IsDigit( ch ) || HexDigits.Contains( ch ) );
-            if( text.Length != 8 )
-                throw new SiiSyntaxException( this.MarkEnd(), "Hexadecimal floating point numbers must be 8 characters" );
+            text = this.TakeWhile(ch => Char.IsDigit(ch) || HexDigits.Contains(ch));
+            if (text.Length != 8)
+            {
+                throw new SiiSyntaxException(
+                    this.MarkEnd(),
+                    "Hexadecimal floating point numbers must be 8 characters");
+            }
 
-            token = this.MakeToken( TokenKind.Number, text, NumberFormat.HexFloat );
+            token = this.MakeToken(TokenKind.Number, text, NumberFormat.HexFloat);
             return true;
         }
 
@@ -224,80 +243,89 @@ internal sealed class Lexer
         var format = NumberFormat.Integer;
         var tokenKind = TokenKind.Number;
 
-        text = this.TakeWhile( delegate ( char ch )
-        {
-            if( forceTake )
-            {
-                forceTake = false;
-                return true;
-            }
-
-            var next = this.Peek( 1 );
-
-            if (tokenKind == TokenKind.Number)
-            {
-                if (Char.IsLetter(ch) || ch == '_' || ch == '?')
+        text =
+            this.TakeWhile(
+                delegate(char ch)
                 {
-                    if (ch == 'e' || ch == 'E')
+                    if (forceTake)
                     {
-                        var second = this.Peek(2);
-                        if (!Char.IsDigit(next) && !((next == '-' || next == '+') && Char.IsDigit(second)))
+                        forceTake = false;
+                        return true;
+                    }
+
+                    var next = this.Peek(1);
+
+                    if (tokenKind == TokenKind.Number)
+                    {
+                        if (Char.IsLetter(ch) || ch == '_' || ch == '?')
                         {
+                            if (ch == 'e' || ch == 'E')
+                            {
+                                var second = this.Peek(2);
+                                if (!Char.IsDigit(next)
+                                    && !((next == '-' || next == '+') && Char.IsDigit(second)))
+                                {
+                                    // Try Identifier
+                                    tokenKind = TokenKind.Identifier;
+                                    return true;
+                                }
+
+                                if (hasExponent)
+                                {
+                                    throw new SiiSyntaxException(
+                                        this.MarkEnd(),
+                                        "Number already has exponent");
+                                }
+
+                                if ((next == '-' || next == '+') && Char.IsDigit(second))
+                                {
+                                    forceTake = true;
+                                }
+
+                                format = NumberFormat.Float;
+                                hasExponent = true;
+                                return Char.IsDigit(next) || Char.IsDigit(second);
+                            }
+
                             // Try Identifier
                             tokenKind = TokenKind.Identifier;
                             return true;
                         }
 
-                        if (hasExponent)
-                            throw new SiiSyntaxException(this.MarkEnd(), "Number already has exponent");
+                        // Negative number?
+                        if (ch == '-' && !isNegative && Char.IsDigit(next))
+                        {
+                            isNegative = true;
+                            return true;
+                        }
 
-                        if ((next == '-' || next == '+') && Char.IsDigit(second))
-                            forceTake = true;
+                        if (ch == '.' && Char.IsDigit(next))
+                        {
+                            if (hasDecimal)
+                            {
+                                throw new SiiSyntaxException(
+                                    this.MarkEnd(),
+                                    "Number already has a decimal point");
+                            }
 
-                        format = NumberFormat.Float;
-                        hasExponent = true;
-                        return Char.IsDigit(next) || Char.IsDigit(second);
+                            format = NumberFormat.Float;
+                            hasDecimal = true;
+                            return true;
+                        }
+
+                        return Char.IsDigit(ch);
                     }
-                    else
-                    {
-                        // Try Identifier
-                        tokenKind = TokenKind.Identifier;
-                        return true;
-                    }
-                }
 
-                // Negative number?
-                if (ch == '-' && !isNegative && Char.IsDigit(next))
-                {
-                    isNegative = true;
-                    return true;
-                }
+                    return Char.IsLetterOrDigit(ch) || ch == '_' || ch == '?';
+                });
 
-                if (ch == '.' && Char.IsDigit(next))
-                {
-                    if (hasDecimal)
-                        throw new SiiSyntaxException(this.MarkEnd(), "Number already has a decimal point");
-
-                    format = NumberFormat.Float;
-                    hasDecimal = true;
-                    return true;
-                }
-
-                return Char.IsDigit(ch);
-            }
-            else
-            {
-                return (Char.IsLetterOrDigit(ch) || ch == '_' || ch == '?');
-            }
-        } );
-
-        token = this.MakeToken( tokenKind, text, format );
+        token = this.MakeToken(tokenKind, text, format);
         return true;
     }
 
-    private bool TryLexString( char c, out Token token )
+    private bool TryLexString(char c, out Token token)
     {
-        if( c != '"' )
+        if (c != '"')
         {
             token = null;
             return false;
@@ -307,42 +335,54 @@ internal sealed class Lexer
         this.Take();
         var closed = false;
         var builder = new StringBuilder();
-        var current = default( char );
-        while( !this.EndOfInput )
+        var current = default(char);
+        while (!this.EndOfInput)
         {
-            if( ( current = this.Peek() ) == '"' )
+            if ((current = this.Peek()) == '"')
             {
                 this.Take();
                 closed = true;
                 break;
             }
 
-            if( current == '\\' )
+            if (current == '\\')
             {
-                if( this.EndOfInput )
-                    throw new SiiSyntaxException( this.MarkEnd(), "Unexpected end-of-input (unclosed string)" );
+                if (this.EndOfInput)
+                {
+                    throw new SiiSyntaxException(
+                        this.MarkEnd(),
+                        "Unexpected end-of-input (unclosed string)");
+                }
 
-                var escape = this.HandleEscapeSequence( this.Take() );
-                builder.Append( escape );
+                var escape = this.HandleEscapeSequence(this.Take());
+                builder.Append(escape);
                 continue;
             }
 
-            builder.Append( this.Take() );
+            builder.Append(this.Take());
         }
 
-        if( !closed )
-            throw new SiiSyntaxException( this.MarkEnd(), "Unexpected end-of-input (unclosed string)" );
+        if (!closed)
+        {
+            throw new SiiSyntaxException(
+                this.MarkEnd(),
+                "Unexpected end-of-input (unclosed string)");
+        }
 
-        token = this.MakeToken( TokenKind.String, builder.ToString() );
+        token = this.MakeToken(TokenKind.String, builder.ToString());
         return true;
     }
 
-    private char HandleEscapeSequence( char seq )
+    private char HandleEscapeSequence(char seq)
     {
-        if( this.EndOfInput )
-            throw new SiiSyntaxException( this.MarkEnd(), "Unexpected end-of-input (invalid escape sequence)" );
+        if (this.EndOfInput)
+        {
+            throw new SiiSyntaxException(
+                this.MarkEnd(),
+                "Unexpected end-of-input (invalid escape sequence)");
+        }
 
-        switch( seq )
+        switch (seq)
         {
             case 'a':
                 return '\a';
@@ -368,47 +408,59 @@ internal sealed class Lexer
 
             case 'x':
             {
-                if( this.Index + 2 >= this.Length )
-                    throw new SiiSyntaxException( this.MarkEnd(), $"Unexpected end-of-input (invalid \\x escape)" );
+                if (this.Index + 2 >= this.Length)
+                {
+                    throw new SiiSyntaxException(
+                        this.MarkEnd(),
+                        "Unexpected end-of-input (invalid \\x escape)");
+                }
 
-                var hex = this.Take( 4 );
-                if( hex.Length != 2 && hex.Length != 4 )
-                    throw new SiiSyntaxException( this.MarkEnd(), "Unexpected end-of-input (invalid \\x escape)" );
+                var hex = this.Take(4);
+                if (hex.Length != 2 && hex.Length != 4)
+                {
+                    throw new SiiSyntaxException(
+                        this.MarkEnd(),
+                        "Unexpected end-of-input (invalid \\x escape)");
+                }
 
-                var code = UInt16.Parse( hex, NumberStyles.AllowHexSpecifier );
-                return Convert.ToChar( code );
+                var code = UInt16.Parse(hex, NumberStyles.AllowHexSpecifier);
+                return Convert.ToChar(code);
             }
 
             default:
             {
-                var octal = this.Take( 3 );
-                if( octal.Length == 3 )
+                var octal = this.Take(3);
+                if (octal.Length == 3)
                 {
                     try
                     {
-                        var code = Convert.ToUInt16( octal, 8 );
-                        return Convert.ToChar( code );
+                        var code = Convert.ToUInt16(octal, 8);
+                        return Convert.ToChar(code);
                     }
                     catch
                     {
-                        throw new SiiSyntaxException( this.MarkEnd(), $"Invalid octal escape sequence \\{octal}" );
+                        throw new SiiSyntaxException(
+                            this.MarkEnd(),
+                            $"Invalid octal escape sequence \\{octal}");
                     }
                 }
 
-                throw new SiiSyntaxException( this.MarkEnd(), $"Unregocnized escape sequence \\{seq}" );
+                throw new SiiSyntaxException(
+                    this.MarkEnd(),
+                    $"Unregocnized escape sequence \\{seq}");
             }
         }
     }
 
-    private bool TryLexPunctuation( char c, out Token token )
+    private bool TryLexPunctuation(char c, out Token token)
     {
-        foreach( var pair in Punctuation )
+        foreach (var pair in Punctuation)
         {
-            if( pair.Key == c )
+            if (pair.Key == c)
             {
                 this.MarkStart();
                 this.Take();
-                token = this.MakeToken( pair.Value, pair.Key.ToString() );
+                token = this.MakeToken(pair.Value, pair.Key.ToString());
                 return true;
             }
         }
@@ -417,41 +469,45 @@ internal sealed class Lexer
         return false;
     }
 
-    private char Peek( int distance = 0 )
+    private char Peek(int distance = 0)
     {
         var newIndex = this.Index + distance;
-        if( newIndex < 0 || newIndex >= this.Length )
+        if (newIndex < 0 || newIndex >= this.Length)
+        {
             return '\0';
+        }
 
         return this.Source[newIndex];
     }
 
-    private bool IsNext( string search )
+    private bool IsNext(string search)
     {
         var len = search.Length;
-        if( this.Index + len >= this.Length )
+        if (this.Index + len >= this.Length)
+        {
             return false;
+        }
 
-        return this.Source.Substring( this.Index, len ) == search;
+        return this.Source.Substring(this.Index, len) == search;
     }
 
     private char Take()
     {
         var current = this.Peek();
-        var next = this.Peek( 1 );
+        var next = this.Peek(1);
 
-        if( current == '\r' )
+        if (current == '\r')
         {
             ++this.Line;
             this.Column = 0;
 
-            if( next == '\n' )
+            if (next == '\n')
             {
                 ++this.Index;
                 current = next;
             }
         }
-        else if( current == '\n' )
+        else if (current == '\n')
         {
             ++this.Line;
             this.Column = 0;
@@ -463,44 +519,42 @@ internal sealed class Lexer
         return current;
     }
 
-    private string Take( int amount )
+    private string Take(int amount)
     {
         var builder = new StringBuilder();
-        for( var i = 0; i <= amount && !this.EndOfInput; ++i )
-            builder.Append( this.Take() );
+        for (var i = 0; i <= amount && !this.EndOfInput; ++i) builder.Append(this.Take());
 
         return builder.ToString();
     }
 
-    private bool TakeIfNext( string search )
+    private bool TakeIfNext(string search)
     {
-        if( this.IsNext( search ) )
+        if (this.IsNext(search))
         {
-            this.Skip( search.Length );
+            this.Skip(search.Length);
             return true;
         }
 
         return false;
     }
 
-    private string TakeWhile( Predicate<char> predicate )
+    private string TakeWhile(Predicate<char> predicate)
     {
         var builder = new StringBuilder();
-        while( !this.EndOfInput && predicate( this.Peek() ) )
-            builder.Append( this.Take() );
+        while (!this.EndOfInput && predicate(this.Peek())) builder.Append(this.Take());
 
         return builder.ToString();
     }
 
-    private void Skip( int amount )
+    private void Skip(int amount)
     {
-        for( var i = 0; i <= amount; ++i )
-            this.Take();
+        for (var i = 0; i <= amount; ++i) this.Take();
     }
 
-    private void SkipWhile( Predicate<char> predicate )
+    private void SkipWhile(Predicate<char> predicate)
     {
-        while( !this.EndOfInput && predicate( this.Peek() ) )
-            this.Take();
+        while (!this.EndOfInput && predicate(this.Peek())) this.Take();
     }
+
+    private delegate bool Lexeme(char c, out Token token);
 }

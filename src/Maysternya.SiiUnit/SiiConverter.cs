@@ -5,7 +5,7 @@ namespace Maysternya.SiiUnit;
 public static class SiiConverter
 {
     /// <summary>
-    /// Converts a float to its Sii ieee754 hexa notation
+    ///     Converts a float to its Sii ieee754 hexa notation
     /// </summary>
     /// <param name="f">The float value</param>
     /// <returns></returns>
@@ -17,7 +17,7 @@ public static class SiiConverter
     }
 
     /// <summary>
-    /// Converts a hex value or an ieee754 hexa notation to a float value
+    ///     Converts a hex value or an ieee754 hexa notation to a float value
     /// </summary>
     /// <param name="s"></param>
     /// <returns></returns>
@@ -25,11 +25,15 @@ public static class SiiConverter
     {
         // Correct formating from SII files
         if (s.StartsWith("&"))
+        {
             s = s.Substring(1);
+        }
 
         // Convert to a hex parsible value
         if (!s.StartsWith("0x"))
+        {
             s = $"0x{s}";
+        }
 
         var i = Convert.ToInt32(s, 16);
         var bytes = BitConverter.GetBytes(i);

@@ -2,13 +2,7 @@
 
 internal class Token
 {
-    public string Text { get; }
-    public TokenKind Kind { get; }
-    public TextSpan Span { get; }
-    public string FileName { get; }
-    public object Tag { get; }
-
-    public Token( string text, TokenKind kind, TextSpan span, string fileName, object tag )
+    public Token(string text, TokenKind kind, TextSpan span, string fileName, object tag)
     {
         this.Text = text;
         this.Kind = kind;
@@ -17,9 +11,15 @@ internal class Token
         this.Tag = tag;
     }
 
+    public string Text { get; }
+    public TokenKind Kind { get; }
+    public TextSpan Span { get; }
+    public string FileName { get; }
+    public object Tag { get; }
+
     public override string ToString()
     {
-        switch( this.Kind )
+        switch (this.Kind)
         {
             case TokenKind.EndOfInput:
                 return "end-of-input";

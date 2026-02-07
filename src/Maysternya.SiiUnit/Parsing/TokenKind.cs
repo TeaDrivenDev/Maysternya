@@ -20,5 +20,5 @@ internal enum TokenKind
     Dot,
     Comma,
 
-    EndOfInput
+    EndOfInput,
 }
