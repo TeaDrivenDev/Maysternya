@@ -1,4 +1,4 @@
-﻿namespace Maysternya.SiiUnit.Parsing;
+﻿namespace TeaDriven.Maysternya.SiiUnit.Parsing;
 
 internal enum NumberFormat
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Maysternya.SiiUnit;
+namespace TeaDriven.Maysternya.SiiUnit;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public sealed class SiiUnitAttribute : Attribute

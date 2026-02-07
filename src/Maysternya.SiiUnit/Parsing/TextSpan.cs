@@ -1,4 +1,4 @@
-﻿namespace Maysternya.SiiUnit.Parsing;
+﻿namespace TeaDriven.Maysternya.SiiUnit.Parsing;
 
 public sealed record TextSpan(Location Start, Location End)
 {

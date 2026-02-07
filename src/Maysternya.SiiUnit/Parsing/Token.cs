@@ -1,4 +1,4 @@
-﻿namespace Maysternya.SiiUnit.Parsing;
+﻿namespace TeaDriven.Maysternya.SiiUnit.Parsing;
 
 internal record Token(string Text, TokenKind Kind, TextSpan Span, string FileName, object Tag)
 {

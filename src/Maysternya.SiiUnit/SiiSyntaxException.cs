@@ -1,6 +1,6 @@
-﻿using Maysternya.SiiUnit.Parsing;
+﻿using TeaDriven.Maysternya.SiiUnit.Parsing;
 
-namespace Maysternya.SiiUnit;
+namespace TeaDriven.Maysternya.SiiUnit;
 
 public sealed class SiiSyntaxException : SiiException
 {

@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Maysternya.SiiUnit.Parsing;
+namespace TeaDriven.Maysternya.SiiUnit.Parsing;
 
 internal sealed class Lexer
 {

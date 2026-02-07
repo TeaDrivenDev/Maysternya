@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Maysternya.SiiUnit.Parsing;
+namespace TeaDriven.Maysternya.SiiUnit.Parsing;
 
 internal sealed class Parser
 {
