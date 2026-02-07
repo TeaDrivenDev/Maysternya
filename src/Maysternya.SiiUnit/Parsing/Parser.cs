@@ -93,7 +93,7 @@ internal sealed class Parser
         // no matter where in the file they are defined
         foreach (var item in classDict)
         {
-            var pattern = @"^[\s\t]*" + item.Key + @"[\s\t]*:[\s\t]*(?<name>[\.a-z0-9_]+)[\s\t]*$";
+            var pattern = @"^[\s\t]*" + item.Key + @"[\s\t]*:[\s\t]*(?<name>[\.a-z0-9_]+)[\s\t]*\{[\s\t]*$";
             var reg = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             var matches = reg.Matches(this.lexer.Source);
 
