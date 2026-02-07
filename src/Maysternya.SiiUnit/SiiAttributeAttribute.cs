@@ -1,18 +1,17 @@
 ﻿using System;
 
-namespace Maysternya.SiiUnit
+namespace Maysternya.SiiUnit;
+
+[AttributeUsage( AttributeTargets.Field | AttributeTargets.Property )]
+public sealed class SiiAttributeAttribute : Attribute
 {
-    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Property )]
-    public sealed class SiiAttributeAttribute : Attribute
+    public string Name { get; }
+
+    public SiiAttributeAttribute( string name )
     {
-        public string Name { get; }
+        if( String.IsNullOrWhiteSpace( name ) )
+            throw new ArgumentNullException( nameof( name ) );
 
-        public SiiAttributeAttribute( string name )
-        {
-            if( String.IsNullOrWhiteSpace( name ) )
-                throw new ArgumentNullException( nameof( name ) );
-
-            this.Name = name;
-        }
+        this.Name = name;
     }
 }

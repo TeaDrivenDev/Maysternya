@@ -1,25 +1,24 @@
-﻿namespace Maysternya.SiiUnit.Parsing
+﻿namespace Maysternya.SiiUnit.Parsing;
+
+internal enum TokenKind
 {
-    internal enum TokenKind
-    {
-        Directive,
-        Identifier,
-        String,
-        Number,
-        True,
-        False,
+    Directive,
+    Identifier,
+    String,
+    Number,
+    True,
+    False,
 
-        LeftParen,
-        RightParen,
-        LeftSquare,
-        RightSquare,
-        LeftBrace,
-        RightBrace,
-        Colon,
-        SemiColon,
-        Dot,
-        Comma,
+    LeftParen,
+    RightParen,
+    LeftSquare,
+    RightSquare,
+    LeftBrace,
+    RightBrace,
+    Colon,
+    SemiColon,
+    Dot,
+    Comma,
 
-        EndOfInput
-    }
+    EndOfInput
 }

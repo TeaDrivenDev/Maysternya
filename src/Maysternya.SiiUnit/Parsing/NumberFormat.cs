@@ -1,9 +1,8 @@
-﻿namespace Maysternya.SiiUnit.Parsing
+﻿namespace Maysternya.SiiUnit.Parsing;
+
+internal enum NumberFormat
 {
-    internal enum NumberFormat
-    {
-        Integer,
-        Float,
-        HexFloat,
-    }
+    Integer,
+    Float,
+    HexFloat,
 }

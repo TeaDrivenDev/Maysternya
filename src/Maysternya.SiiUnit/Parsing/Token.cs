@@ -1,40 +1,39 @@
-﻿namespace Maysternya.SiiUnit.Parsing
+﻿namespace Maysternya.SiiUnit.Parsing;
+
+internal class Token
 {
-    internal class Token
+    public string Text { get; }
+    public TokenKind Kind { get; }
+    public TextSpan Span { get; }
+    public string FileName { get; }
+    public object Tag { get; }
+
+    public Token( string text, TokenKind kind, TextSpan span, string fileName, object tag )
     {
-        public string Text { get; }
-        public TokenKind Kind { get; }
-        public TextSpan Span { get; }
-        public string FileName { get; }
-        public object Tag { get; }
+        this.Text = text;
+        this.Kind = kind;
+        this.Span = span;
+        this.FileName = fileName;
+        this.Tag = tag;
+    }
 
-        public Token( string text, TokenKind kind, TextSpan span, string fileName, object tag )
+    public override string ToString()
+    {
+        switch( this.Kind )
         {
-            this.Text = text;
-            this.Kind = kind;
-            this.Span = span;
-            this.FileName = fileName;
-            this.Tag = tag;
-        }
+            case TokenKind.EndOfInput:
+                return "end-of-input";
 
-        public override string ToString()
-        {
-            switch( this.Kind )
-            {
-                case TokenKind.EndOfInput:
-                    return "end-of-input";
+            case TokenKind.Identifier:
+                return this.Text;
 
-                case TokenKind.Identifier:
-                    return this.Text;
+            case TokenKind.Number:
+            case TokenKind.True:
+            case TokenKind.False:
+                return this.Kind.ToString().ToLowerInvariant();
 
-                case TokenKind.Number:
-                case TokenKind.True:
-                case TokenKind.False:
-                    return this.Kind.ToString().ToLowerInvariant();
-
-                default:
-                    return this.Text;
-            }
+            default:
+                return this.Text;
         }
     }
 }

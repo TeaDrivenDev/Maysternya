@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Maysternya.SiiUnit
+namespace Maysternya.SiiUnit;
+
+public class SiiException : Exception
 {
-    public class SiiException : Exception
-    {
-        internal SiiException( string message ) : base( message ) { }
-    }
+    internal SiiException( string message ) : base( message ) { }
 }

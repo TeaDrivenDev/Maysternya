@@ -1,16 +1,15 @@
 ﻿using Maysternya.SiiUnit.Parsing;
 
-namespace Maysternya.SiiUnit
+namespace Maysternya.SiiUnit;
+
+public sealed class SiiSyntaxException : SiiException
 {
-    public sealed class SiiSyntaxException : SiiException
+    public TextSpan Span { get; }
+
+    internal SiiSyntaxException( TextSpan span, string message ) : base( message )
     {
-        public TextSpan Span { get; }
-
-        internal SiiSyntaxException( TextSpan span, string message ) : base( message )
-        {
-            this.Span = span;
-        }
-
-        internal SiiSyntaxException( Token token, string message ) : this( token.Span, message ) { }
+        this.Span = span;
     }
+
+    internal SiiSyntaxException( Token token, string message ) : this( token.Span, message ) { }
 }
