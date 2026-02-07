@@ -4,7 +4,7 @@
 
 ### Packages
 
-Each Workshop mod is stored in its own directory under `workshop\content\{gameId}\{modId}`. This usually contains a number of files and subdirectories or archives, but apparently can also just be a single archive instead.
+Each Workshop mod is stored in its own directory under `workshop\content\{gameId}\{modId}`. This usually contains a number of files and subdirectories or archives, but apparently can also just be a single archive instead. `gameId` and `modId` are numerical strings defined by Steam and contain no useful information on their own.
 
 A mod may contain multiple "packages", not all of which are relevant at the same time. Different packages can apply to different game versions, and packages can also be marked as "informational", meaning they don't contain game content at all and are only relevant for display in the game's mod manager.
 
@@ -65,12 +65,9 @@ package_name: "compatibility_info"
 informational: true
 }
 
-package_version_info : .151
+package_version_info : .154
 {
-package_name: "151"
-compatible_versions[]: "1.51.*"
-compatible_versions[]: "1.52.*"
-compatible_versions[]: "1.53.*"
+package_name: "154"
 compatible_versions[]: "1.54.*"
 compatible_versions[]: "1.55.*"
 compatible_versions[]: "1.56.*"
@@ -92,6 +89,8 @@ This mod contains 3 packages:
 For a mod to be not version locked at all, it needs to contain a package that is neither informational nor has any compatible versions listed.
 
 ## Design
+
+The game IDs are fixed values and defined as constants in the application. The mod IDs are just whatever directories happen to be present for the respective game and have no further meaning on their own. In particular, they are not useful for identifying the respective mod in a human-readable way, as they are just arbitrary numerical strings.
 
 `.sii` files are parsed using code adapted from https://github.com/SirTony/sii-unit-parser.
 
