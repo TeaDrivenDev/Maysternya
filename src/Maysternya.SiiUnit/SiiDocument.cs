@@ -24,9 +24,9 @@ public sealed class SiiDocument
 
     public ReadOnlyDictionary<string, object> Definitions { get; private set; }
 
-    public ReadOnlyDictionary<string, object> Load(string source)
+    public ReadOnlyDictionary<string, object> Load(string source, bool includeNamelessClasses = false)
     {
-        return this.LoadImpl(source, null);
+        return this.LoadImpl(source, null, includeNamelessClasses);
     }
 
     public ReadOnlyDictionary<string, object> LoadFile(string path, Encoding encoding = null)
@@ -40,12 +40,15 @@ public sealed class SiiDocument
         return this.Load(source);
     }
 
-    private ReadOnlyDictionary<string, object> LoadImpl(string source, string fileName)
+    private ReadOnlyDictionary<string, object> LoadImpl(
+        string source,
+        string fileName,
+        bool includeNamelessClasses)
     {
         var lexer = new Lexer(source, fileName);
         var parser = new Parser(lexer);
 
-        return this.Definitions = parser.Parse(this.documentTypes);
+        return this.Definitions = parser.Parse(this.documentTypes, includeNamelessClasses);
     }
 
     public T GetDefinition<T>(string name)

@@ -65,7 +65,9 @@ internal sealed class Parser
     /// </summary>
     /// <param name="types">An array of custom object types, which can be parsed into from this SiiDocument</param>
     /// <returns></returns>
-    public ReadOnlyDictionary<string, object> Parse(IEnumerable<Type> types)
+    public ReadOnlyDictionary<string, object> Parse(
+        IEnumerable<Type> types,
+        bool includeNamelessClasses)
     {
         var map = new Dictionary<string, object>();
         var first = default(Token);
@@ -112,7 +114,7 @@ internal sealed class Parser
             // If we hit a right brace here, we are at the EOF
             while (!this.Match(TokenKind.RightBrace))
             {
-                var pair = this.ParseDefinition(classDict);
+                var pair = this.ParseDefinition(classDict, includeNamelessClasses);
                 if (pair is not null)
                 {
                     map.Add(pair.Value.Key, pair.Value.Value);
@@ -132,7 +134,9 @@ internal sealed class Parser
     /// </summary>
     /// <param name="classes">className => C# InstanceType</param>
     /// <returns></returns>
-    private KeyValuePair<string, object>? ParseDefinition(ReadOnlyDictionary<string, Type> classes)
+    private KeyValuePair<string, object>? ParseDefinition(
+        ReadOnlyDictionary<string, Type> classes,
+        bool includeNamelessClasses)
     {
         // Check for directives
         if (this.MatchAndTake(TokenKind.Directive))
@@ -331,7 +335,9 @@ internal sealed class Parser
         }
 
         // Do not return nameless objects
-        return nameless ? null : new KeyValuePair<string, object>(name, instance);
+        return nameless && !includeNamelessClasses
+            ? null
+            : new KeyValuePair<string, object>(name, instance);
     }
 
     /// <summary>
