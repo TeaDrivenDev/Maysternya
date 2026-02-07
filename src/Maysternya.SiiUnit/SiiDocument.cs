@@ -10,7 +10,7 @@ namespace Maysternya.SiiUnit;
 
 public sealed class SiiDocument
 {
-    private readonly ReadOnlyCollection<Type> DocumentTypes;
+    private readonly ReadOnlyCollection<Type> documentTypes;
 
     public SiiDocument(params Type[] classTypes) : this(classTypes as IEnumerable<Type>)
     {
@@ -18,7 +18,7 @@ public sealed class SiiDocument
 
     public SiiDocument(IEnumerable<Type> classTypes)
     {
-        this.DocumentTypes = classTypes.ToList().AsReadOnly();
+        this.documentTypes = classTypes.ToList().AsReadOnly();
     }
 
     public ReadOnlyDictionary<string, object> Definitions { get; private set; }
@@ -44,7 +44,7 @@ public sealed class SiiDocument
         var lexer = new Lexer(source, fileName);
         var parser = new Parser(lexer);
 
-        return this.Definitions = parser.Parse(this.DocumentTypes);
+        return this.Definitions = parser.Parse(this.documentTypes);
     }
 
     public T GetDefinition<T>(string name)

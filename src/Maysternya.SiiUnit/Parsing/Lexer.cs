@@ -13,15 +13,15 @@ internal sealed class Lexer
     private static readonly ReadOnlyDictionary<char, TokenKind> Punctuation;
     private static readonly ReadOnlyCollection<char> HexDigits;
 
-    private readonly string FileName;
-    private readonly int Length;
-    private readonly ReadOnlyCollection<Lexeme> Lexemes;
+    private readonly string fileName;
+    private readonly int length;
+    private readonly ReadOnlyCollection<Lexeme> lexemes;
     internal readonly string Source;
 
-    private readonly Stack<TextSpan> Spans;
-    private int Column;
-    private int Index;
-    private int Line;
+    private readonly Stack<TextSpan> spans;
+    private int column;
+    private int index;
+    private int line;
 
     static Lexer()
     {
@@ -55,11 +55,11 @@ internal sealed class Lexer
 
     public Lexer(string source, string fileName)
     {
-        this.FileName = fileName;
+        this.fileName = fileName;
         this.Source = source;
-        this.Length = source.Length;
-        this.Spans = new Stack<TextSpan>();
-        this.Lexemes =
+        this.length = source.Length;
+        this.spans = new Stack<TextSpan>();
+        this.lexemes =
             new ReadOnlyCollection<Lexeme>(
                 new Lexeme[]
                 {
@@ -71,13 +71,13 @@ internal sealed class Lexer
                 });
     }
 
-    private bool EndOfInput => this.Index >= this.Length;
+    private bool EndOfInput => this.index >= this.length;
 
     public ReadOnlyCollection<Token> Tokenize()
     {
-        this.Index = 0;
-        this.Line = 1;
-        this.Column = 1;
+        this.index = 0;
+        this.line = 1;
+        this.column = 1;
 
         var tokens = new List<Token>();
         while (!this.EndOfInput)
@@ -92,7 +92,7 @@ internal sealed class Lexer
 
             this.MarkStart();
             var token = default(Token);
-            var success = this.Lexemes.Any(lexeme => lexeme(current, out token));
+            var success = this.lexemes.Any(lexeme => lexeme(current, out token));
             if (!success)
             {
                 throw new SiiSyntaxException(
@@ -101,7 +101,7 @@ internal sealed class Lexer
             }
 
             tokens.Add(token);
-            this.Spans.Pop();
+            this.spans.Pop();
         }
 
         this.MarkStart();
@@ -113,21 +113,21 @@ internal sealed class Lexer
 
     private void MarkStart()
     {
-        var location = new Location(this.Line, this.Column, this.Index);
+        var location = new Location(this.line, this.column, this.index);
         var span = new TextSpan(location, null);
-        this.Spans.Push(span);
+        this.spans.Push(span);
     }
 
     private TextSpan MarkEnd()
     {
-        var location = new Location(this.Line, this.Column, this.Index);
-        return this.Spans.Pop().WithEnd(location);
+        var location = new Location(this.line, this.column, this.index);
+        return this.spans.Pop().WithEnd(location);
     }
 
     private Token MakeToken(TokenKind kind, string text, object tag = null)
     {
         var span = this.MarkEnd();
-        return new Token(text, kind, span, this.FileName, tag);
+        return new Token(text, kind, span, this.fileName, tag);
     }
 
     private bool SkipComments(char c)
@@ -177,7 +177,7 @@ internal sealed class Lexer
                 "Unexpected end-of-input (unclosed multi-line comment)");
         }
 
-        this.Spans.Pop();
+        this.spans.Pop();
         return true;
     }
 
@@ -408,7 +408,7 @@ internal sealed class Lexer
 
             case 'x':
             {
-                if (this.Index + 2 >= this.Length)
+                if (this.index + 2 >= this.length)
                 {
                     throw new SiiSyntaxException(
                         this.MarkEnd(),
@@ -471,8 +471,8 @@ internal sealed class Lexer
 
     private char Peek(int distance = 0)
     {
-        var newIndex = this.Index + distance;
-        if (newIndex < 0 || newIndex >= this.Length)
+        var newIndex = this.index + distance;
+        if (newIndex < 0 || newIndex >= this.length)
         {
             return '\0';
         }
@@ -483,12 +483,12 @@ internal sealed class Lexer
     private bool IsNext(string search)
     {
         var len = search.Length;
-        if (this.Index + len >= this.Length)
+        if (this.index + len >= this.length)
         {
             return false;
         }
 
-        return this.Source.Substring(this.Index, len) == search;
+        return this.Source.Substring(this.index, len) == search;
     }
 
     private char Take()
@@ -498,23 +498,23 @@ internal sealed class Lexer
 
         if (current == '\r')
         {
-            ++this.Line;
-            this.Column = 0;
+            ++this.line;
+            this.column = 0;
 
             if (next == '\n')
             {
-                ++this.Index;
+                ++this.index;
                 current = next;
             }
         }
         else if (current == '\n')
         {
-            ++this.Line;
-            this.Column = 0;
+            ++this.line;
+            this.column = 0;
         }
 
-        ++this.Column;
-        ++this.Index;
+        ++this.column;
+        ++this.index;
 
         return current;
     }

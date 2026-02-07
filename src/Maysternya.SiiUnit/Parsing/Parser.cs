@@ -23,13 +23,13 @@ internal sealed class Parser
     private static readonly ReadOnlyCollection<Type> FloatTypes;
     private static readonly ReadOnlyCollection<Type> NumericTypes;
     private static readonly ReadOnlyCollection<Type> VectorTypes;
-    private readonly Dictionary<string, object> ClassMap = new Dictionary<string, object>();
-    private readonly Token EndOfInput;
-    private readonly int Length;
-    private readonly Lexer Lexer;
+    private readonly Dictionary<string, object> classMap = new Dictionary<string, object>();
+    private readonly Token endOfInput;
+    private readonly int length;
+    private readonly Lexer lexer;
 
-    private readonly ReadOnlyCollection<Token> Tokens;
-    private int Index;
+    private readonly ReadOnlyCollection<Token> tokens;
+    private int index;
 
     static Parser()
     {
@@ -59,10 +59,10 @@ internal sealed class Parser
 
     public Parser(Lexer lexer)
     {
-        this.Lexer = lexer;
-        this.Tokens = lexer.Tokenize();
-        this.EndOfInput = this.Tokens.Last();
-        this.Length = this.Tokens.Count;
+        this.lexer = lexer;
+        this.tokens = lexer.Tokenize();
+        this.endOfInput = this.tokens.Last();
+        this.length = this.tokens.Count;
     }
 
     /// <summary>
@@ -97,15 +97,15 @@ internal sealed class Parser
         {
             var pattern = @"^[\s\t]*" + item.Key + @"[\s\t]*:[\s\t]*(?<name>[\.a-z0-9_]+)[\s\t]*$";
             var reg = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            var matches = reg.Matches(this.Lexer.Source);
+            var matches = reg.Matches(this.lexer.Source);
 
             // Add each struct to the ClassMap Dictionary
             foreach (Match m in matches)
             {
-                if (!this.ClassMap.ContainsKey(m.Groups["name"].Value))
+                if (!this.classMap.ContainsKey(m.Groups["name"].Value))
                 {
                     var instance = Activator.CreateInstance(item.Value);
-                    this.ClassMap.Add(m.Groups["name"].Value, instance);
+                    this.classMap.Add(m.Groups["name"].Value, instance);
                 }
             }
         }
@@ -178,7 +178,7 @@ internal sealed class Parser
         }
 
         // Start fetching the class properties
-        var instance = this.ClassMap[name];
+        var instance = this.classMap[name];
         var members =
             type.GetFields(Flags)
                 .Where(f => f.GetCustomAttribute<SiiAttributeAttribute>() != null)
@@ -502,13 +502,13 @@ internal sealed class Parser
 
                 // Fetch the C# class type, so we can return an object instance
                 var name = builder.ToString();
-                if (!this.ClassMap.ContainsKey(name))
+                if (!this.classMap.ContainsKey(name))
                 {
                     throw new SiiException(
                         $"Access to an undefined object \"{name}\" found on line {token.Span.Start.Line}");
                 }
 
-                return this.ClassMap[name];
+                return this.classMap[name];
             default:
                 throw new SiiException(
                     $"Unsupported value type {token.Kind.ToString().ToLowerInvariant()} on line {token.Span.Start.Line}");
@@ -523,13 +523,13 @@ internal sealed class Parser
     /// <returns></returns>
     private Token Peek(int distance = 0)
     {
-        var newIndex = this.Index + distance;
-        if (newIndex < 0 || newIndex >= this.Length)
+        var newIndex = this.index + distance;
+        if (newIndex < 0 || newIndex >= this.length)
         {
-            return this.EndOfInput;
+            return this.endOfInput;
         }
 
-        return this.Tokens[newIndex];
+        return this.tokens[newIndex];
     }
 
     /// <summary>
@@ -541,7 +541,7 @@ internal sealed class Parser
     {
         if (kind == null)
         {
-            return this.Tokens[this.Index++];
+            return this.tokens[this.index++];
         }
 
         var current = this.Peek();
@@ -550,7 +550,7 @@ internal sealed class Parser
             throw new SiiSyntaxException(current, $"Unexpected {current}");
         }
 
-        ++this.Index;
+        ++this.index;
         return current;
     }
 
@@ -569,7 +569,7 @@ internal sealed class Parser
         {
             if (token == current.Kind)
             {
-                ++this.Index;
+                ++this.index;
                 return current;
             }
         }
