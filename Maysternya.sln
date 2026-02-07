@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Maysternya.Tests", "tests\Maysternya.Tests\Maysternya.Tests.fsproj", "{462A032F-E37F-4ED5-BA6A-58EDE7669743}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maysternya.SiiUnit", "src\Maysternya.SiiUnit\Maysternya.SiiUnit.csproj", "{7428C140-FE9C-4C5C-876A-6BF538FDDAB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{462A032F-E37F-4ED5-BA6A-58EDE7669743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7428C140-FE9C-4C5C-876A-6BF538FDDAB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7428C140-FE9C-4C5C-876A-6BF538FDDAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7428C140-FE9C-4C5C-876A-6BF538FDDAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7428C140-FE9C-4C5C-876A-6BF538FDDAB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
