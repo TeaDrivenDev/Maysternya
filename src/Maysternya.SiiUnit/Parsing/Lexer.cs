@@ -43,14 +43,13 @@ internal sealed class Lexer
         var keywords =
             new Dictionary<string, TokenKind>
             {
-                ["true"] = TokenKind.True, ["false"] = TokenKind.False,
+                ["true"] = TokenKind.True,
+                ["false"] = TokenKind.False,
             };
 
         Keywords = new ReadOnlyDictionary<string, TokenKind>(keywords);
         Punctuation = new ReadOnlyDictionary<char, TokenKind>(punctuation);
-        HexDigits =
-            new ReadOnlyCollection<char>(
-                new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F' });
+        HexDigits = ['a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'];
     }
 
     public Lexer(string source, string fileName)
@@ -60,15 +59,13 @@ internal sealed class Lexer
         this.length = source.Length;
         this.spans = new Stack<TextSpan>();
         this.lexemes =
-            new ReadOnlyCollection<Lexeme>(
-                new Lexeme[]
-                {
-                    this.TryLexDirective,
-                    this.TryLexNumber,
-                    this.TryLexIdentifier,
-                    this.TryLexString,
-                    this.TryLexPunctuation,
-                });
+        [
+            this.TryLexDirective,
+            this.TryLexNumber,
+            this.TryLexIdentifier,
+            this.TryLexString,
+            this.TryLexPunctuation,
+        ];
     }
 
     private bool EndOfInput => this.index >= this.length;
@@ -206,7 +203,7 @@ internal sealed class Lexer
 
         this.MarkStart();
         var text = this.TakeWhile(ch => Char.IsLetterOrDigit(ch) || ch == '_' || ch == '?');
-        var kind = Keywords.ContainsKey(text) ? Keywords[text] : TokenKind.Identifier;
+        var kind = Keywords.GetValueOrDefault(text, TokenKind.Identifier);
         token = this.MakeToken(kind, text);
         return true;
     }
@@ -259,11 +256,11 @@ internal sealed class Lexer
                     {
                         if (Char.IsLetter(ch) || ch == '_' || ch == '?')
                         {
-                            if (ch == 'e' || ch == 'E')
+                            if (ch is 'e' or 'E')
                             {
                                 var second = this.Peek(2);
                                 if (!Char.IsDigit(next)
-                                    && !((next == '-' || next == '+') && Char.IsDigit(second)))
+                                    && !(next is '-' or '+' && Char.IsDigit(second)))
                                 {
                                     // Try Identifier
                                     tokenKind = TokenKind.Identifier;
@@ -277,7 +274,7 @@ internal sealed class Lexer
                                         "Number already has exponent");
                                 }
 
-                                if ((next == '-' || next == '+') && Char.IsDigit(second))
+                                if (next is '-' or '+' && Char.IsDigit(second))
                                 {
                                     forceTake = true;
                                 }
@@ -335,9 +332,9 @@ internal sealed class Lexer
         this.Take();
         var closed = false;
         var builder = new StringBuilder();
-        var current = default(char);
         while (!this.EndOfInput)
         {
+            var current = default(char);
             if ((current = this.Peek()) == '"')
             {
                 this.Take();
