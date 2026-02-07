@@ -10,6 +10,7 @@
     <Compile Include="MetadataTests.fs" />
     <Compile Include="ParsingTests.fs" />
     <Compile Include="PackageTests.fs" />
+    <Compile Include="SiiUnitTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Maysternya.SiiUnit\Maysternya.SiiUnit.csproj" />
     <ProjectReference Include="..\..\src\Maysternya\Maysternya.fsproj" />
   </ItemGroup>
 
