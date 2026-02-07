@@ -36,10 +36,8 @@ module SiiUnitTests =
         [<SiiAttribute("description_file")>]
         member val DescriptionFile: string = null with get, set
 
-    [<Fact>]
-    let ``Versions file is parsed correctly`` () =
-        // Arrange
-        let input = """
+    [<Theory>]
+    [<InlineData("""
 SiiNunit
 {
 package_version_info : .info.compatible.versions
@@ -61,8 +59,31 @@ package_version_info : .157
     package_name: "157"
     compatible_versions[]: "1.57.*"
 }
-}"""
+}""")>]
+    [<InlineData("""
+SiiNunit
+{
+package_version_info : .info.compatible.versions {
+    package_name: "compatibility_info"
+    informational: true
+}
 
+package_version_info : .154
+{
+    package_name: "154"
+    compatible_versions[]: "1.54.*"
+    compatible_versions[]: "1.55.*"
+    compatible_versions[]: "1.56.*"
+}
+
+package_version_info : .157
+{
+    package_name: "157"
+    compatible_versions[]: "1.57.*"
+}
+}""")>]
+    let ``Versions file is parsed correctly`` (input: string) =
+        // Arrange
         let expectedPackageName1 = "compatibility_info"
         let expectedCompatibleVersions1 = Unchecked.defaultof<string array>
         let expectedInformational1 = true
