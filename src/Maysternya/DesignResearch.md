@@ -121,6 +121,4 @@ Determining the highest compatible version is easy: Parse `versions.sii` and fin
 
 Obtaining the metadata is fundamentally not difficult either: Read the `manifest.sii` file in the package determined above; if the package does not contain such a file, there will probably have to be one in an informational package. The apparently frequent lack of a display name in the manifest files is an issue; the mod IDs are just long numbers and cannot be used to tell the user what the individual mods are. A possible workaround is showing (part of) the description file in place of the name; possibly with the entire file as a tooltip.
 
-- If the entire mod or relevant packages are present as single archives instead of separate files, unpack the respective archive in a temporary location and read the relevant information. 
-- If the archive cannot be unpacked using standard zip functionality, unpack it using the SCS extractor.
-- When modifying compatibility information for a package that is present as a single archive, unpack the archive, modify `versions.sii`, then repack the archive and replace the original file.
+If a relevant package is present as an archive, access it via .NET's built-in zip functionality to read the manifest file. If the archive cannot be read using the zip functionality, extract it to a temporary location using the SCS extractor, and read the manifest file from the file system. 
