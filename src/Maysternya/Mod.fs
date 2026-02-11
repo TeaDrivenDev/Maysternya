@@ -39,7 +39,7 @@ module Mod =
         [<SiiAttribute("dlc_dependencies")>]
         member val DlcDependencies: string array = null with get, set
 
-    let determineRelevantPackages (allPackages: PackageVersionInfo list) =
+    let determineRelevantPackage (allPackages: PackageVersionInfo list) =
         let contentPackages = allPackages |> List.filter (_.Informational >> not)
 
         contentPackages

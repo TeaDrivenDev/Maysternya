@@ -49,7 +49,7 @@ package_version_info : .universal
         let packages = keys |> List.map document.GetDefinition<PackageVersionInfo>
 
         // Act
-        let relevantPackage, highestCompatibleVersion = Mod.determineRelevantPackages packages
+        let relevantPackage, highestCompatibleVersion = Mod.determineRelevantPackage packages
 
         // Assert
         Assert.Equal(expectedPackageName, relevantPackage.PackageName)
@@ -96,7 +96,7 @@ package_version_info : .154
         let packages = keys |> List.map document.GetDefinition<PackageVersionInfo>
 
         // Act
-        let relevantPackage, highestCompatibleVersion = Mod.determineRelevantPackages packages
+        let relevantPackage, highestCompatibleVersion = Mod.determineRelevantPackage packages
 
         // Assert
         Assert.Equal(expectedPackageName, relevantPackage.PackageName)
