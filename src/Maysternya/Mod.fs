@@ -1,13 +1,13 @@
 ﻿namespace TeaDriven.Maysternya
 
-open System
-
 [<RequireQualifiedAccess>]
 module Mod =
+    open System
     open System.IO
     open System.IO.Compression
 
     open TeaDriven.Maysternya.Domain
+    open TeaDriven.Maysternya.Prelude
     open TeaDriven.Maysternya.SiiUnit
 
     [<SiiUnit("package_version_info")>]
@@ -161,9 +161,19 @@ module Mod =
         match packageData with
         | Accessible (modPackage, description) ->
             let displayName, source =
-                match modPackage.DisplayName with
-                | null -> "[No display name]", Unavailable
-                | name -> string name, Package
+                if String.IsNullOrWhiteSpace modPackage.DisplayName
+                then
+                    let firstLineOfDescription =
+                        if String.IsNullOrWhiteSpace description
+                        then None
+                        else
+                            use reader = new StringReader(description)
+                            reader.ReadLine() |> Some
+
+                    firstLineOfDescription
+                    |> Option.map (asFst DescriptionFile)
+                    |> Option.defaultValue ("[No display name]", Unavailable)
+                else modPackage.DisplayName, Package
 
             {|
                 DisplayName = displayName
