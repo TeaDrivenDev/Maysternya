@@ -124,7 +124,7 @@ module Mod =
         {
             Id = modId
             Path = modPath
-            Name = Some displayName
+            Name = displayName
             Version = packageVersion
             Description = "xd"
         }
