@@ -41,6 +41,9 @@ module Mod =
         [<SiiAttribute("dlc_dependencies")>]
         member val DlcDependencies: string array = null with get, set
 
+        [<SiiAttribute("mp_mod_optional")>]
+        member val MpModOptional: bool = false with get, private set
+
     let determineRelevantPackage (allPackages: PackageVersionInfo list) =
         let contentPackages = allPackages |> List.filter (_.Informational >> not)
 

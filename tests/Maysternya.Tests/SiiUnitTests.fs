@@ -123,6 +123,8 @@ mod_package : .package_name
 
     dlc_dependencies[]: "dlc_kenworth_t680"
     dlc_dependencies[]: "dlc_kenworth_w900"
+
+    mp_mod_optional: true
 }
 }"""
 
