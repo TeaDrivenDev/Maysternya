@@ -79,6 +79,12 @@ package_version_info : .157
 	package_name: "157"
 	compatible_versions[]: "1.57.*"
 }
+
+package_version_info : .154
+{
+	package_name: "154"
+	compatible_versions[]: "1.54.*"
+}
 }"""
 
         let expectedPackageName = "157"
