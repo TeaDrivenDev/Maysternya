@@ -89,10 +89,10 @@ module Mod =
 
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
-    let private loadManifestFromArchive archivePath =
+    let private loadFileFromArchive fileName archivePath =
         try
             use archive = ZipFile.OpenRead(archivePath)
-            let manifestEntry = archive.GetEntry(Constants.FileNames.ManifestSii)
+            let manifestEntry = archive.GetEntry(fileName)
             use manifestStream = manifestEntry.Open()
             use reader = new StreamReader(manifestStream)
             reader.ReadToEnd() |> Success
@@ -117,7 +117,7 @@ module Mod =
                             if File.Exists archiveFileName
                             then Some archiveFileName
                             else None)
-                |> Option.map loadManifestFromArchive
+                |> Option.map (loadFileFromArchive Constants.FileNames.ManifestSii)
 
         manifestContents
         |> Option.map
