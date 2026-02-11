@@ -424,7 +424,7 @@ internal sealed class Parser
                 if (type != typeof(string))
                 {
                     throw new SiiException(
-                        $"Type mistmatch. Expected string, got {type.Name} on line {token.Span.Start.Line}");
+                        $"Type mismatch. Expected string, got {type.Name} on line {token.Span.Start.Line}");
                 }
 
                 return token.Text;
