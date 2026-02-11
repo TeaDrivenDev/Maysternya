@@ -96,14 +96,21 @@ module Mod =
             |> readManifestContents
             |> Directory
         else
-            let zipFileName = packagePath + ".zip"
-            let scsFileName = packagePath + ".scs"
+            let archiveExtensions = [ ".zip"; ".scs" ]
 
-            if File.Exists zipFileName
-            then Archive zipFileName
-            elif File.Exists scsFileName
-            then Archive scsFileName
-            else NotFound packageName
+            let archiveFileName =
+                archiveExtensions
+                |> List.tryPick
+                       (fun extension ->
+                            let archiveFileName = packagePath + extension
+
+                            if File.Exists archiveFileName
+                            then Some archiveFileName
+                            else None)
+
+            archiveFileName
+            |> Option.map Archive
+            |> Option.defaultValue (NotFound packageName)
 
     let readMetadata modPath packageName =
         let packageData =
