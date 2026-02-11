@@ -48,7 +48,7 @@
 
             <Grid Grid.Row="1"
                   ColumnDefinitions="*,*"
-                  Margin="2 0">
+                  Margin="2 5 2 0">
                 <TextBlock Grid.Column="0"
                            Grid.ColumnSpan="2"
                            Text="{Binding WorkshopDirectoryMessage}"
@@ -87,7 +87,7 @@
                 </RadioButton>
             </Grid>
 
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="2" Margin="0 10 0 0">
                 <DataGrid ItemsSource="{Binding Mods}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="150" Binding="{Binding Id}" Header="ID" />
