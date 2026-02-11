@@ -88,30 +88,6 @@ type CompatibleVersion =
     | SpecificVersion of string
     | NotVersionLocked
 
-type PackageVersionInfo =
-    {
-        PackageName: string
-        CompatibleVersions: string list
-        IsInformational: bool
-    }
-
-type RelevantPackages =
-    {
-        MetadataPackage: PackageVersionInfo option
-        ContentPackage: PackageVersionInfo option
-        HighestCompatibleVersion: CompatibleVersion
-    }
-
-type Metadata =
-    {
-        DisplayName: string
-        Version: string
-        Author: string
-        Categories: string list
-        Icon: string
-        MultiplayerOptional: bool
-    }
-
 type Mod =
     {
         Id: string
