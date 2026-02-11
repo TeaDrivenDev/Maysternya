@@ -1,5 +1,7 @@
 ﻿namespace TeaDriven.Maysternya
 
+open System
+
 [<RequireQualifiedAccess>]
 module Mod =
     open System.IO
@@ -45,12 +47,12 @@ module Mod =
         [<SiiAttribute("mp_mod_optional")>]
         member val MpModOptional: bool = false with get, private set
 
-    type private FileContents =
-        | Success of string
+    type private FileContentsAccessed =
+        | Success of string * (string -> FileContentsAccessed)
         | Failure of string
 
     type private PackagePresence =
-        | Accessible of ModPackage
+        | Accessible of ModPackage * string
         | Archive of string
         | NotFound of string
 
@@ -89,40 +91,66 @@ module Mod =
 
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
-    let private loadFileFromArchive fileName archivePath =
+    let rec private loadFileFromFileSystem packagePath fileName =
+        let filePath = Path.Combine(packagePath, fileName)
+        let contents = File.ReadAllText(filePath)
+
+        (contents, (loadFileFromFileSystem packagePath)) |> Success
+
+    let rec private loadFileFromArchive archivePath fileName: FileContentsAccessed =
         try
             use archive = ZipFile.OpenRead(archivePath)
             let manifestEntry = archive.GetEntry(fileName)
             use manifestStream = manifestEntry.Open()
             use reader = new StreamReader(manifestStream)
-            reader.ReadToEnd() |> Success
+            let contents = reader.ReadToEnd()
+
+            (contents, (loadFileFromArchive archivePath)) |> Success
         with ex -> Failure archivePath
 
     let private readManifest modPath packageName =
         let packagePath = Path.Combine(modPath, packageName)
+        let manifestFileName = Constants.FileNames.ManifestSii
 
         let manifestContents =
             if Directory.Exists packagePath
             then
-                let manifestPath = Path.Combine(packagePath, Constants.FileNames.ManifestSii)
-                File.ReadAllText(manifestPath) |> Success |> Some
+                loadFileFromFileSystem packagePath manifestFileName |> Some
             else
                 let archiveExtensions = [ ".zip"; ".scs" ]
 
                 archiveExtensions
                 |> List.tryPick
                        (fun extension ->
-                            let archiveFileName = packagePath + extension
+                            let archivePath = packagePath + extension
 
-                            if File.Exists archiveFileName
-                            then Some archiveFileName
+                            if File.Exists archivePath
+                            then Some archivePath
                             else None)
-                |> Option.map (loadFileFromArchive Constants.FileNames.ManifestSii)
+                |> Option.map
+                    (fun archivePath -> loadFileFromArchive archivePath manifestFileName)
 
         manifestContents
         |> Option.map
             (function
-                | Success contents -> readManifestContents contents |> Accessible
+                | Success (contents, loadFile) ->
+                    let modPackage = readManifestContents contents
+
+                    let description =
+                        if not <| String.IsNullOrWhiteSpace modPackage.DescriptionFile
+                        then loadFile modPackage.DescriptionFile |> Some
+                        else None
+
+                    let descriptionText =
+                        description
+                        |> Option.map
+                            (function
+                                | Success (description, _) -> description
+                                | Failure _ -> "")
+                        |> Option.defaultValue ""
+
+                    Accessible (modPackage, descriptionText)
+
                 | Failure archivePath -> Archive archivePath)
         |> Option.defaultValue (NotFound packageName)
 
@@ -131,7 +159,7 @@ module Mod =
             readManifest modPath packageName
 
         match packageData with
-        | Accessible modPackage ->
+        | Accessible (modPackage, description) ->
             let displayName, source =
                 match modPackage.DisplayName with
                 | null -> "[No display name]", Unavailable
@@ -142,6 +170,7 @@ module Mod =
                 DisplayNameSource = source
                 Author = modPackage.Author
                 ModVersion = modPackage.PackageVersion
+                Description = description
             |}
         | Archive path ->
             {|
@@ -149,6 +178,7 @@ module Mod =
                 DisplayNameSource = Unavailable
                 Author = ""
                 ModVersion = ""
+                Description = ""
             |}
         | NotFound packageName ->
             {|
@@ -156,6 +186,7 @@ module Mod =
                 DisplayNameSource = Unavailable
                 Author = ""
                 ModVersion = ""
+                Description = ""
             |}
 
     let readMod (modPath: string) =
