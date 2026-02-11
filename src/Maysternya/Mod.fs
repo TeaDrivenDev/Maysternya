@@ -105,27 +105,43 @@ module Mod =
             then Archive scsFileName
             else NotFound packageName
 
+    let readMetadata modPath packageName =
+        let packageData =
+            readManifest modPath packageName
+
+        match packageData with
+        | Directory modPackage ->
+            {|
+                DisplayName =
+                    modPackage.DisplayName
+                    |> Option.ofObj
+                    |> Option.defaultValue "[No display name]"
+                ModVersion = modPackage.PackageVersion
+            |}
+        | Archive path ->
+            {|
+                DisplayName = $"[Metadata in {Path.GetFileName path}]"
+                ModVersion = ""
+            |}
+        | NotFound packageName ->
+            {|
+                DisplayName = $"[Package {packageName} not found]"
+                ModVersion = ""
+            |}
+
     let readMod (modPath: string) =
         let relevantPackage, compatibleVersion =
             modPath |> readVersions |> determineRelevantPackage
 
-        let packageData =
-            readManifest modPath relevantPackage.PackageName
-
-        let displayName, packageVersion =
-            match packageData with
-            | Directory modPackage ->
-                modPackage.DisplayName |> Option.ofObj |> Option.defaultValue "[No display name]", modPackage.PackageVersion
-            | Archive path -> $"[Metadata in {Path.GetFileName path}]", ""
-            | NotFound packageName -> $"[Package {packageName} not found]", ""
+        let metadata = readMetadata modPath relevantPackage.PackageName
 
         let modId = Path.GetFileName modPath
 
         {
             Id = modId
             Path = modPath
-            Name = displayName
-            Version = packageVersion
+            Name = metadata.DisplayName
+            Version = metadata.ModVersion
             Description = "xd"
             HighestCompatibleGameVersion = compatibleVersion
         }
