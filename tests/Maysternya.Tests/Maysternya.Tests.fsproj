@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="ModTests.fs" />
     <Compile Include="SiiUnitTests.fs" />
   </ItemGroup>
 
