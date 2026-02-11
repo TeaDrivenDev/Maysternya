@@ -83,22 +83,7 @@ module App =
 
             let mods =
                 modsPath
-                |> Option.map
-                    (fun path ->
-                        path
-                        |> Directory.GetDirectories
-                        |> List.ofArray
-                        |> List.map
-                            (fun directory ->
-                                let modId = Path.GetFileName directory
-
-                                {
-                                    Id = modId
-                                    Path = directory
-                                    Name = Some modId
-                                    Version = "xx"
-                                    Description = ""
-                                }))
+                |> Option.map Mod.readMods
                 |> Option.defaultValue []
 
             { model with Mods = mods } |> withoutCommand

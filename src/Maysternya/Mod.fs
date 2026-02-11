@@ -2,6 +2,8 @@
 
 [<RequireQualifiedAccess>]
 module Mod =
+    open System.IO
+
     open TeaDriven.Maysternya.Domain
     open TeaDriven.Maysternya.SiiUnit
 
@@ -53,3 +55,20 @@ module Mod =
                     |> List.maxBy snd
 
                 package, SpecificVersion version
+
+    let readMod (modPath: string) =
+        let modId = Path.GetDirectoryName modPath
+
+        {
+            Id = modId
+            Path = modPath
+            Name = Some modId
+            Version = "xx"
+            Description = "xd"
+        }
+
+    let readMods modsPath =
+        modsPath
+        |> Directory.GetDirectories
+        |> List.ofArray
+        |> List.map readMod
