@@ -45,11 +45,11 @@ module Mod =
         [<SiiAttribute("mp_mod_optional")>]
         member val MpModOptional: bool = false with get, private set
 
-    type FileContents =
+    type private FileContents =
         | Success of string
         | Failure of string
 
-    type PackagePresence =
+    type private PackagePresence =
         | Accessible of ModPackage
         | Archive of string
         | NotFound of string
@@ -89,7 +89,7 @@ module Mod =
 
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
-    let loadManifestFromArchive archivePath =
+    let private loadManifestFromArchive archivePath =
         try
             use archive = ZipFile.OpenRead(archivePath)
             let manifestEntry = archive.GetEntry(Constants.FileNames.ManifestSii)
@@ -98,7 +98,7 @@ module Mod =
             reader.ReadToEnd() |> Success
         with ex -> Failure archivePath
 
-    let readManifest modPath packageName =
+    let private readManifest modPath packageName =
         let packagePath = Path.Combine(modPath, packageName)
 
         let manifestContents =
