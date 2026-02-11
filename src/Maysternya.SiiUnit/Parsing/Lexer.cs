@@ -87,6 +87,11 @@ internal sealed class Lexer
                 continue;
             }
 
+            if (current == '\0')
+            {
+                continue;
+            }
+
             this.MarkStart();
             var token = default(Token);
             var success = this.lexemes.Any(lexeme => lexeme(current, out token));

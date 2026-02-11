@@ -126,7 +126,8 @@ mod_package : .package_name
 
     mp_mod_optional: true
 }
-}"""
+}
+"""
 
         let expectedPackageVersion = "V1.0.3.0"
         let expectedDisplayName = "Some Things"
