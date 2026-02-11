@@ -95,8 +95,9 @@ module App =
                                 {
                                     Id = modId
                                     Path = directory
-                                    Name = modId
+                                    Name = Some modId
                                     Version = "xx"
+                                    Description = ""
                                 }))
                 |> Option.defaultValue []
 

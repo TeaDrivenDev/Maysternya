@@ -11,7 +11,7 @@ type ModViewModel(modData: Mod) =
     inherit ReactiveElmishViewModel()
 
     member _.Id = modData.Id
-    member _.Name = modData.Name
+    member _.Name = modData.Name |> Option.defaultValue modData.Id
     member _.Version = modData.Version
 
 type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =

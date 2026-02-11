@@ -92,6 +92,7 @@ type Mod =
     {
         Id: string
         Path: string
-        Name: string
+        Name: string option
         Version: string
+        Description: string
     }
