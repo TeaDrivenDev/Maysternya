@@ -132,23 +132,28 @@ module Mod =
 
         match packageData with
         | Accessible modPackage ->
+            let displayName, source =
+                match modPackage.DisplayName with
+                | null -> "[No display name]", Unavailable
+                | name -> string name, Package
+
             {|
-                DisplayName =
-                    modPackage.DisplayName
-                    |> Option.ofObj
-                    |> Option.defaultValue "[No display name]"
+                DisplayName = displayName
+                DisplayNameSource = source
                 Author = modPackage.Author
                 ModVersion = modPackage.PackageVersion
             |}
         | Archive path ->
             {|
                 DisplayName = $"[Metadata in {Path.GetFileName path}]"
+                DisplayNameSource = Unavailable
                 Author = ""
                 ModVersion = ""
             |}
         | NotFound packageName ->
             {|
                 DisplayName = $"[Package {packageName} not found]"
+                DisplayNameSource = Unavailable
                 Author = ""
                 ModVersion = ""
             |}
@@ -165,6 +170,7 @@ module Mod =
             Id = modId
             Path = modPath
             Name = metadata.DisplayName
+            DisplayNameSource = metadata.DisplayNameSource
             Author = metadata.Author
             Version = metadata.ModVersion
             Description = "xd"

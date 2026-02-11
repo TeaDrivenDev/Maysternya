@@ -47,11 +47,14 @@ type CompatibleVersion =
     | SpecificVersion of string
     | NotVersionLocked
 
+type DisplayNameSource = Package | DescriptionFile | Unavailable
+
 type Mod =
     {
         Id: string
         Path: string
         Name: string
+        DisplayNameSource: DisplayNameSource
         Author: string
         Version: string
         Description: string
