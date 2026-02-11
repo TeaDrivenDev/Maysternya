@@ -421,7 +421,11 @@ internal sealed class Parser
         switch (token.Kind)
         {
             case TokenKind.String:
-                if (type != typeof(string))
+                if (type == typeof(bool) && bool.TryParse(token.Text, out var booleanValue))
+                {
+                    return booleanValue;
+                }
+                else if (type != typeof(string))
                 {
                     throw new SiiException(
                         $"Type mismatch. Expected string, got {type.Name} on line {token.Span.Start.Line}");

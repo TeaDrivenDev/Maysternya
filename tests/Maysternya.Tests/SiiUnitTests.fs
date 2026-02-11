@@ -91,6 +91,46 @@ package_version_info : .157
         Assert.Equal<string array>(expectedCompatibleVersions3, definition.CompatibleVersions)
         Assert.Equal(expectedInformational3, definition.Informational)
 
+    [<Theory>]
+    [<InlineData("""
+SiiNunit
+{
+package_version_info : .info.compatible.versions
+{
+    package_name: "compatibility_info"
+    informational: true
+}
+}""")>]
+    [<InlineData("""
+SiiNunit
+{
+package_version_info : .info.compatible.versions
+{
+    package_name: "compatibility_info"
+    informational: "true"
+}
+}""")>]
+    let ``Booleans values can be parsed with or without quotes`` (input: string) =
+        // Arrange
+        let expectedPackageName = "compatibility_info"
+        let expectedInformational = true
+
+        // Act
+        let document = SiiDocument(typeof<PackageVersionInfo>)
+
+        document.Load(
+            input,
+            SiiParsingOptions.IncludeNamelessClasses ||| SiiParsingOptions.AllowExtraContentAfterEnd)
+        |> ignore
+
+        let key = document.Definitions.Keys |> Seq.exactlyOne
+        let definition = document.GetDefinition<PackageVersionInfo>(key)
+
+        // Assert
+        Assert.Equal(expectedPackageName, definition.PackageName)
+        Assert.Equal(expectedInformational, definition.Informational)
+
+
     [<Fact>]
     let ``Manifest file is parsed correctly`` () =
         // Arrange
