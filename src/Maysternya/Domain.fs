@@ -95,4 +95,5 @@ type Mod =
         Name: string
         Version: string
         Description: string
+        HighestCompatibleGameVersion: CompatibleVersion
     }

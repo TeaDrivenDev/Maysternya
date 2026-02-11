@@ -13,6 +13,10 @@ type ModViewModel(modData: Mod) =
     member _.Id = modData.Id
     member _.Name = modData.Name
     member _.Version = modData.Version
+    member _.HighestCompatibleGameVersion =
+        match modData.HighestCompatibleGameVersion with
+        | SpecificVersion version -> version
+        | NotVersionLocked -> ""
 
 type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
     inherit ReactiveElmishViewModel()

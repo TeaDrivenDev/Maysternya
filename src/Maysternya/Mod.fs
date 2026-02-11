@@ -127,6 +127,7 @@ module Mod =
             Name = displayName
             Version = packageVersion
             Description = "xd"
+            HighestCompatibleGameVersion = compatibleVersion
         }
 
     let readMods modsPath =
