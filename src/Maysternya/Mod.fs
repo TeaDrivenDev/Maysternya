@@ -40,16 +40,16 @@ module Mod =
         member val DlcDependencies: string array = null with get, set
 
     let determineRelevantPackages (allPackages: PackageVersionInfo list) =
-        let informationalPackages, contentPackages = allPackages |> List.partition _.Informational
+        let contentPackages = allPackages |> List.filter (_.Informational >> not)
 
-        let unrestrictedPackage = contentPackages |> List.tryFind (_.CompatibleVersions >> isNull)
+        contentPackages
+        |> List.tryFind (_.CompatibleVersions >> isNull)
+        |> function
+            | Some package -> package, NotVersionLocked
+            | None ->
+                let package, version =
+                    contentPackages
+                    |> List.map (fun package -> package, Array.max package.CompatibleVersions)
+                    |> List.maxBy snd
 
-        match unrestrictedPackage with
-        | Some package -> package, NotVersionLocked
-        | None ->
-            let package, version =
-                contentPackages
-                |> List.map (fun package -> package, Array.max package.CompatibleVersions)
-                |> List.maxBy snd
-
-            package, SpecificVersion version
+                package, SpecificVersion version
