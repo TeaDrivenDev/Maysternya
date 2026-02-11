@@ -92,6 +92,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="135" Binding="{Binding Id}" Header="ID" />
                         <DataGridTextColumn Width="*" Binding="{Binding Name}" Header="Name" />
+                        <DataGridTextColumn Width="150" Binding="{Binding Author}" Header="Author" />
                         <DataGridTextColumn Width="125" Binding="{Binding Version}" Header="Mod Version" />
                         <DataGridTextColumn Width="125" Binding="{Binding HighestCompatibleGameVersion}" Header="Compatible" />
                     </DataGrid.Columns>

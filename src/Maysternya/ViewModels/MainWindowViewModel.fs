@@ -12,6 +12,7 @@ type ModViewModel(modData: Mod) =
 
     member _.Id = modData.Id
     member _.Name = modData.Name
+    member _.Author = modData.Author
     member _.Version = modData.Version
     member _.HighestCompatibleGameVersion =
         match modData.HighestCompatibleGameVersion with

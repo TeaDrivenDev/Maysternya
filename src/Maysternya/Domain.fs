@@ -52,6 +52,7 @@ type Mod =
         Id: string
         Path: string
         Name: string
+        Author: string
         Version: string
         Description: string
         HighestCompatibleGameVersion: CompatibleVersion

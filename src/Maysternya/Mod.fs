@@ -116,16 +116,19 @@ module Mod =
                     modPackage.DisplayName
                     |> Option.ofObj
                     |> Option.defaultValue "[No display name]"
+                Author = modPackage.Author
                 ModVersion = modPackage.PackageVersion
             |}
         | Archive path ->
             {|
                 DisplayName = $"[Metadata in {Path.GetFileName path}]"
+                Author = ""
                 ModVersion = ""
             |}
         | NotFound packageName ->
             {|
                 DisplayName = $"[Package {packageName} not found]"
+                Author = ""
                 ModVersion = ""
             |}
 
@@ -141,6 +144,7 @@ module Mod =
             Id = modId
             Path = modPath
             Name = metadata.DisplayName
+            Author = metadata.Author
             Version = metadata.ModVersion
             Description = "xd"
             HighestCompatibleGameVersion = compatibleVersion
