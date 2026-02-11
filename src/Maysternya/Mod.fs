@@ -49,12 +49,15 @@ module Mod =
         | Archive of string
         | NotFound of string
 
+    let private siiParsingOptions =
+        SiiParsingOptions.IncludeNamelessClasses ||| SiiParsingOptions.AllowExtraContentAfterEnd
+
     let readVersions modPath =
         let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
         let versionsFileContent = File.ReadAllText(versionsFilePath)
 
         let document = SiiDocument(typeof<PackageVersionInfo>)
-        document.Load(versionsFileContent, SiiParsingOptions.IncludeNamelessClasses) |> ignore
+        document.Load(versionsFileContent, siiParsingOptions) |> ignore
 
         document.Definitions.Keys
         |> Seq.map document.GetDefinition<PackageVersionInfo>
@@ -77,7 +80,7 @@ module Mod =
 
     let readManifestContents (manifestContents: string) =
         let document = SiiDocument(typeof<ModPackage>)
-        document.Load(manifestContents.Trim(), SiiParsingOptions.IncludeNamelessClasses) |> ignore
+        document.Load(manifestContents.Trim(), siiParsingOptions) |> ignore
 
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
