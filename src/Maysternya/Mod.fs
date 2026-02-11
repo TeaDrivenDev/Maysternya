@@ -44,6 +44,22 @@ module Mod =
         [<SiiAttribute("mp_mod_optional")>]
         member val MpModOptional: bool = false with get, private set
 
+    type PackagePresence =
+        | Directory of ModPackage
+        | Archive of string
+        | NotFound of string
+
+    let readVersions modPath =
+        let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
+        let versionsFileContent = File.ReadAllText(versionsFilePath)
+
+        let document = SiiDocument(typeof<PackageVersionInfo>)
+        document.Load(versionsFileContent, includeNamelessClasses=true) |> ignore
+
+        document.Definitions.Keys
+        |> Seq.map document.GetDefinition<PackageVersionInfo>
+        |> Seq.toList
+
     let determineRelevantPackage (allPackages: PackageVersionInfo list) =
         let contentPackages = allPackages |> List.filter (_.Informational >> not)
 
@@ -59,14 +75,54 @@ module Mod =
 
                 package, SpecificVersion version
 
+    let readManifestContents (manifestContents: string) =
+        let document = SiiDocument(typeof<ModPackage>)
+        document.Load(manifestContents.Trim(), includeNamelessClasses=true) |> ignore
+
+        document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
+
+    let readManifest modPath packageName =
+        let packagePath = Path.Combine(modPath, packageName)
+
+        if Directory.Exists packagePath
+        then
+            let manifestPath = Path.Combine(packagePath, Constants.FileNames.ManifestSii)
+            let manifestContents = File.ReadAllText(manifestPath)
+
+            manifestContents
+            |> readManifestContents
+            |> Directory
+        else
+            let zipFileName = packagePath + ".zip"
+            let scsFileName = packagePath + ".scs"
+
+            if File.Exists zipFileName
+            then Archive zipFileName
+            elif File.Exists scsFileName
+            then Archive scsFileName
+            else NotFound packageName
+
     let readMod (modPath: string) =
+        let relevantPackage, compatibleVersion =
+            modPath |> readVersions |> determineRelevantPackage
+
+        let packageData =
+            readManifest modPath relevantPackage.PackageName
+
+        let displayName, packageVersion =
+            match packageData with
+            | Directory modPackage ->
+                modPackage.DisplayName |> Option.ofObj |> Option.defaultValue "[No display name]", modPackage.PackageVersion
+            | Archive path -> $"[Metadata in {Path.GetFileName path}]", ""
+            | NotFound packageName -> $"[Package {packageName} not found]", ""
+
         let modId = Path.GetDirectoryName modPath
 
         {
             Id = modId
             Path = modPath
-            Name = Some modId
-            Version = "xx"
+            Name = Some displayName
+            Version = packageVersion
             Description = "xd"
         }
 
