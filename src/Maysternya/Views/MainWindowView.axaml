@@ -87,7 +87,7 @@
                 </RadioButton>
             </Grid>
 
-            <Grid Grid.Row="2" Background="DimGray">
+            <Grid Grid.Row="2">
                 <DataGrid ItemsSource="{Binding Mods}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="150" Binding="{Binding Id}" Header="ID" />
