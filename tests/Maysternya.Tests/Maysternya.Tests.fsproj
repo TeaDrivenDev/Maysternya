@@ -7,9 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="MetadataTests.fs" />
-    <Compile Include="ParsingTests.fs" />
-    <Compile Include="PackageTests.fs" />
     <Compile Include="SiiUnitTests.fs" />
   </ItemGroup>
 
