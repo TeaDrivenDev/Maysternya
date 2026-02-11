@@ -72,7 +72,7 @@ package_version_info : .157
         let document = SiiDocument(typeof<PackageVersionInfo>)
 
         // Act
-        document.Load(input, includeNamelessClasses=true) |> ignore
+        document.Load(input, SiiParsingOptions.IncludeNamelessClasses) |> ignore
         let keys = document.Definitions.Keys |> Seq.toList
 
         // Assert
@@ -140,7 +140,7 @@ mod_package : .package_name
         let document = SiiDocument(typeof<ModPackage>)
 
         // Act
-        document.Load(input, includeNamelessClasses=true) |> ignore
+        document.Load(input, SiiParsingOptions.IncludeNamelessClasses) |> ignore
         let keys = document.Definitions.Keys |> Seq.toList
 
         // Assert

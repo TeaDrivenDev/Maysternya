@@ -54,7 +54,7 @@ module Mod =
         let versionsFileContent = File.ReadAllText(versionsFilePath)
 
         let document = SiiDocument(typeof<PackageVersionInfo>)
-        document.Load(versionsFileContent, includeNamelessClasses=true) |> ignore
+        document.Load(versionsFileContent, SiiParsingOptions.IncludeNamelessClasses) |> ignore
 
         document.Definitions.Keys
         |> Seq.map document.GetDefinition<PackageVersionInfo>
@@ -77,7 +77,7 @@ module Mod =
 
     let readManifestContents (manifestContents: string) =
         let document = SiiDocument(typeof<ModPackage>)
-        document.Load(manifestContents.Trim(), includeNamelessClasses=true) |> ignore
+        document.Load(manifestContents.Trim(), SiiParsingOptions.IncludeNamelessClasses) |> ignore
 
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 

@@ -24,12 +24,15 @@ public sealed class SiiDocument
 
     public ReadOnlyDictionary<string, object> Definitions { get; private set; }
 
-    public ReadOnlyDictionary<string, object> Load(string source, bool includeNamelessClasses = false)
+    public ReadOnlyDictionary<string, object> Load(string source, SiiParsingOptions options)
     {
-        return this.LoadImpl(source, null, includeNamelessClasses);
+        return this.LoadImpl(source, fileName: null, options);
     }
 
-    public ReadOnlyDictionary<string, object> LoadFile(string path, Encoding encoding = null)
+    public ReadOnlyDictionary<string, object> LoadFile(
+        string path,
+        SiiParsingOptions options,
+        Encoding encoding = null)
     {
         if (String.IsNullOrWhiteSpace(path))
         {
@@ -37,18 +40,18 @@ public sealed class SiiDocument
         }
 
         var source = File.ReadAllText(path, encoding ?? Encoding.UTF8);
-        return this.Load(source);
+        return this.Load(source, options);
     }
 
     private ReadOnlyDictionary<string, object> LoadImpl(
         string source,
         string fileName,
-        bool includeNamelessClasses)
+        SiiParsingOptions options)
     {
         var lexer = new Lexer(source, fileName);
         var parser = new Parser(lexer);
 
-        return this.Definitions = parser.Parse(this.documentTypes, includeNamelessClasses);
+        return this.Definitions = parser.Parse(this.documentTypes, options);
     }
 
     public T GetDefinition<T>(string name)

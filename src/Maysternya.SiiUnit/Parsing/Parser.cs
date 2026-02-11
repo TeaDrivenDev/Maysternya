@@ -67,7 +67,7 @@ internal sealed class Parser
     /// <returns></returns>
     public ReadOnlyDictionary<string, object> Parse(
         IEnumerable<Type> types,
-        bool includeNamelessClasses)
+        SiiParsingOptions options)
     {
         var map = new Dictionary<string, object>();
         var first = default(Token);
@@ -114,7 +114,10 @@ internal sealed class Parser
             // If we hit a right brace here, we are at the EOF
             while (!this.Match(TokenKind.RightBrace))
             {
-                var pair = this.ParseDefinition(classDict, includeNamelessClasses);
+                var pair =
+                    this.ParseDefinition(
+                        classDict,
+                        options.HasFlag(SiiParsingOptions.IncludeNamelessClasses));
                 if (pair is not null)
                 {
                     map.Add(pair.Value.Key, pair.Value.Value);

@@ -44,7 +44,7 @@ package_version_info : .universal
         let expectedHighestCompatibleVersion = Domain.NotVersionLocked
 
         let document = SiiDocument(typeof<PackageVersionInfo>)
-        document.Load(versions, includeNamelessClasses = true) |> ignore
+        document.Load(versions, SiiParsingOptions.IncludeNamelessClasses) |> ignore
         let keys = document.Definitions.Keys |> Seq.toList
         let packages = keys |> List.map document.GetDefinition<PackageVersionInfo>
 
@@ -91,7 +91,7 @@ package_version_info : .154
         let expectedHighestCompatibleVersion = Domain.SpecificVersion "1.57.*"
 
         let document = SiiDocument(typeof<PackageVersionInfo>)
-        document.Load(versions, includeNamelessClasses = true) |> ignore
+        document.Load(versions, SiiParsingOptions.IncludeNamelessClasses) |> ignore
         let keys = document.Definitions.Keys |> Seq.toList
         let packages = keys |> List.map document.GetDefinition<PackageVersionInfo>
 
