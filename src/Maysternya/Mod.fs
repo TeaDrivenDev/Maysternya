@@ -119,7 +119,7 @@ module Mod =
             | Archive path -> $"[Metadata in {Path.GetFileName path}]", ""
             | NotFound packageName -> $"[Package {packageName} not found]", ""
 
-        let modId = Path.GetDirectoryName modPath
+        let modId = Path.GetFileName modPath
 
         {
             Id = modId
