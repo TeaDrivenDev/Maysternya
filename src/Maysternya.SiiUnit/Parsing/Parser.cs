@@ -127,7 +127,11 @@ internal sealed class Parser
 
         // Take the last brace, and the EOF token
         this.Take(TokenKind.RightBrace);
-        this.Take(TokenKind.EndOfInput);
+
+        if (!options.HasFlag(SiiParsingOptions.AllowExtraContentAfterEnd))
+        {
+            this.Take(TokenKind.EndOfInput);
+        }
 
         return new ReadOnlyDictionary<string, object>(map);
     }

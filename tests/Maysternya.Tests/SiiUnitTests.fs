@@ -152,3 +152,101 @@ mod_package : .package_name
         Assert.Equal(expectedIcon, definition.Icon)
         Assert.Equal(expectedDescriptionFile, definition.DescriptionFile)
         Assert.Equal<string array>(expectedDlcDependencies, definition.DlcDependencies)
+
+    [<Fact>]
+    let ``Extra content after normal end can be ignored`` () =
+        // Arrange
+        let input = """
+SiiNunit
+{
+package_version_info : .universal
+{
+    package_name: "universal"
+}
+}
+{
+package_version_info : .info.compatible.versions
+{
+package_name: "compatibility_info"
+informational: true
+}
+
+package_version_info : .148
+{
+package_name: "148"
+compatible_versions[]: "1.48.x.*"
+
+
+}
+package_version_info : .148
+{
+package_name: "148"
+compatible_versions[]: "1.48.x.*"
+
+
+}
+
+
+}
+"""
+
+        let expectedPackageName = "universal"
+        let expectedCompatibleVersions: string array = null
+        let expectedInformational = false
+
+        let document = SiiDocument(typeof<PackageVersionInfo>)
+
+        // Act
+        document.Load(input, SiiParsingOptions.IncludeNamelessClasses ||| SiiParsingOptions.AllowExtraContentAfterEnd)
+        |> ignore
+
+        // Assert
+        let key = document.Definitions.Keys |> Seq.exactlyOne
+        let definition = document.GetDefinition<PackageVersionInfo>(key)
+        Assert.Equal(expectedPackageName, definition.PackageName)
+        Assert.Equal<string array>(expectedCompatibleVersions, definition.CompatibleVersions)
+        Assert.Equal(expectedInformational, definition.Informational)
+
+    [<Fact>]
+    let ``Extra content after normal end must be ignored explicitly`` () =
+        // Arrange
+        let input = """
+SiiNunit
+{
+package_version_info : .universal
+{
+    package_name: "universal"
+}
+}
+{
+package_version_info : .info.compatible.versions
+{
+package_name: "compatibility_info"
+informational: true
+}
+
+package_version_info : .148
+{
+package_name: "148"
+compatible_versions[]: "1.48.x.*"
+
+
+}
+package_version_info : .148
+{
+package_name: "148"
+compatible_versions[]: "1.48.x.*"
+
+
+}
+
+
+}
+"""
+
+        let document = SiiDocument(typeof<PackageVersionInfo>)
+
+        // Act
+        // Assert
+        Assert.Throws<SiiSyntaxException>(
+            fun _ -> document.Load(input, SiiParsingOptions.IncludeNamelessClasses) |> ignore)
