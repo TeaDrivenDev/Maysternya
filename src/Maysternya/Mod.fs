@@ -221,7 +221,7 @@ module Mod =
             DisplayNameSource = metadata.DisplayNameSource
             Author = metadata.Author
             Version = metadata.ModVersion
-            Description = "xd"
+            Description = metadata.Description
             HighestCompatibleGameVersion = compatibleVersion
         }
 
