@@ -95,6 +95,7 @@
                 <DataGrid ItemsSource="{Binding Mods}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="100" Binding="{Binding Id}" Header="ID" />
+
                         <DataGridTemplateColumn Width="*" Header="Name" CanUserResize="True" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -126,7 +127,17 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Width="150" Binding="{Binding Author}" Header="Author" CanUserResize="True" />
+
+                        <DataGridTemplateColumn Width="150" Header="Author" CanUserResize="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid ToolTip.Tip="{Binding Author}" Background="Transparent">
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding Author}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
                         <DataGridTextColumn Width="100" Binding="{Binding Version}" Header="Version" />
                         <DataGridTextColumn Width="115" Binding="{Binding HighestCompatibleGameVersion}" Header="Compatible" />
                     </DataGrid.Columns>
