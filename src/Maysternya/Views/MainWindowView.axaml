@@ -103,7 +103,9 @@
 
                         <DataGridTemplateColumn Width="*"
                                                 CanUserResize="True"
-                                                Header="Name">
+                                                CanUserSort="True"
+                                                Header="Name"
+                                                SortMemberPath="Name">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Background="Transparent"
@@ -139,7 +141,9 @@
 
                         <DataGridTemplateColumn Width="150"
                                                 CanUserResize="True"
-                                                Header="Author">
+                                                CanUserSort="True"
+                                                Header="Author"
+                                                SortMemberPath="Author">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Background="Transparent"
@@ -153,6 +157,7 @@
 
                         <DataGridTextColumn Width="100"
                                             Binding="{Binding Version}"
+                                            CanUserSort="False"
                                             Header="Version" />
                         <DataGridTextColumn Width="115"
                                             Binding="{Binding HighestCompatibleGameVersion}"
