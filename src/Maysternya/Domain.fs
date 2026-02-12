@@ -49,6 +49,13 @@ type CompatibleVersion =
 
 type DisplayNameSource = Package | DescriptionFile | Unavailable
 
+type Package =
+    {
+        Name: string
+        CompatibleVersions: string list
+        Informational: bool
+    }
+
 type Mod =
     {
         Id: string
@@ -59,4 +66,6 @@ type Mod =
         Version: string
         Description: string
         HighestCompatibleGameVersion: CompatibleVersion
+        RelevantPackageName: string
+        AllPackages: Package list
     }

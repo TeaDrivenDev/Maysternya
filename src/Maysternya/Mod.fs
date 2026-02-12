@@ -206,9 +206,19 @@ module Mod =
                 Description = ""
             |}
 
+    let convertPackage (packageVersionInfo: PackageVersionInfo) =
+        {
+            Name = packageVersionInfo.PackageName
+            CompatibleVersions =
+                if isNull packageVersionInfo.CompatibleVersions
+                then []
+                else Array.toList packageVersionInfo.CompatibleVersions
+            Informational = packageVersionInfo.Informational
+        }
+
     let readMod (modPath: string) =
-        let relevantPackage, compatibleVersion =
-            modPath |> readVersions |> determineRelevantPackage
+        let packages = readVersions modPath
+        let relevantPackage, compatibleVersion = determineRelevantPackage packages
 
         let metadata = readMetadata modPath relevantPackage.PackageName
 
@@ -223,6 +233,8 @@ module Mod =
             Version = metadata.ModVersion
             Description = metadata.Description
             HighestCompatibleGameVersion = compatibleVersion
+            RelevantPackageName = relevantPackage.PackageName
+            AllPackages = packages |> List.map convertPackage
         }
 
     let readMods modsPath =
