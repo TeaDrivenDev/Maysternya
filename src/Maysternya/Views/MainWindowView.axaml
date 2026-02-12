@@ -95,7 +95,37 @@
                 <DataGrid ItemsSource="{Binding Mods}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="100" Binding="{Binding Id}" Header="ID" />
-                        <DataGridTextColumn Width="*" Binding="{Binding Name}" Header="Name" CanUserResize="True" />
+                        <DataGridTemplateColumn Width="*" Header="Name" CanUserResize="True" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid ToolTip.Tip="{Binding Description}" Background="Transparent">
+                                        <TextBlock VerticalAlignment="Center"
+                                                   Classes.DescriptionDisplayName="{Binding DisplayNameSource,
+                                                                                        Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                                        ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
+                                                   Classes.UnavailableDisplayName="{Binding DisplayNameSource,
+                                                                                        Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                                        ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}">
+                                            <TextBlock.Styles>
+                                                <Style Selector="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding Name}" />
+                                                </Style>
+
+                                                <Style Selector="TextBlock.DescriptionDisplayName">
+                                                    <Setter Property="Text" Value="{Binding Name, StringFormat=> {0}}" />
+                                                    <Setter Property="FontStyle" Value="Italic" />
+                                                    <Setter Property="Foreground" Value="LightGray" />
+                                                </Style>
+
+                                                <Style Selector="TextBlock.UnavailableDisplayName">
+                                                    <Setter Property="FontStyle" Value="Italic" />
+                                                    <Setter Property="Foreground" Value="LightSlateGray" />
+                                                </Style>
+                                            </TextBlock.Styles>
+                                        </TextBlock></Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTextColumn Width="150" Binding="{Binding Author}" Header="Author" CanUserResize="True" />
                         <DataGridTextColumn Width="100" Binding="{Binding Version}" Header="Version" />
                         <DataGridTextColumn Width="115" Binding="{Binding HighestCompatibleGameVersion}" Header="Compatible" />
