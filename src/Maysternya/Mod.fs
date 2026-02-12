@@ -47,8 +47,8 @@ module Mod =
         [<SiiAttribute("mp_mod_optional")>]
         member val MpModOptional: bool = false with get, private set
 
-    type private FileContentsAccessed =
-        | Success of string * (string -> FileContentsAccessed)
+    type private FileOperation<'T> =
+        | Success of 'T
         | Failure of string
 
     type private PackagePresence =
@@ -93,11 +93,9 @@ module Mod =
 
     let rec private loadFileFromFileSystem packagePath fileName =
         let filePath = Path.Combine(packagePath, fileName)
-        let contents = File.ReadAllText(filePath)
+        File.ReadAllText(filePath)
 
-        (contents, (loadFileFromFileSystem packagePath)) |> Success
-
-    let rec private loadFileFromArchive archivePath fileName: FileContentsAccessed =
+    let rec private loadFileFromArchive archivePath fileName =
         try
             use archive = ZipFile.OpenRead(archivePath)
             let manifestEntry = archive.GetEntry(fileName)
@@ -105,7 +103,7 @@ module Mod =
             use reader = new StreamReader(manifestStream)
             let contents = reader.ReadToEnd()
 
-            (contents, (loadFileFromArchive archivePath)) |> Success
+            Success contents
         with ex -> Failure archivePath
 
     let private readManifest modPath packageName =
@@ -115,20 +113,29 @@ module Mod =
         let manifestContents =
             if Directory.Exists packagePath
             then
-                loadFileFromFileSystem packagePath manifestFileName |> Some
+                let loadFile = loadFileFromFileSystem packagePath
+                let contents = loadFile manifestFileName
+
+                (contents, loadFile >> Success) |> Success |> Some
             else
                 let archiveExtensions = [ ".zip"; ".scs" ]
 
                 archiveExtensions
                 |> List.tryPick
-                       (fun extension ->
-                            let archivePath = packagePath + extension
+                    (fun extension ->
+                        let archivePath = packagePath + extension
 
-                            if File.Exists archivePath
-                            then Some archivePath
-                            else None)
+                        if File.Exists archivePath
+                        then Some archivePath
+                        else None)
                 |> Option.map
-                    (fun archivePath -> loadFileFromArchive archivePath manifestFileName)
+                    (fun archivePath ->
+                        let loadFile = loadFileFromArchive archivePath
+
+                        loadFile manifestFileName
+                        |> function
+                            | Success contents -> Success (contents, loadFile)
+                            | Failure archivePath -> Failure archivePath)
 
         manifestContents
         |> Option.map
@@ -145,7 +152,7 @@ module Mod =
                         description
                         |> Option.map
                             (function
-                                | Success (description, _) -> description
+                                | Success description -> description
                                 | Failure _ -> "")
                         |> Option.defaultValue ""
 
