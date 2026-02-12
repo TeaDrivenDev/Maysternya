@@ -216,6 +216,33 @@ module Mod =
             Informational = packageVersionInfo.Informational
         }
 
+    let writeVersions (packages: Package list) =
+        let stringBuilder = System.Text.StringBuilder()
+
+        stringBuilder
+            .AppendLine("SiiNunit")
+            .AppendLine("{")
+
+        for package in packages do
+            stringBuilder
+                .AppendLine($"package_version_info : .{package.Name.Replace('_', '.')}")
+                .AppendLine("{")
+                .AppendLine($"\tpackage_name: {package.Name}")
+
+            for version in package.CompatibleVersions do
+                stringBuilder.AppendLine($"\tcompatible_versions[]: \"{version}\"")
+
+            if package.Informational
+            then stringBuilder.AppendLine("\tinformational: true") |> ignore
+
+            stringBuilder
+                .AppendLine("}")
+                .AppendLine()
+
+        stringBuilder.AppendLine("}")
+
+        stringBuilder.ToString()
+
     let readMod (modPath: string) =
         let packages = readVersions modPath
         let relevantPackage, compatibleVersion = determineRelevantPackage packages

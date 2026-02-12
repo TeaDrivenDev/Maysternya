@@ -1,19 +1,20 @@
-<Window x:Class="TeaDriven.Maysternya.Views.MainWindowView"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:domain="using:TeaDriven.Maysternya.Domain"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
-        xmlns:vm="using:TeaDriven.Maysternya.ViewModels"
-        Title="Maysternya"
-        Width="1200"
-        d:DesignHeight="450"
-        d:DesignWidth="800"
-        x:DataType="vm:MainWindowViewModel"
-        Design.DataContext="{Binding Source={x:Static vm:MainWindowViewModel.DesignVM}}"
-        Icon="/Assets/avalonia-logo.ico"
-        mc:Ignorable="d">
+<Window
+    Design.DataContext="{Binding Source={x:Static vm:MainWindowViewModel.DesignVM}}"
+    Icon="/Assets/avalonia-logo.ico"
+    Title="Maysternya"
+    Width="1200"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="TeaDriven.Maysternya.Views.MainWindowView"
+    x:DataType="vm:MainWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="using:TeaDriven.Maysternya.Domain"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
+    xmlns:vm="using:TeaDriven.Maysternya.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Window.Styles>
         <Style Selector="TextBox.Invalid">
             <Setter Property="Background" Value="DarkRed" />
@@ -37,86 +38,88 @@
 
     <Grid Margin="5">
         <Grid RowDefinitions="Auto,Auto,*">
-            <Grid Grid.Row="0"
-                  Margin="0 0 0 5"
-                  ColumnDefinitions="*,Auto">
-                <TextBox Grid.Column="0"
-                         Classes.Invalid="{Binding !IsSteamDirectoryValid}"
-                         Classes.Valid="{Binding IsSteamDirectoryValid}"
-                         Text="{Binding SteamDirectory}"
-                         Watermark="Steam Directory" />
-                <Button Grid.Column="1"
-                        Classes="SelectFile"
-                        Command="{Binding SelectSteamDirectory}" />
+            <Grid
+                ColumnDefinitions="*,Auto"
+                Grid.Row="0"
+                Margin="0,0,0,5">
+                <TextBox
+                    Classes.Invalid="{Binding !IsSteamDirectoryValid}"
+                    Classes.Valid="{Binding IsSteamDirectoryValid}"
+                    Grid.Column="0"
+                    Text="{Binding SteamDirectory}"
+                    Watermark="Steam Directory" />
+                <Button
+                    Classes="SelectFile"
+                    Command="{Binding SelectSteamDirectory}"
+                    Grid.Column="1" />
             </Grid>
 
-            <Grid Grid.Row="1"
-                  Margin="2 5 2 0"
-                  ColumnDefinitions="*,*">
-                <TextBlock Grid.Column="0"
-                           Grid.ColumnSpan="2"
-                           IsVisible="{Binding IsShowWorkshopDirectoryMessage}"
-                           Text="{Binding WorkshopDirectoryMessage}" />
+            <Grid
+                ColumnDefinitions="*,*"
+                Grid.Row="1"
+                Margin="2,5,2,0">
+                <TextBlock
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    IsVisible="{Binding IsShowWorkshopDirectoryMessage}"
+                    Text="{Binding WorkshopDirectoryMessage}" />
 
-                <RadioButton Grid.Column="0"
-                             Margin="0 0 2 0"
-                             Content="{Binding Ets2ModsDirectoryMessage}"
-                             GroupName="SelectedGame"
-                             IsCheckedChanged="SelectedGame_OnIsCheckedChanged"
-                             IsEnabled="{Binding IsEts2ModsDirectoryFound}"
-                             IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
-                             Tag="{x:Static domain:SelectedGame.Ets2}">
+                <RadioButton
+                    Content="{Binding Ets2ModsDirectoryMessage}"
+                    Grid.Column="0"
+                    GroupName="SelectedGame"
+                    IsCheckedChanged="SelectedGame_OnIsCheckedChanged"
+                    IsEnabled="{Binding IsEts2ModsDirectoryFound}"
+                    IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
+                    Margin="0,0,2,0"
+                    Tag="{x:Static domain:SelectedGame.Ets2}">
                     <RadioButton.IsChecked>
                         <MultiBinding Converter="{x:Static uiUtilities:ValuesEqualMultiConverter.Instance}">
                             <Binding Path="SelectedGame" />
-                            <Binding Path="Tag"
-                                     RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}" />
                         </MultiBinding>
                     </RadioButton.IsChecked>
                 </RadioButton>
 
-                <RadioButton Grid.Column="1"
-                             Margin="2 0 0 0"
-                             Content="{Binding AtsModsDirectoryMessage}"
-                             GroupName="SelectedGame"
-                             IsCheckedChanged="SelectedGame_OnIsCheckedChanged"
-                             IsEnabled="{Binding IsAtsModsDirectoryFound}"
-                             IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
-                             Tag="{x:Static domain:SelectedGame.Ats}">
+                <RadioButton
+                    Content="{Binding AtsModsDirectoryMessage}"
+                    Grid.Column="1"
+                    GroupName="SelectedGame"
+                    IsCheckedChanged="SelectedGame_OnIsCheckedChanged"
+                    IsEnabled="{Binding IsAtsModsDirectoryFound}"
+                    IsVisible="{Binding !IsShowWorkshopDirectoryMessage}"
+                    Margin="2,0,0,0"
+                    Tag="{x:Static domain:SelectedGame.Ats}">
                     <RadioButton.IsChecked>
                         <MultiBinding Converter="{x:Static uiUtilities:ValuesEqualMultiConverter.Instance}">
                             <Binding Path="SelectedGame" />
-                            <Binding Path="Tag"
-                                     RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}" />
                         </MultiBinding>
                     </RadioButton.IsChecked>
                 </RadioButton>
             </Grid>
 
-            <Grid Grid.Row="2"
-                  Margin="0 10 0 0">
+            <Grid Grid.Row="2" Margin="0,10,0,0">
                 <DataGrid ItemsSource="{Binding Mods}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="100"
-                                            Binding="{Binding Id}"
-                                            Header="ID" />
+                        <DataGridTextColumn
+                            Binding="{Binding Id}"
+                            Header="ID"
+                            Width="100" />
 
-                        <DataGridTemplateColumn Width="*"
-                                                CanUserResize="True"
-                                                CanUserSort="True"
-                                                Header="Name"
-                                                SortMemberPath="Name">
+                        <DataGridTemplateColumn
+                            CanUserResize="True"
+                            CanUserSort="True"
+                            Header="Name"
+                            SortMemberPath="Name"
+                            Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid Background="Transparent"
-                                          ToolTip.Tip="{Binding Description}">
-                                        <TextBlock VerticalAlignment="Center"
-                                                   Classes.DescriptionDisplayName="{Binding DisplayNameSource,
-                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
-                                                                                            ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
-                                                   Classes.UnavailableDisplayName="{Binding DisplayNameSource,
-                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
-                                                                                            ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}">
+                                    <Grid Background="Transparent" ToolTip.Tip="{Binding Description}">
+                                        <TextBlock
+                                            Classes.DescriptionDisplayName="{Binding DisplayNameSource, Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance}, ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
+                                            Classes.UnavailableDisplayName="{Binding DisplayNameSource, Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance}, ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}"
+                                            VerticalAlignment="Center">
                                             <TextBlock.Styles>
                                                 <Style Selector="TextBlock">
                                                     <Setter Property="Text" Value="{Binding Name}" />
@@ -139,29 +142,44 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTemplateColumn Width="150"
-                                                CanUserResize="True"
-                                                CanUserSort="True"
-                                                Header="Author"
-                                                SortMemberPath="Author">
+                        <DataGridTemplateColumn
+                            CanUserResize="True"
+                            CanUserSort="True"
+                            Header="Author"
+                            SortMemberPath="Author"
+                            Width="150">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid Background="Transparent"
-                                          ToolTip.Tip="{Binding Author}">
-                                        <TextBlock VerticalAlignment="Center"
-                                                   Text="{Binding Author}" />
+                                    <Grid Background="Transparent" ToolTip.Tip="{Binding Author}">
+                                        <TextBlock Text="{Binding Author}" VerticalAlignment="Center" />
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn Width="100"
-                                            Binding="{Binding Version}"
-                                            CanUserSort="False"
-                                            Header="Version" />
-                        <DataGridTextColumn Width="115"
-                                            Binding="{Binding HighestCompatibleGameVersion}"
-                                            Header="Compatible" />
+                        <DataGridTextColumn
+                            Binding="{Binding Version}"
+                            CanUserSort="False"
+                            Header="Version"
+                            Width="100" />
+
+                        <DataGridTemplateColumn Header="Compatible" Width="115">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{Binding HighestCompatibleGameVersion}"
+                                            VerticalAlignment="Center" />
+                                        <Button
+                                            Content="X"
+                                            Grid.Column="1"
+                                            Margin="0,0,15,0"
+                                            VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
