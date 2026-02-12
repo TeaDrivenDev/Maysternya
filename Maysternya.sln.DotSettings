@@ -42,6 +42,19 @@
 	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/WRAP_LIMIT/@EntryValue">100</s:Int64>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/WRAP_LIST_PATTERN/@EntryValue">CHOP_IF_LONG</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/WRAP_PARAMETERS_STYLE/@EntryValue">CHOP_IF_LONG</s:String>
+	<s:String x:Key="/Default/CodeStyle/XamlStyler/AttributeOrderingRuleGroups/@EntryValue">x:Class
+xmlns, xmlns:x
+xmlns:*
+x:Key, Key, x:Name, Name, x:Uid, Uid, Title
+Grid.Row, Grid.RowSpan, Grid.Column, Grid.ColumnSpan, Canvas.Left, Canvas.Top, Canvas.Right, Canvas.Bottom
+Width, Height, MinWidth, MinHeight, MaxWidth, MaxHeight
+Margin, Padding, HorizontalAlignment, VerticalAlignment, HorizontalContentAlignment, VerticalContentAlignment, Panel.ZIndex
+*:*, *
+PageSource, PageIndex, Offset, Color, TargetName, Property, Value, StartPoint, EndPoint
+mc:Ignorable, d:IsDataSource, d:LayoutOverrides, d:IsStaticText
+Storyboard.*, From, To, Duration</s:String>
+	<s:String x:Key="/Default/CodeStyle/XamlStyler/ConfigPath/@EntryValue">Settings.XamlStyler</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/XamlStyler/SearchToDriveRoot/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/CustomTools/CustomToolsData/@EntryValue"></s:String>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpKeepExistingMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpPlaceEmbeddedOnSameLineMigration/@EntryIndexedValue">True</s:Boolean>
