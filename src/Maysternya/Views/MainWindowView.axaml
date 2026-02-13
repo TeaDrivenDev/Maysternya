@@ -118,7 +118,8 @@
                                                 SortMemberPath="Name">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid Background="Transparent"
+                                    <Grid Margin="10 0"
+                                          Background="Transparent"
                                           ToolTip.Tip="{Binding Description}">
                                         <TextBlock VerticalAlignment="Center"
                                                    Classes.DescriptionDisplayName="{Binding DisplayNameSource,
@@ -156,7 +157,8 @@
                                                 SortMemberPath="Author">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid Background="Transparent"
+                                    <Grid Margin="10 0"
+                                          Background="Transparent"
                                           ToolTip.Tip="{Binding Author}">
                                         <TextBlock VerticalAlignment="Center"
                                                    Text="{Binding Author}" />
@@ -174,7 +176,8 @@
                                                 Header="Compatible">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid VerticalAlignment="Center"
+                                    <Grid Margin="10 0"
+                                          VerticalAlignment="Center"
                                           ColumnDefinitions="*,Auto">
                                         <TextBlock Grid.Column="0"
                                                    VerticalAlignment="Center"
