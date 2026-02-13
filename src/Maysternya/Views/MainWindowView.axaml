@@ -159,9 +159,24 @@
                                             Binding="{Binding Version}"
                                             CanUserSort="False"
                                             Header="Version" />
-                        <DataGridTextColumn Width="115"
-                                            Binding="{Binding HighestCompatibleGameVersion}"
-                                            Header="Compatible" />
+
+                        <DataGridTemplateColumn Width="115"
+                                                Header="Compatible">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid VerticalAlignment="Center"
+                                          ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding HighestCompatibleGameVersion}" />
+                                        <Button Grid.Column="1"
+                                                Margin="0 0 15 0"
+                                                VerticalAlignment="Center"
+                                                Content="X" />
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
