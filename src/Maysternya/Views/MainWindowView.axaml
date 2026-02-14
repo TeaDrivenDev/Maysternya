@@ -185,7 +185,9 @@
                                         <Button Grid.Column="1"
                                                 Margin="0 0 15 0"
                                                 VerticalAlignment="Center"
-                                                Content="X" />
+                                                Content="X"
+                                                IsVisible="{Binding HighestCompatibleGameVersion,
+                                                                    Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}" />
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
