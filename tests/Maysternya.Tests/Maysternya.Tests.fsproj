@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="ModTests.fs" />
+    <Compile Include="SettingsTests.fs" />
     <Compile Include="SiiUnitTests.fs" />
   </ItemGroup>
 

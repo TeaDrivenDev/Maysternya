@@ -2,6 +2,13 @@
 
 [<RequireQualifiedAccess>]
 module Constants =
+    module Application =
+        [<Literal>]
+        let Vendor = "TeaDrivenDev"
+        
+        [<Literal>]
+        let Application = "Maysternya"
+    
     module Games =
         [<Literal>]
         let Ets2 = "ETS 2"
@@ -69,3 +76,10 @@ type Mod =
         RelevantPackageName: string
         AllPackages: Package list
     }
+
+type Settings =
+    {
+        SteamPath: string
+        DefaultGame: SelectedGame
+    }
+
