@@ -185,6 +185,7 @@
                                         <Button Grid.Column="1"
                                                 Margin="0 0 15 0"
                                                 VerticalAlignment="Center"
+                                                Command="{Binding RemoveVersionRestriction}"
                                                 Content="X"
                                                 IsVisible="{Binding HighestCompatibleGameVersion,
                                                                     Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}" />

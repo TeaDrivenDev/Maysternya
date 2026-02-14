@@ -242,3 +242,48 @@ module Mod =
         |> Directory.GetDirectories
         |> List.ofArray
         |> List.map readMod
+        
+    let writeVersions (packages: Package list) =
+        let stringBuilder = System.Text.StringBuilder()
+
+        stringBuilder
+            .AppendLine("SiiNunit")
+            .AppendLine("{")
+        |> ignore
+
+        for package in packages do
+            stringBuilder
+                .AppendLine($"package_version_info : .{package.Name.Replace('_', '.')}")
+                .AppendLine("{")
+                .AppendLine($"\tpackage_name: \"{package.Name}\"")
+            |> ignore
+
+            for version in package.CompatibleVersions do
+                stringBuilder.AppendLine($"\tcompatible_versions[]: \"{version}\"") |> ignore
+
+            if package.Informational
+            then stringBuilder.AppendLine("\tinformational: true") |> ignore
+
+            stringBuilder
+                .AppendLine("}")
+                .AppendLine()
+            |> ignore
+
+        stringBuilder.AppendLine("}") |> ignore
+
+        stringBuilder.ToString()
+
+    let removeVersionRestriction modPath relevantPackage (allPackages: Package list) =
+        let packagesToWrite =
+            allPackages
+            |> List.map
+                (fun package ->
+                    if package.Name = relevantPackage
+                    then { package with CompatibleVersions = [] }
+                    else package)
+                
+        let versionsFileContent = writeVersions packagesToWrite
+        
+        let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
+        File.WriteAllText(versionsFilePath, versionsFileContent)
+        

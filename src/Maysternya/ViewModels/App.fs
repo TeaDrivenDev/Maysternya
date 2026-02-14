@@ -57,6 +57,7 @@ module App =
         | UpdateSteamDirectory of string option
         | SelectGame of SelectedGame
         | RefreshModsList
+        | RemoveVersionRestriction of string * string * Package list
         | Terminate
 
     let init () =
@@ -87,6 +88,10 @@ module App =
                 |> Option.defaultValue []
 
             { model with Mods = mods } |> withoutCommand
+        | RemoveVersionRestriction (modPath, relevantPackageName, allPackages) ->
+            Mod.removeVersionRestriction modPath relevantPackageName allPackages
+            
+            model, Cmd.ofMsg RefreshModsList
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =

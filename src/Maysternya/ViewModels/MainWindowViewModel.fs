@@ -7,7 +7,7 @@ open TeaDriven.Maysternya.Domain
 
 open App
 
-type ModViewModel(modData: Mod) =
+type ModViewModel(modData: Mod) as this =
     inherit ReactiveElmishViewModel()
 
     member _.Id = modData.Id
@@ -20,6 +20,12 @@ type ModViewModel(modData: Mod) =
         match modData.HighestCompatibleGameVersion with
         | SpecificVersion version -> version
         | NotVersionLocked -> ""
+    member _.ModPath = modData.Path
+    member _.RelevantPackageName = modData.RelevantPackageName
+    member _.AllPackages = modData.AllPackages
+    
+    member _.RemoveVersionRestriction() =
+        store.Dispatch(RemoveVersionRestriction (this.ModPath, this.RelevantPackageName, this.AllPackages))
 
 type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
     inherit ReactiveElmishViewModel()
