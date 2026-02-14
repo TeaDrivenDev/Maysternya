@@ -14,12 +14,32 @@
         Design.DataContext="{Binding Source={x:Static vm:MainWindowViewModel.DesignVM}}"
         Icon="/Assets/avalonia-logo.ico"
         mc:Ignorable="d">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="FileSelectionOk"
+                                     Color="LimeGreen" />
+                    <SolidColorBrush x:Key="FileSelectionError"
+                                     Color="IndianRed" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="FileSelectionOk"
+                                     Color="DarkGreen" />
+                    <SolidColorBrush x:Key="FileSelectionError"
+                                     Color="DarkRed" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Window.Styles>
-        <Style Selector="TextBox.Invalid">
-            <Setter Property="Background" Value="DarkRed" />
-        </Style>
         <Style Selector="TextBox.Valid">
-            <Setter Property="Background" Value="DarkGreen" />
+            <Setter Property="Background" Value="{DynamicResource FileSelectionOk}" />
+        </Style>
+        <Style Selector="TextBox.Invalid">
+            <Setter Property="Background" Value="{DynamicResource FileSelectionError}" />
         </Style>
 
         <Style Selector="Button.SelectFile">
