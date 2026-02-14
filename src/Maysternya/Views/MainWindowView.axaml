@@ -188,7 +188,8 @@
                                                 Command="{Binding RemoveVersionRestriction}"
                                                 Content="X"
                                                 IsVisible="{Binding HighestCompatibleGameVersion,
-                                                                    Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}" />
+                                                                    Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}"
+                                                ToolTip.Tip="Temporarily remove version restriction" />
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
