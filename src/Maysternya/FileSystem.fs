@@ -17,11 +17,17 @@ module FileSystem =
     open TeaDriven.Maysternya.Domain
 
     open FileSystemTypes
-    
+
     let createConfiguredDirectory path =
         {
             Path = path
             PathExists = not <| String.IsNullOrWhiteSpace path && Directory.Exists path
+        }
+
+    let createConfiguredFile path =
+        {
+            Path = path
+            FileExists = not <| String.IsNullOrWhiteSpace path && File.Exists path
         }
 
     let determinePaths steamPath =

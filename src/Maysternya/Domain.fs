@@ -5,10 +5,10 @@ module Constants =
     module Application =
         [<Literal>]
         let Vendor = "TeaDrivenDev"
-        
+
         [<Literal>]
         let Application = "Maysternya"
-    
+
     module Games =
         [<Literal>]
         let Ets2 = "ETS 2"
@@ -48,6 +48,17 @@ type ConfiguredDirectory =
             PathExists = false
         }
 
+type ConfiguredFile =
+    {
+        Path: string
+        FileExists: bool
+    } with
+    static member Empty =
+        {
+            Path = ""
+            FileExists = false
+        }
+
 type SelectedGame = NoGame | Ets2 | Ats
 
 type CompatibleVersion =
@@ -82,4 +93,3 @@ type Settings =
         SteamPath: string
         DefaultGame: SelectedGame
     }
-

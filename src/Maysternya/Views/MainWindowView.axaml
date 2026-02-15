@@ -57,7 +57,7 @@
     </Window.Styles>
 
     <Grid Margin="5">
-        <Grid RowDefinitions="Auto,Auto,*">
+        <Grid RowDefinitions="Auto,Auto,Auto,*">
             <Grid Grid.Row="0"
                   Margin="0 0 0 5"
                   ColumnDefinitions="*,Auto">
@@ -72,6 +72,19 @@
             </Grid>
 
             <Grid Grid.Row="1"
+                  Margin="0 0 0 5"
+                  ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0"
+                         Classes.Invalid="{Binding !IsHashFsExtractorPathValid}"
+                         Classes.Valid="{Binding IsHashFsExtractorPathValid}"
+                         Text="{Binding HashFsExtractorPath}"
+                         Watermark="HashFS extractor" />
+                <Button Grid.Column="1"
+                        Classes="SelectFile"
+                        Command="{Binding SelectHashFsExtractor}" />
+            </Grid>
+
+            <Grid Grid.Row="2"
                   Margin="2 5 2 0"
                   ColumnDefinitions="*,*">
                 <TextBlock Grid.Column="0"
@@ -114,7 +127,7 @@
                 </RadioButton>
             </Grid>
 
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   Margin="0 10 0 0">
                 <DataGrid ItemsSource="{Binding Mods}"
                           SelectionMode="Single">

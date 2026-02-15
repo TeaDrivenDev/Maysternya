@@ -27,7 +27,9 @@ type ModViewModel(modData: Mod) as this =
     member _.RemoveVersionRestriction() =
         store.Dispatch(RemoveVersionRestriction (this.ModPath, this.RelevantPackageName, this.AllPackages))
 
-type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
+type MainWindowViewModel(
+    folderPicker: Services.FolderPickerService,
+    filePicker: Services.FilePickerService) as this =
     inherit ReactiveElmishViewModel()
 
     // TODO Probably move these elsewhere
@@ -45,6 +47,12 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
         and set value = store.Dispatch(UpdateSteamDirectory (Some value))
 
     member this.IsSteamDirectoryValid: bool = this.Bind(store, _.SteamDirectory.PathExists)
+
+    member this.HashFsExtractorPath
+        with get () = this.Bind(store, _.HashFsExtractorPath.Path)
+        and set value = store.Dispatch(UpdateHashFsExtractorPath(Some value))
+
+    member this.IsHashFsExtractorPathValid = this.Bind(store, _.HashFsExtractorPath.FileExists)
 
     member this.WorkshopDirectoryMessage =
         this.Bind(
@@ -92,6 +100,12 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
         task {
             let! path = folderPicker.TryPickFolder()
             return store.Dispatch(UpdateSteamDirectory path)
+        }
+
+    member this.SelectHashFsExtractor() =
+        task {
+            let! path = filePicker.TryPickFile()
+            return store.Dispatch(UpdateHashFsExtractorPath path)
         }
 
     member this.SetSelectedGame(selectedGame: SelectedGame) =

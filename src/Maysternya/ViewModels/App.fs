@@ -21,6 +21,7 @@ module App =
             WorkshopDirectory: ConfiguredDirectory
             Ets2ModsDirectory: ConfiguredDirectory
             AtsModsDirectory: ConfiguredDirectory
+            HashFsExtractorPath: ConfiguredFile
             SelectedGame: SelectedGame
             DefaultSelectedGame: SelectedGame
             Mods: Mod list
@@ -32,6 +33,7 @@ module App =
                     WorkshopDirectory = ConfiguredDirectory.Empty
                     Ets2ModsDirectory = ConfiguredDirectory.Empty
                     AtsModsDirectory = ConfiguredDirectory.Empty
+                    HashFsExtractorPath = ConfiguredFile.Empty
                     SelectedGame = NoGame
                     DefaultSelectedGame = NoGame
                     Mods = []
@@ -48,6 +50,7 @@ module App =
 
     type Message =
         | UpdateSteamDirectory of string option
+        | UpdateHashFsExtractorPath of string option
         | SelectGame of SelectedGame
         | RefreshModsList
         | RemoveVersionRestriction of string * string * Package list
@@ -84,6 +87,16 @@ module App =
                         (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
 
             model, commandAfterDirectorySelection model
+        | UpdateHashFsExtractorPath value ->
+            let model =
+                (model, value)
+                ||> updateIfSome
+                        (fun model path ->
+                            {
+                                model with HashFsExtractorPath = FileSystem.createConfiguredFile path
+                            })
+
+            model |> withoutCommand
         | SelectGame game ->
             { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg RefreshModsList
         | RefreshModsList ->
