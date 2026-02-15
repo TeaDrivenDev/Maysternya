@@ -22,6 +22,7 @@ module App =
             Ets2ModsDirectory: ConfiguredDirectory
             AtsModsDirectory: ConfiguredDirectory
             SelectedGame: SelectedGame
+            DefaultSelectedGame: SelectedGame
             Mods: Mod list
         }
         with
@@ -32,6 +33,7 @@ module App =
                     Ets2ModsDirectory = ConfiguredDirectory.Empty
                     AtsModsDirectory = ConfiguredDirectory.Empty
                     SelectedGame = NoGame
+                    DefaultSelectedGame = NoGame
                     Mods = []
                 }
 
@@ -51,21 +53,39 @@ module App =
         | RemoveVersionRestriction of string * string * Package list
         | Terminate
 
+    let commandAfterDirectorySelection model =
+        match model.DefaultSelectedGame with
+        | Ets2 as game when model.Ets2ModsDirectory.PathExists -> SelectGame game |> Cmd.ofMsg
+        | Ats as game when model.AtsModsDirectory.PathExists -> SelectGame game |> Cmd.ofMsg
+        | _ -> Cmd.none
+
     let init () =
-        Constants.Paths.DefaultSteamPath
-        |> FileSystem.determinePaths
-        |> updatePaths Model.Default
-        |> withoutCommand
+        let settings =
+            Settings.loadSettings ()
+            |> Option.defaultValue
+                {
+                    SteamPath = Constants.Paths.DefaultSteamPath
+                    DefaultGame = NoGame
+                }
+
+        let model =
+            settings.SteamPath
+            |> FileSystem.determinePaths
+            |> updatePaths { Model.Default with DefaultSelectedGame = settings.DefaultGame }
+
+        model, commandAfterDirectorySelection model
 
     let update message model =
         match message with
         | UpdateSteamDirectory value ->
-            (model, value)
-            ||> updateIfSome
-                (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
-            |> withoutCommand
+            let model =
+                (model, value)
+                ||> updateIfSome
+                        (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
+
+            model, commandAfterDirectorySelection model
         | SelectGame game ->
-            { model with SelectedGame = game }, Cmd.ofMsg RefreshModsList
+            { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg RefreshModsList
         | RefreshModsList ->
             let modsPath =
                 match model.SelectedGame with
@@ -81,7 +101,7 @@ module App =
             { model with Mods = mods } |> withoutCommand
         | RemoveVersionRestriction (modPath, relevantPackageName, allPackages) ->
             Mod.removeVersionRestriction modPath relevantPackageName allPackages
-            
+
             model, Cmd.ofMsg RefreshModsList
         | Terminate -> model |> withoutCommand
 
