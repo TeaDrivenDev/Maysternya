@@ -115,6 +115,7 @@ type MainWindowViewModel(
         let settings =
             {
                 SteamPath = this.SteamDirectory
+                HashFsExtractorPath = this.HashFsExtractorPath
                 DefaultGame = this.SelectedGame
             }
 

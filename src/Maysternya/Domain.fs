@@ -91,5 +91,6 @@ type Mod =
 type Settings =
     {
         SteamPath: string
+        HashFsExtractorPath: string
         DefaultGame: SelectedGame
     }

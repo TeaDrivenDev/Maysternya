@@ -68,6 +68,7 @@ module App =
             |> Option.defaultValue
                 {
                     SteamPath = Constants.Paths.DefaultSteamPath
+                    HashFsExtractorPath = ""
                     DefaultGame = NoGame
                 }
 
