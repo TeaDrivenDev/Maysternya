@@ -109,7 +109,7 @@ module Mod =
         with ex -> Failure archivePath
 
     let private extractFileFromHashFsArchive extractorPath tempPath archivePath fileName =
-        let parameters = $"{archivePath} -p=/{fileName} -d={tempPath} -q"
+        let parameters = $"\"{archivePath}\" -p=/{fileName} -d={tempPath} -q"
         Command.Run(extractorPath, parameters, noEcho=true, createNoWindow=true)
 
         Path.Combine(tempPath, fileName)
