@@ -23,6 +23,15 @@ module Constants =
         [<Literal>]
         let WorkshopContentPath = @"steamapps\workshop\content"
 
+        [<Literal>]
+        let GamesPath = @"steamapps\common"
+
+        [<Literal>]
+        let Ets2Game = "Euro Truck Simulator 2"
+
+        [<Literal>]
+        let AtsGame = "American Truck Simulator"
+
     module SteamIds =
         [<Literal>]
         let Ets2 = "227300"
