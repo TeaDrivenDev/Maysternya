@@ -75,7 +75,12 @@ module App =
         let model =
             settings.SteamPath
             |> FileSystem.determinePaths
-            |> updatePaths { Model.Default with DefaultSelectedGame = settings.DefaultGame }
+            |> updatePaths
+                {
+                    Model.Default with
+                        HashFsExtractorPath = FileSystem.createConfiguredFile settings.HashFsExtractorPath
+                        DefaultSelectedGame = settings.DefaultGame
+                }
 
         model, commandAfterDirectorySelection model
 
