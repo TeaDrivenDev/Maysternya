@@ -41,3 +41,12 @@ module FileSystem =
             Ets2ModsPath = ets2Path
             AtsModsPath = atsPath
         }
+
+    let getTempDirectory productName =
+        let path = Path.Combine(Path.GetTempPath(), productName)
+        Directory.CreateDirectory(path) |> ignore
+        path
+
+    let deleteTempDirectory productName =
+        let path = Path.Combine(Path.GetTempPath(), productName)
+        Directory.Delete(path, recursive=true)

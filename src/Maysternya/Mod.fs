@@ -6,6 +6,8 @@ module Mod =
     open System.IO
     open System.IO.Compression
 
+    open SimpleExec
+
     open TeaDriven.Maysternya.Domain
     open TeaDriven.Maysternya.Prelude
     open TeaDriven.Maysternya.SiiUnit
@@ -91,11 +93,11 @@ module Mod =
 
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
-    let rec private loadFileFromFileSystem packagePath fileName =
+    let private loadFileFromFileSystem packagePath fileName =
         let filePath = Path.Combine(packagePath, fileName)
         File.ReadAllText(filePath)
 
-    let rec private loadFileFromArchive archivePath fileName =
+    let private loadFileFromZipArchive archivePath fileName =
         try
             use archive = ZipFile.OpenRead(archivePath)
             let manifestEntry = archive.GetEntry(fileName)
@@ -106,7 +108,24 @@ module Mod =
             Success contents
         with ex -> Failure archivePath
 
-    let private readManifest modPath packageName =
+    let private extractFileFromHashFsArchive extractorPath tempPath archivePath fileName =
+        let parameters = $"{archivePath} -p=/{fileName} -d={tempPath}"
+        Command.Run(extractorPath, parameters, noEcho=true)
+
+        Path.Combine(tempPath, fileName)
+
+    let private loadFileFromHashFsArchive extractorPath archivePath fileName =
+        try
+            let tempPath = FileSystem.getTempDirectory Constants.Application.Application
+
+            let path = extractFileFromHashFsArchive extractorPath tempPath archivePath fileName
+            let contents = File.ReadAllText(path)
+            File.Delete(path)
+
+            Success contents
+        with ex -> Failure archivePath
+
+    let private readManifest extractorPath modPath packageName =
         let packagePath = Path.Combine(modPath, packageName)
         let manifestFileName = Constants.FileNames.ManifestSii
 
@@ -130,12 +149,22 @@ module Mod =
                         else None)
                 |> Option.map
                     (fun archivePath ->
-                        let loadFile = loadFileFromArchive archivePath
+                        let loadFile = loadFileFromZipArchive archivePath
 
                         loadFile manifestFileName
                         |> function
                             | Success contents -> Success (contents, loadFile)
-                            | Failure archivePath -> Failure archivePath)
+                            | Failure archivePath ->
+                                extractorPath
+                                |> Option.map
+                                    (fun extractorPath ->
+                                        let loadFile = loadFileFromHashFsArchive extractorPath archivePath
+
+                                        loadFile manifestFileName
+                                        |> function
+                                            | Success contents -> Success (contents, loadFile)
+                                            | Failure archivePath -> Failure archivePath)
+                                |> Option.defaultValue (Failure archivePath))
 
         manifestContents
         |> Option.map
@@ -161,9 +190,9 @@ module Mod =
                 | Failure archivePath -> Archive archivePath)
         |> Option.defaultValue (NotFound packageName)
 
-    let readMetadata modPath packageName =
+    let readMetadata extractorPath modPath packageName =
         let packageData =
-            readManifest modPath packageName
+            readManifest extractorPath modPath packageName
 
         match packageData with
         | Accessible (modPackage, description) ->
@@ -216,11 +245,11 @@ module Mod =
             Informational = packageVersionInfo.Informational
         }
 
-    let readMod (modPath: string) =
+    let readMod extractorPath modPath =
         let packages = readVersions modPath
         let relevantPackage, compatibleVersion = determineRelevantPackage packages
 
-        let metadata = readMetadata modPath relevantPackage.PackageName
+        let metadata = readMetadata extractorPath modPath relevantPackage.PackageName
 
         let modId = Path.GetFileName modPath
 
@@ -237,12 +266,12 @@ module Mod =
             AllPackages = packages |> List.map convertPackage
         }
 
-    let readMods modsPath =
+    let readMods extractorPath modsPath =
         modsPath
         |> Directory.GetDirectories
         |> List.ofArray
-        |> List.map readMod
-        
+        |> List.map (readMod extractorPath)
+
     let writeVersions (packages: Package list) =
         let stringBuilder = System.Text.StringBuilder()
 
@@ -281,9 +310,8 @@ module Mod =
                     if package.Name = relevantPackage
                     then { package with CompatibleVersions = [] }
                     else package)
-                
+
         let versionsFileContent = writeVersions packagesToWrite
-        
+
         let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
         File.WriteAllText(versionsFilePath, versionsFileContent)
-        

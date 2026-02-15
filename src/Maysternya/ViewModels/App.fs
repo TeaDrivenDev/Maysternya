@@ -112,9 +112,14 @@ module App =
                 | Ats -> model.AtsModsDirectory.Path |> Some
                 | NoGame -> None
 
+            let extractorPath =
+                if model.HashFsExtractorPath.FileExists
+                then Some model.HashFsExtractorPath.Path
+                else None
+
             let mods =
                 modsPath
-                |> Option.map Mod.readMods
+                |> Option.map (Mod.readMods extractorPath)
                 |> Option.defaultValue []
 
             { model with Mods = mods } |> withoutCommand
