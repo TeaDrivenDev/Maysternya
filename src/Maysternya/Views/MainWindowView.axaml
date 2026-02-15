@@ -39,7 +39,7 @@
         <Style Selector="TextBox.Valid">
             <Setter Property="Background" Value="{DynamicResource FileSelectionOk}" />
         </Style>
-        <Style Selector="TextBox.Invalid">
+        <Style Selector="TextBox:not(.Valid)">
             <Setter Property="Background" Value="{DynamicResource FileSelectionError}" />
         </Style>
 
@@ -62,7 +62,6 @@
                   Margin="0 0 0 5"
                   ColumnDefinitions="*,Auto">
                 <TextBox Grid.Column="0"
-                         Classes.Invalid="{Binding !IsSteamDirectoryValid}"
                          Classes.Valid="{Binding IsSteamDirectoryValid}"
                          Text="{Binding SteamDirectory}"
                          Watermark="Steam Directory" />
@@ -75,7 +74,6 @@
                   Margin="0 0 0 5"
                   ColumnDefinitions="*,Auto">
                 <TextBox Grid.Column="0"
-                         Classes.Invalid="{Binding !IsHashFsExtractorPathValid}"
                          Classes.Valid="{Binding IsHashFsExtractorPathValid}"
                          Text="{Binding HashFsExtractorPath}"
                          Watermark="HashFS extractor" />
