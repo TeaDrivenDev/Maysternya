@@ -1,8 +1,5 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
-open System
-open System.IO
-
 open Elmish
 open ReactiveElmish.Avalonia
 
@@ -17,12 +14,6 @@ module App =
         value
         |> Option.map (createUpdatedModel model)
         |> Option.defaultValue model
-
-    let createConfiguredDirectory path =
-        {
-            Path = path
-            PathExists = not <| String.IsNullOrWhiteSpace path && Directory.Exists path
-        }
 
     type Model =
         {
@@ -47,10 +38,10 @@ module App =
     let updatePaths model paths =
         {
             model with
-                SteamDirectory = createConfiguredDirectory paths.SteamPath
-                WorkshopDirectory = createConfiguredDirectory paths.WorkshopContentPath
-                Ets2ModsDirectory = createConfiguredDirectory paths.Ets2ModsPath
-                AtsModsDirectory = createConfiguredDirectory paths.AtsModsPath
+                SteamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
+                WorkshopDirectory = FileSystem.createConfiguredDirectory paths.WorkshopContentPath
+                Ets2ModsDirectory = FileSystem.createConfiguredDirectory paths.Ets2ModsPath
+                AtsModsDirectory = FileSystem.createConfiguredDirectory paths.AtsModsPath
         }
 
     type Message =

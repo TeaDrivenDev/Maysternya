@@ -11,11 +11,18 @@ module FileSystemTypes =
 
 [<RequireQualifiedAccess>]
 module FileSystem =
+    open System
     open System.IO
 
     open TeaDriven.Maysternya.Domain
 
     open FileSystemTypes
+    
+    let createConfiguredDirectory path =
+        {
+            Path = path
+            PathExists = not <| String.IsNullOrWhiteSpace path && Directory.Exists path
+        }
 
     let determinePaths steamPath =
         let workshopPath = Path.Combine(steamPath, Constants.Paths.WorkshopContentPath)
