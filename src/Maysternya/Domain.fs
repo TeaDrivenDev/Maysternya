@@ -46,6 +46,12 @@ module Constants =
         [<Literal>]
         let ManifestSii = "manifest.sii"
 
+        [<Literal>]
+        let VersionSii = "version.sii"
+
+        [<Literal>]
+        let VersionScs = "version.scs"
+
 type ConfiguredDirectory =
     {
         Path: string

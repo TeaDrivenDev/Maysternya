@@ -101,3 +101,30 @@ package_version_info : .154
         // Assert
         Assert.Equal(expectedPackageName, relevantPackage.PackageName)
         Assert.Equal(expectedHighestCompatibleVersion, highestCompatibleVersion)
+
+    [<Fact>]
+    let ``Game version is parsed correctly from version file`` () =
+        // Arrange
+        let input = """
+SiiNunit
+{
+fs_pack_set : _nameless.1738.ca80 {
+ application: eut2
+ version: "1.58.1.2"
+ platforms: 1
+ platforms[0]: pc
+ creation_timestamp: 1770930287
+ pack_verifiers: 200
+ pack_verifiers[0]: 055AA77D4F5BB09A8D4EA7EDE66AC5DD9952713E943928524445B8B2682574F8
+ pack_verifiers[1]: 060142DABDC9ED97F11E2E2B6E33064C80B10F126A7DFA66C7E9B88D0116A954
+}
+
+}"""
+
+        let expectedGameVersion = "1.58.1.2"
+
+        // Act
+        let actualGameVersion = Mod.parseGameVersion input
+
+        // Assert
+        Assert.Equal(expectedGameVersion, actualGameVersion)

@@ -1,5 +1,6 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
+open System
 open ReactiveElmish
 
 open TeaDriven.Maysternya
@@ -36,10 +37,12 @@ type MainWindowViewModel(
     let workshopDirectoryButNoModsMessage = "Workshop directory found, but no ETS2 or ATS mod directories"
     let noWorkshopDirectoryMessage = "Workshop directory not found"
 
-    let ets2ModsDirectoryFoundMessage = "ETS2 mod directory found"
+    let ets2NoVersionMessage = "ETS2"
+    let ets2VersionMessage = "ETS2 version {0}"
     let noEts2ModsDirectoryFoundMessage = "ETS2 mod directory not found"
 
-    let atsModsDirectoryFoundMessage = "ATS mod directory found"
+    let atsNoVersionMessage = "ATS"
+    let atsVersionMessage = "ATS version {0}"
     let noAtsModsDirectoryFoundMessage = "ATS mod directory not found"
 
     member this.SteamDirectory
@@ -72,7 +75,10 @@ type MainWindowViewModel(
             store,
             fun model ->
                 if model.Ets2ModsDirectory.PathExists
-                then ets2ModsDirectoryFoundMessage
+                then
+                    model.Ets2Version
+                    |> Option.map (fun version -> String.Format(ets2VersionMessage, version))
+                    |> Option.defaultValue ets2NoVersionMessage
                 else noEts2ModsDirectoryFoundMessage)
 
     member this.IsEts2ModsDirectoryFound =
@@ -83,7 +89,10 @@ type MainWindowViewModel(
             store,
             fun model ->
                 if model.AtsModsDirectory.PathExists
-                then atsModsDirectoryFoundMessage
+                then
+                    model.AtsVersion
+                    |> Option.map (fun version -> String.Format(atsVersionMessage, version))
+                    |> Option.defaultValue atsNoVersionMessage
                 else noAtsModsDirectoryFoundMessage)
 
     member this.IsAtsModsDirectoryFound =

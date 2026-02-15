@@ -1,5 +1,7 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
+open System
+
 open Elmish
 open ReactiveElmish.Avalonia
 
@@ -22,6 +24,8 @@ module App =
             Ets2ModsDirectory: ConfiguredDirectory
             AtsModsDirectory: ConfiguredDirectory
             HashFsExtractorPath: ConfiguredFile
+            Ets2Version: Version option
+            AtsVersion: Version option
             SelectedGame: SelectedGame
             DefaultSelectedGame: SelectedGame
             Mods: Mod list
@@ -34,18 +38,32 @@ module App =
                     Ets2ModsDirectory = ConfiguredDirectory.Empty
                     AtsModsDirectory = ConfiguredDirectory.Empty
                     HashFsExtractorPath = ConfiguredFile.Empty
+                    Ets2Version = None
+                    AtsVersion = None
                     SelectedGame = NoGame
                     DefaultSelectedGame = NoGame
                     Mods = []
                 }
 
     let updatePaths model paths =
+        let steamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
+        let extractor = model.HashFsExtractorPath
+
+        let [ets2Version; atsVersion] =
+            if steamDirectory.PathExists && extractor.FileExists
+            then
+                [Constants.Paths.Ets2Game; Constants.Paths.AtsGame]
+                |> List.map (Mod.readGameVersion extractor.Path steamDirectory.Path)
+            else [None; None]
+
         {
             model with
-                SteamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
+                SteamDirectory = steamDirectory
                 WorkshopDirectory = FileSystem.createConfiguredDirectory paths.WorkshopContentPath
                 Ets2ModsDirectory = FileSystem.createConfiguredDirectory paths.Ets2ModsPath
                 AtsModsDirectory = FileSystem.createConfiguredDirectory paths.AtsModsPath
+                Ets2Version = ets2Version
+                AtsVersion = atsVersion
         }
 
     type Message =

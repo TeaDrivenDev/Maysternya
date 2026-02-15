@@ -315,3 +315,27 @@ module Mod =
 
         let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
         File.WriteAllText(versionsFilePath, versionsFileContent)
+
+    let parseGameVersion (versionFileContents: string) =
+        let gameVersionRegex =
+            System.Text.RegularExpressions.Regex("version: \"(?<version>.*)\"", System.Text.RegularExpressions.RegexOptions.Compiled)
+
+        let ``match`` = gameVersionRegex.Match(versionFileContents)
+        ``match``.Groups["version"].Value
+
+    let readGameVersion extractorPath steamPath gamePath =
+        let fullGamePath = Path.Combine(steamPath, Constants.Paths.GamesPath, gamePath)
+
+        if Directory.Exists fullGamePath
+        then
+            let versionFilePath = Path.Combine(fullGamePath, Constants.FileNames.VersionScs)
+
+            let versionFile =
+                loadFileFromHashFsArchive extractorPath versionFilePath Constants.FileNames.VersionSii
+
+            match versionFile with
+            | Success versionFileContents ->
+                let gameVersion = parseGameVersion versionFileContents |> Version
+                Some gameVersion
+            | Failure _ -> None
+        else None
