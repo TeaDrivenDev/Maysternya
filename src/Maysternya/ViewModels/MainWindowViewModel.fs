@@ -23,7 +23,7 @@ type ModViewModel(modData: Mod) as this =
     member _.ModPath = modData.Path
     member _.RelevantPackageName = modData.RelevantPackageName
     member _.AllPackages = modData.AllPackages
-    
+
     member _.RemoveVersionRestriction() =
         store.Dispatch(RemoveVersionRestriction (this.ModPath, this.RelevantPackageName, this.AllPackages))
 
@@ -96,6 +96,15 @@ type MainWindowViewModel(folderPicker: Services.FolderPickerService) as this =
 
     member this.SetSelectedGame(selectedGame: SelectedGame) =
         store.Dispatch(SelectGame selectedGame)
+
+    member this.Shutdown() =
+        let settings =
+            {
+                SteamPath = this.SteamDirectory
+                DefaultGame = this.SelectedGame
+            }
+
+        Settings.saveSettings settings
 
     static member DesignVM =
         new MainWindowViewModel(Design.stub)

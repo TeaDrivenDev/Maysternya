@@ -19,13 +19,14 @@ type MainWindowView () as this =
 #endif
         AvaloniaXamlLoader.Load(this)
 
+    member this.Window_OnClosing(sender: obj, e: WindowClosingEventArgs) =
+        (this.DataContext :?> MainWindowViewModel).Shutdown()
+    
     member this.SelectedGame_OnIsCheckedChanged(sender: obj, e: RoutedEventArgs) =
         match sender with
-        | :? RadioButton as radioButton ->
-            if radioButton.IsChecked.HasValue && radioButton.IsChecked.Value
-            then
-                match radioButton.Tag with
-                | :? SelectedGame as selectedGame ->
-                    (this.DataContext :?> MainWindowViewModel).SetSelectedGame(selectedGame)
-                | _ -> ()
+        | :? RadioButton as rb when rb.IsChecked.HasValue && rb.IsChecked.Value -> 
+            match rb.Tag with
+            | :? SelectedGame as selectedGame ->
+                (this.DataContext :?> MainWindowViewModel).SetSelectedGame(selectedGame)
+            | _ -> ()
         | _ -> ()
