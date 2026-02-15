@@ -14,7 +14,8 @@ type AppCompositionRoot() =
 
     override this.RegisterServices(services) =
         base.RegisterServices services |> ignore
-        services.AddSingleton<Services.FolderPickerService>(Services.FolderPickerService(mainView))
+        services.AddSingleton<Services.FolderPickerService>(Services.FolderPickerService(mainView)) |> ignore
+        services.AddSingleton<Services.FilePickerService>(Services.FilePickerService(mainView))
 
     override this.RegisterViews() =
         Map [

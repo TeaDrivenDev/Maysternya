@@ -16,3 +16,17 @@ type FolderPickerService(mainWindow: Window) =
                 |> Seq.tryHead
                 |> Option.map _.Path.LocalPath
         }
+
+type FilePickerService(mainWindow: Window) =
+    member this.OpenFilePicker() =
+        mainWindow.StorageProvider.OpenFilePickerAsync(FilePickerOpenOptions())
+
+    member this.TryPickFile() =
+        task {
+            let! files = this.OpenFilePicker()
+
+            return
+                files
+                |> Seq.tryHead
+                |> Option.map _.Path.LocalPath
+        }
