@@ -19,12 +19,19 @@ type BytesToMegabytesConverter() =
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
             raise (NotSupportedException())
 
+type XamlValueCollection() = inherit List<obj>()
+
 type ValueEqualsParameterConverter() =
     static member Instance = ValueEqualsParameterConverter() :> IValueConverter
 
     interface IValueConverter with
         member this.Convert(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
-            value = parameter
+            match parameter with
+            | :? XamlValueCollection as collection ->
+                collection
+                |> Seq.exists _.Equals(value)
+                |> box
+            | _ -> value = parameter
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
             raise (NotSupportedException())
@@ -41,14 +48,14 @@ type ValuesEqualMultiConverter() =
 type EmptyStringToBoolConverter(inverted: bool) =
     static member IsEmpty = EmptyStringToBoolConverter(inverted=false) :> IValueConverter
     static member IsNotEmpty = EmptyStringToBoolConverter(inverted=true) :> IValueConverter
-    
+
     interface IValueConverter with
         member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
             let inverted = System.Convert.ToBoolean(parameter)
-            
+
             match value with
             | :? string as s -> String.IsNullOrWhiteSpace(s) = inverted
             | _ -> not inverted
-            
+
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
             raise (NotSupportedException())
