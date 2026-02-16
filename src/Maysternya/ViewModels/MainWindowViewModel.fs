@@ -1,6 +1,8 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
+
+open Avalonia.Platform.Storage
 open ReactiveElmish
 
 open TeaDriven.Maysternya
@@ -135,7 +137,16 @@ type MainWindowViewModel(
 
     member this.SelectHashFsExtractor() =
         task {
-            let! path = filePicker.TryPickFile()
+            let options =
+                FilePickerOpenOptions(
+                    Title = "Select extractor executable",
+                    FileTypeFilter =
+                        [
+                            FilePickerFileType("Extractor", Patterns = ["extractor.exe"])
+                            FilePickerFileTypes.All
+                        ])
+
+            let! path = filePicker.TryPickFile(Some options)
             return store.Dispatch(UpdateHashFsExtractorPath path)
         }
 

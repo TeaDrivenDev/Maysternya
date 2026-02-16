@@ -18,12 +18,14 @@ type FolderPickerService(mainWindow: Window) =
         }
 
 type FilePickerService(mainWindow: Window) =
-    member this.OpenFilePicker() =
-        mainWindow.StorageProvider.OpenFilePickerAsync(FilePickerOpenOptions())
+    member this.OpenFilePicker(options: FilePickerOpenOptions option) =
+        options
+        |> Option.defaultValue (FilePickerOpenOptions())
+        |> mainWindow.StorageProvider.OpenFilePickerAsync
 
-    member this.TryPickFile() =
+    member this.TryPickFile(options: FilePickerOpenOptions option) =
         task {
-            let! files = this.OpenFilePicker()
+            let! files = this.OpenFilePicker(options)
 
             return
                 files
