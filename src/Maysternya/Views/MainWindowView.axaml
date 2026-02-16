@@ -213,8 +213,7 @@
                                                 Header="Compatible">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="10 0"
-                                          VerticalAlignment="Stretch"
+                                    <Grid VerticalAlignment="Stretch"
                                           Classes.Allowed="{Binding VersionCompatibility,
                                                                     Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
                                                                     ConverterParameter={x:Static domain:VersionCompatibility.Allowed}}"
@@ -223,8 +222,7 @@
                                                                          ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
                                           Classes.Unrestricted="{Binding VersionCompatibility,
                                                                          Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
-                                                                         ConverterParameter={x:Static domain:VersionCompatibility.Unrestricted}}"
-                                          ColumnDefinitions="*,Auto">
+                                                                         ConverterParameter={x:Static domain:VersionCompatibility.Unrestricted}}">
                                         <Grid.Styles>
                                             <Style Selector="Grid.Allowed">
                                                 <Setter Property="Background">
@@ -238,7 +236,7 @@
                                             <Style Selector="Grid.Incompatible">
                                                 <Setter Property="Background">
                                                     <Setter.Value>
-                                                        <SolidColorBrush Opacity="0.3"
+                                                        <SolidColorBrush Opacity="0.7"
                                                                          Color="DarkRed" />
                                                     </Setter.Value>
                                                 </Setter>
@@ -252,30 +250,32 @@
                                                     </Setter.Value>
                                                 </Setter>
                                             </Style>
-
                                         </Grid.Styles>
 
-                                        <TextBlock Grid.Column="0"
-                                                   VerticalAlignment="Center"
-                                                   Text="{Binding HighestCompatibleGameVersion}" />
-                                        <Button Grid.Column="1"
-                                                Margin="0 0 15 0"
-                                                VerticalAlignment="Center"
-                                                Command="{Binding RemoveVersionRestriction}"
-                                                Content="X"
-                                                ToolTip.Tip="Temporarily remove version restriction">
-                                            <Button.IsVisible>
-                                                <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.Instance}"
-                                                         Path="VersionCompatibility">
-                                                    <Binding.ConverterParameter>
-                                                        <uiUtilities:XamlValueCollection>
-                                                            <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Incompatible}" />
-                                                            <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Indeterminate}" />
-                                                        </uiUtilities:XamlValueCollection>
-                                                    </Binding.ConverterParameter>
-                                                </Binding>
-                                            </Button.IsVisible>
-                                        </Button>
+                                        <Grid Margin="10 0"
+                                              ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding HighestCompatibleGameVersion}" />
+                                            <Button Grid.Column="1"
+                                                    Margin="0 0 15 0"
+                                                    VerticalAlignment="Center"
+                                                    Command="{Binding RemoveVersionRestriction}"
+                                                    Content="X"
+                                                    ToolTip.Tip="Temporarily remove version restriction">
+                                                <Button.IsVisible>
+                                                    <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.Instance}"
+                                                             Path="VersionCompatibility">
+                                                        <Binding.ConverterParameter>
+                                                            <uiUtilities:XamlValueCollection>
+                                                                <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Incompatible}" />
+                                                                <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Indeterminate}" />
+                                                            </uiUtilities:XamlValueCollection>
+                                                        </Binding.ConverterParameter>
+                                                    </Binding>
+                                                </Button.IsVisible>
+                                            </Button>
+                                        </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
