@@ -10,13 +10,13 @@ type BytesToMegabytesConverter() =
     static member Instance = BytesToMegabytesConverter() :> IValueConverter
 
     interface IValueConverter with
-        member this.Convert(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
+        member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             match value with
             | :? int64 as size -> (System.Convert.ToDouble size) / (1024. * 1024.)
             | _ -> 0.
             :> obj
 
-        member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
+        member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())
 
 type XamlValueCollection() = inherit List<obj>()
@@ -35,7 +35,7 @@ type ValueEqualsParameterConverter() =
     static member Instance = ValueEqualsParameterConverter() :> IValueConverter
 
     interface IValueConverter with
-        member this.Convert(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
+        member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             match parameter with
             | :? XamlValueCollection as collection ->
                 collection
@@ -43,7 +43,7 @@ type ValueEqualsParameterConverter() =
                 |> box
             | _ -> value = parameter
 
-        member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: Globalization.CultureInfo): obj =
+        member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())
 
 type ValuesEqualMultiConverter() =
