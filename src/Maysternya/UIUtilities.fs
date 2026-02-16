@@ -21,6 +21,16 @@ type BytesToMegabytesConverter() =
 
 type XamlValueCollection() = inherit List<obj>()
 
+type XamlWrapper() as this =
+    member val Item: obj = null with get, set
+
+    override _.GetHashCode() = hash this.Item
+
+    override _.Equals(other) =
+        match other with
+        | :? XamlWrapper as otherWrapper -> this.Item.Equals(otherWrapper.Item)
+        | _ -> this.Item.Equals(other)
+
 type ValueEqualsParameterConverter() =
     static member Instance = ValueEqualsParameterConverter() :> IValueConverter
 

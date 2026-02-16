@@ -263,10 +263,19 @@
                                                 VerticalAlignment="Center"
                                                 Command="{Binding RemoveVersionRestriction}"
                                                 Content="X"
-                                                IsVisible="{Binding VersionCompatibility,
-                                                                    Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
-                                                                    ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
-                                                ToolTip.Tip="Temporarily remove version restriction" />
+                                                ToolTip.Tip="Temporarily remove version restriction">
+                                            <Button.IsVisible>
+                                                <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.Instance}"
+                                                         Path="VersionCompatibility">
+                                                    <Binding.ConverterParameter>
+                                                        <uiUtilities:XamlValueCollection>
+                                                            <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Incompatible}" />
+                                                            <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Indeterminate}" />
+                                                        </uiUtilities:XamlValueCollection>
+                                                    </Binding.ConverterParameter>
+                                                </Binding>
+                                            </Button.IsVisible>
+                                        </Button>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
