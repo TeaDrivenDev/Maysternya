@@ -339,3 +339,15 @@ module Mod =
                 Some gameVersion
             | Failure _ -> None
         else None
+
+    let determineVersionCompatibility compatibleVersion (gameVersion: Version option): VersionCompatibility =
+        match compatibleVersion, gameVersion with
+        | NotVersionLocked, _ -> Unrestricted
+        | SpecificVersion _, None -> Indeterminate
+        | SpecificVersion compatibleVersion, Some gameVersion ->
+            let compatible = compatibleVersion.Replace(".*", ".")
+            let gameVersionString = gameVersion.ToString()
+
+            if gameVersionString.ToString().StartsWith(compatible[..gameVersionString.Length - 1])
+            then Allowed
+            else Incompatible

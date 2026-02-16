@@ -80,6 +80,8 @@ type CompatibleVersion =
     | SpecificVersion of string
     | NotVersionLocked
 
+type VersionCompatibility = Unrestricted | Allowed | Incompatible | Indeterminate
+
 type DisplayNameSource = Package | DescriptionFile | Unavailable
 
 type Package =

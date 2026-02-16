@@ -1,9 +1,12 @@
 ﻿namespace TeaDriven.Maysternya.Tests
 
 module ModTests =
+    open System
+
     open Xunit
 
     open TeaDriven.Maysternya
+    open TeaDriven.Maysternya.Domain
     open TeaDriven.Maysternya.SiiUnit
 
     type PackageVersionInfo = Mod.PackageVersionInfo
@@ -41,7 +44,7 @@ package_version_info : .universal
     let ``Unrestricted, non-informational package is returned`` (versions: string) =
         // Arrange
         let expectedPackageName = "universal"
-        let expectedHighestCompatibleVersion = Domain.NotVersionLocked
+        let expectedHighestCompatibleVersion = NotVersionLocked
 
         let document = SiiDocument(typeof<PackageVersionInfo>)
         document.Load(versions, SiiParsingOptions.IncludeNamelessClasses) |> ignore
@@ -88,7 +91,7 @@ package_version_info : .154
 }"""
 
         let expectedPackageName = "157"
-        let expectedHighestCompatibleVersion = Domain.SpecificVersion "1.57.*"
+        let expectedHighestCompatibleVersion = SpecificVersion "1.57.*"
 
         let document = SiiDocument(typeof<PackageVersionInfo>)
         document.Load(versions, SiiParsingOptions.IncludeNamelessClasses) |> ignore
@@ -128,3 +131,27 @@ fs_pack_set : _nameless.1738.ca80 {
 
         // Assert
         Assert.Equal(expectedGameVersion, actualGameVersion)
+
+    let versionCompatibilityData: obj array list =
+        [
+            [| NotVersionLocked; None; Unrestricted |]
+            [| NotVersionLocked; Some (Version("1.58")); Unrestricted |]
+            [| SpecificVersion "1.57.*"; None; Indeterminate |]
+            [| SpecificVersion "1.57.*"; Some (Version("1.58.1.3")); Incompatible |]
+            [| SpecificVersion "1.58.*"; Some (Version("1.58")); Allowed |]
+            [| SpecificVersion "1.58.*"; Some (Version("1.58.1.3")); Allowed |]
+            [| SpecificVersion "1.5.*"; Some (Version("1.58.1.3")); Incompatible |]
+        ]
+
+    [<Theory>]
+    [<MemberData(nameof(versionCompatibilityData))>]
+    let ``Version compatibility is determined correctly``(
+        compatibleVersion: CompatibleVersion,
+        gameVersion: Version option,
+        expectedResult: VersionCompatibility) =
+        // Arrange
+        // Act
+        let actualResult = Mod.determineVersionCompatibility compatibleVersion gameVersion
+
+        // Assert
+        Assert.Equal(expectedResult, actualResult)
