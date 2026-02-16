@@ -224,8 +224,9 @@
                                                 VerticalAlignment="Center"
                                                 Command="{Binding RemoveVersionRestriction}"
                                                 Content="X"
-                                                IsVisible="{Binding HighestCompatibleGameVersion,
-                                                                    Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}"
+                                                IsVisible="{Binding VersionCompatibility,
+                                                                    Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                    ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
                                                 ToolTip.Tip="Temporarily remove version restriction" />
                                     </Grid>
                                 </DataTemplate>
