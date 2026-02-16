@@ -214,8 +214,47 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Margin="10 0"
-                                          VerticalAlignment="Center"
+                                          VerticalAlignment="Stretch"
+                                          Classes.Allowed="{Binding VersionCompatibility,
+                                                                    Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                    ConverterParameter={x:Static domain:VersionCompatibility.Allowed}}"
+                                          Classes.Incompatible="{Binding VersionCompatibility,
+                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                         ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
+                                          Classes.Unrestricted="{Binding VersionCompatibility,
+                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                         ConverterParameter={x:Static domain:VersionCompatibility.Unrestricted}}"
                                           ColumnDefinitions="*,Auto">
+                                        <Grid.Styles>
+                                            <Style Selector="Grid.Allowed">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Opacity="0.7"
+                                                                         Color="ForestGreen" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+
+                                            <Style Selector="Grid.Incompatible">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Opacity="0.3"
+                                                                         Color="DarkRed" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+
+                                            <Style Selector="Grid.Unrestricted">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Opacity="0.3"
+                                                                         Color="ForestGreen" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+
+                                        </Grid.Styles>
+
                                         <TextBlock Grid.Column="0"
                                                    VerticalAlignment="Center"
                                                    Text="{Binding HighestCompatibleGameVersion}" />
