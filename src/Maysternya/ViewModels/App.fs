@@ -46,38 +46,37 @@ module App =
                 }
 
     let updatePaths model paths =
-        let steamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
-        let extractor = model.HashFsExtractorPath
-
-        let [ets2Version; atsVersion] =
-            if steamDirectory.PathExists && extractor.FileExists
-            then
-                [Constants.Paths.Ets2Game; Constants.Paths.AtsGame]
-                |> List.map (Mod.readGameVersion extractor.Path steamDirectory.Path)
-            else [None; None]
-
         {
             model with
-                SteamDirectory = steamDirectory
+                SteamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
                 WorkshopDirectory = FileSystem.createConfiguredDirectory paths.WorkshopContentPath
                 Ets2ModsDirectory = FileSystem.createConfiguredDirectory paths.Ets2ModsPath
                 AtsModsDirectory = FileSystem.createConfiguredDirectory paths.AtsModsPath
-                Ets2Version = ets2Version
-                AtsVersion = atsVersion
         }
 
     type Message =
         | UpdateSteamDirectory of string option
         | UpdateHashFsExtractorPath of string option
         | SelectGame of SelectedGame
+        | RefreshGameVersions of Message
         | RefreshModsList
         | RemoveVersionRestriction of string * string * Package list
         | Terminate
 
     let commandAfterDirectorySelection model =
-        match model.DefaultSelectedGame with
-        | Ets2 as game when model.Ets2ModsDirectory.PathExists -> SelectGame game |> Cmd.ofMsg
-        | Ats as game when model.AtsModsDirectory.PathExists -> SelectGame game |> Cmd.ofMsg
+        let condition model game =
+            match game with
+            | Ets2 -> model.Ets2ModsDirectory.PathExists
+            | Ats -> model.AtsModsDirectory.PathExists
+            | NoGame -> false
+
+        match model.SelectedGame with
+        | NoGame ->
+            match model.DefaultSelectedGame with
+            | NoGame -> Cmd.none
+            | game when condition model game -> Cmd.ofMsg (RefreshGameVersions (SelectGame game))
+            | _ -> Cmd.none
+        | game when condition model game -> Cmd.ofMsg (RefreshGameVersions RefreshModsList)
         | _ -> Cmd.none
 
     let init () =
@@ -120,25 +119,40 @@ module App =
                                 model with HashFsExtractorPath = FileSystem.createConfiguredFile path
                             })
 
-            model |> withoutCommand
+            model, Cmd.ofMsg (RefreshGameVersions RefreshModsList)
         | SelectGame game ->
             { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg RefreshModsList
+        | RefreshGameVersions nextMessage ->
+            let steamDirectory = model.SteamDirectory
+            let extractor = model.HashFsExtractorPath
+
+            let [ets2Version; atsVersion] =
+                if steamDirectory.PathExists && extractor.FileExists
+                then
+                    [Constants.Paths.Ets2Game; Constants.Paths.AtsGame]
+                    |> List.map (Mod.readGameVersion extractor.Path steamDirectory.Path)
+                else [None; None]
+
+            { model with Ets2Version = ets2Version; AtsVersion = atsVersion }, Cmd.ofMsg nextMessage
         | RefreshModsList ->
-            let modsPath =
-                match model.SelectedGame with
-                | Ets2 -> model.Ets2ModsDirectory.Path |> Some
-                | Ats -> model.AtsModsDirectory.Path |> Some
-                | NoGame -> None
-
-            let extractorPath =
-                if model.HashFsExtractorPath.FileExists
-                then Some model.HashFsExtractorPath.Path
-                else None
-
             let mods =
-                modsPath
-                |> Option.map (Mod.readMods extractorPath)
-                |> Option.defaultValue []
+                if model.SteamDirectory.PathExists
+                then
+                    let modsPath =
+                        match model.SelectedGame with
+                        | Ets2 -> model.Ets2ModsDirectory.Path |> Some
+                        | Ats -> model.AtsModsDirectory.Path |> Some
+                        | NoGame -> None
+
+                    let extractorPath =
+                        if model.HashFsExtractorPath.FileExists
+                        then Some model.HashFsExtractorPath.Path
+                        else None
+
+                    modsPath
+                    |> Option.map (Mod.readMods extractorPath)
+                    |> Option.defaultValue []
+                else []
 
             { model with Mods = mods } |> withoutCommand
         | RemoveVersionRestriction (modPath, relevantPackageName, allPackages) ->
