@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:domain="using:TeaDriven.Maysternya.Domain"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
         xmlns:vm="using:TeaDriven.Maysternya.ViewModels"
         Title="Maysternya"
@@ -157,14 +158,17 @@
                                 <DataTemplate>
                                     <Grid Margin="10 0"
                                           Background="Transparent"
-                                          ToolTip.Tip="{Binding Description}">
-                                        <TextBlock VerticalAlignment="Center"
+                                          ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0"
+                                                   Margin="0 0 10 0"
+                                                   VerticalAlignment="Center"
                                                    Classes.DescriptionDisplayName="{Binding DisplayNameSource,
                                                                                             Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
                                                                                             ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
                                                    Classes.UnavailableDisplayName="{Binding DisplayNameSource,
                                                                                             Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
-                                                                                            ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}">
+                                                                                            ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}"
+                                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}">
                                             <TextBlock.Styles>
                                                 <Style Selector="TextBlock">
                                                     <Setter Property="Text" Value="{Binding Name}" />
@@ -182,6 +186,15 @@
                                                 </Style>
                                             </TextBlock.Styles>
                                         </TextBlock>
+
+                                        <mdi:MaterialIcon Grid.Column="1"
+                                                          Width="20"
+                                                          Height="20"
+                                                          Background="Transparent"
+                                                          IsVisible="{Binding Description,
+                                                                              Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}"
+                                                          Kind="InformationOutline"
+                                                          ToolTip.Tip="{Binding Description}" />
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
