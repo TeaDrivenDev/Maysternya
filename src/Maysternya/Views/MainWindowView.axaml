@@ -229,7 +229,7 @@
                                             Header="Version" />
 
                         <DataGridTemplateColumn Width="115"
-                                                Header="Compatible">
+                                                Header="Usable with">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Stretch"
