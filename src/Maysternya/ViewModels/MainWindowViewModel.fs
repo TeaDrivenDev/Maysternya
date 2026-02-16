@@ -8,7 +8,7 @@ open TeaDriven.Maysternya.Domain
 
 open App
 
-type ModViewModel(modData: Mod) as this =
+type ModViewModel(modData: Mod, gameVersion: Version option) as this =
     inherit ReactiveElmishViewModel()
 
     member _.Id = modData.Id
@@ -24,6 +24,8 @@ type ModViewModel(modData: Mod) as this =
     member _.ModPath = modData.Path
     member _.RelevantPackageName = modData.RelevantPackageName
     member _.AllPackages = modData.AllPackages
+    member _.VersionCompatibility =
+        Mod.determineVersionCompatibility modData.HighestCompatibleGameVersion gameVersion
 
     member _.RemoveVersionRestriction() =
         store.Dispatch(RemoveVersionRestriction (this.ModPath, this.RelevantPackageName, this.AllPackages))
@@ -44,6 +46,12 @@ type MainWindowViewModel(
     let atsNoVersionMessage = "ATS"
     let atsVersionMessage = "ATS version {0}"
     let noAtsModsDirectoryFoundMessage = "ATS mod directory not found"
+
+    let selectedGameVersion model =
+        match model.SelectedGame with
+        | Ets2 -> model.Ets2Version
+        | Ats -> model.AtsVersion
+        | NoGame -> None
 
     member this.SteamDirectory
         with get () = this.Bind(store, _.SteamDirectory.Path)
@@ -103,7 +111,9 @@ type MainWindowViewModel(
     member this.Mods =
         this.Bind(
             store,
-            fun model -> model.Mods |> List.map (fun modData -> new ModViewModel(modData)))
+            fun model ->
+                model.Mods
+                |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
 
     member this.SelectSteamDirectory() =
         task {
