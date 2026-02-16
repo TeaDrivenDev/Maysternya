@@ -40,11 +40,11 @@ type MainWindowViewModel(
     let noWorkshopDirectoryMessage = "Workshop directory not found"
 
     let ets2NoVersionMessage = "ETS2"
-    let ets2VersionMessage = "ETS2 version {0}"
+    let ets2VersionMessage = "ETS2 (version {0})"
     let noEts2ModsDirectoryFoundMessage = "ETS2 mod directory not found"
 
     let atsNoVersionMessage = "ATS"
-    let atsVersionMessage = "ATS version {0}"
+    let atsVersionMessage = "ATS (version {0})"
     let noAtsModsDirectoryFoundMessage = "ATS mod directory not found"
 
     let selectedGameVersion model =
