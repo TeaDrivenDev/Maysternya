@@ -47,6 +47,16 @@ type MainWindowViewModel(
     let atsVersionMessage = "ATS (version {0})"
     let noAtsModsDirectoryFoundMessage = "ATS mod directory not found"
 
+    let extractorInfoMessage =
+        "The HashFS extractor is used to get metadata (name, author, description, version) for mods "
+        + "packaged as HashFS, as well as the installed game versions. Using it is optional, but "
+        + "recommended; only the display of some mods and the game versions will be affected if it "
+        + "is missing."
+        + Environment.NewLine
+        + Environment.NewLine
+        + "If using the extractor, version 2026-02-15 or newer is required; using an older version "
+        + "will cause the application to not work at all."
+
     let selectedGameVersion model =
         match model.SelectedGame with
         | Ets2 -> model.Ets2Version
@@ -114,6 +124,8 @@ type MainWindowViewModel(
             fun model ->
                 model.Mods
                 |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
+
+    member this.ExtractorInfoMessage = extractorInfoMessage
 
     member this.SelectSteamDirectory() =
         task {

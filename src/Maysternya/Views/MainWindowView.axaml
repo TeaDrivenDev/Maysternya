@@ -73,7 +73,7 @@
 
             <Grid Grid.Row="1"
                   Margin="0 0 0 5"
-                  ColumnDefinitions="*,Auto,Auto">
+                  ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBox Grid.Column="0"
                          Classes.Valid="{Binding IsHashFsExtractorPathValid}"
                          Text="{Binding HashFsExtractorPath}"
@@ -84,6 +84,12 @@
                 <HyperlinkButton Grid.Column="2"
                                  Content="Download"
                                  NavigateUri="https://github.com/sk-zk/Extractor/releases" />
+                <mdi:MaterialIcon Grid.Column="3"
+                                  Width="20"
+                                  Height="20"
+                                  Background="Transparent"
+                                  Kind="QuestionMarkCircleOutline"
+                                  ToolTip.Tip="{Binding ExtractorInfoMessage}" />
             </Grid>
 
             <Grid Grid.Row="2"
