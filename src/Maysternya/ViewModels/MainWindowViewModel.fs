@@ -34,7 +34,7 @@ type ModViewModel(modData: Mod, gameVersion: Version option) as this =
 
 type MainWindowViewModel(
     folderPicker: Services.FolderPickerService,
-    filePicker: Services.FilePickerService) as this =
+    filePicker: Services.FilePickerService) =
     inherit ReactiveElmishViewModel()
 
     let selectedGameVersion model =
