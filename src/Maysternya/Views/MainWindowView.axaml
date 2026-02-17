@@ -207,7 +207,7 @@
                                                           Height="20"
                                                           Background="Transparent"
                                                           IsVisible="{Binding Description,
-                                                                              Converter={x:Static uiUtilities:EmptyStringToBoolConverter.IsNotEmpty}}"
+                                                                              Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                                           Kind="InformationOutline"
                                                           ToolTip.Tip="{Binding Description}" />
                                     </Grid>
