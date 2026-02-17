@@ -233,7 +233,8 @@
                                           Background="Transparent"
                                           ToolTip.Tip="{Binding Author}">
                                         <TextBlock VerticalAlignment="Center"
-                                                   Text="{Binding Author}" />
+                                                   Text="{Binding Author}"
+                                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
