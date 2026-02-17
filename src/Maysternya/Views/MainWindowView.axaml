@@ -169,10 +169,10 @@
                                                    Margin="0 0 10 0"
                                                    VerticalAlignment="Center"
                                                    Classes.DescriptionDisplayName="{Binding DisplayNameSource,
-                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
                                                                                             ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
                                                    Classes.UnavailableDisplayName="{Binding DisplayNameSource,
-                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
                                                                                             ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}"
                                                    TextTrimming="{x:Static TextTrimming.CharacterEllipsis}">
                                             <TextBlock.Styles>
@@ -234,13 +234,13 @@
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Stretch"
                                           Classes.Allowed="{Binding VersionCompatibility,
-                                                                    Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                    Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
                                                                     ConverterParameter={x:Static domain:VersionCompatibility.Allowed}}"
                                           Classes.Incompatible="{Binding VersionCompatibility,
-                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
                                                                          ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
                                           Classes.Unrestricted="{Binding VersionCompatibility,
-                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.Instance},
+                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
                                                                          ConverterParameter={x:Static domain:VersionCompatibility.Unrestricted}}">
                                         <Grid.Styles>
                                             <Style Selector="Grid.Allowed">
@@ -283,7 +283,7 @@
                                                     Content="X"
                                                     ToolTip.Tip="Temporarily remove version restriction">
                                                 <Button.IsVisible>
-                                                    <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.Instance}"
+                                                    <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
                                                              Path="VersionCompatibility">
                                                         <Binding.ConverterParameter>
                                                             <uiUtilities:XamlValueCollection>

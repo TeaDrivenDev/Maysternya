@@ -31,8 +31,9 @@ type XamlWrapper() as this =
         | :? XamlWrapper as otherWrapper -> this.Item.Equals(otherWrapper.Item)
         | _ -> this.Item.Equals(other)
 
-type ValueEqualsParameterConverter() =
-    static member Instance = ValueEqualsParameterConverter() :> IValueConverter
+type ValueEqualsParameterConverter(inverted: bool) =
+    static member IsEqual = ValueEqualsParameterConverter(inverted = false) :> IValueConverter
+    static member IsNotEqual = ValueEqualsParameterConverter(inverted = true) :> IValueConverter
 
     interface IValueConverter with
         member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
@@ -40,8 +41,9 @@ type ValueEqualsParameterConverter() =
             | :? XamlValueCollection as collection ->
                 collection
                 |> Seq.exists _.Equals(value)
+                |> ((<>) inverted)
                 |> box
-            | _ -> value = parameter
+            | _ -> (value = parameter) <> inverted
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())
