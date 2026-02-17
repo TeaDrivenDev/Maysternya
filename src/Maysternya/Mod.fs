@@ -230,7 +230,7 @@ module Mod =
 
                             firstLineOfDescription
                             |> Option.map (asFst DescriptionFile)
-                            |> Option.defaultValue ("[No display name]", Unavailable)
+                            |> Option.defaultValue (locString "Loc.NoDisplayName", Unavailable)
                         else modPackage.DisplayName, Package
 
                     {|
@@ -242,7 +242,7 @@ module Mod =
                     |}
                 | Archive path ->
                     {|
-                        DisplayName = $"[Metadata in {Path.GetFileName path}]"
+                        DisplayName = String.Format(locString "Loc.MetadataIn.Format", Path.GetFileName path)
                         DisplayNameSource = Unavailable
                         Author = ""
                         ModVersion = ""
@@ -250,7 +250,7 @@ module Mod =
                     |}
                 | NotFound packageName ->
                     {|
-                        DisplayName = $"[Package {packageName} not found]"
+                        DisplayName = String.Format(locString "Loc.PackageNotFound.Format", packageName)
                         DisplayNameSource = Unavailable
                         Author = ""
                         ModVersion = ""

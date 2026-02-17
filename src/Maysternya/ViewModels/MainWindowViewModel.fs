@@ -37,28 +37,6 @@ type MainWindowViewModel(
     filePicker: Services.FilePickerService) as this =
     inherit ReactiveElmishViewModel()
 
-    // TODO Probably move these elsewhere
-    let workshopDirectoryButNoModsMessage = "Workshop directory found, but no ETS2 or ATS mod directories"
-    let noWorkshopDirectoryMessage = "Workshop directory not found"
-
-    let ets2NoVersionMessage = "ETS2"
-    let ets2VersionMessage = "ETS2 (version {0})"
-    let noEts2ModsDirectoryFoundMessage = "ETS2 mod directory not found"
-
-    let atsNoVersionMessage = "ATS"
-    let atsVersionMessage = "ATS (version {0})"
-    let noAtsModsDirectoryFoundMessage = "ATS mod directory not found"
-
-    let extractorInfoMessage =
-        "The HashFS extractor is used to get metadata (name, author, description, version) for mods "
-        + "packaged as HashFS, as well as the installed game versions. Using it is optional, but "
-        + "recommended; only the display of some mods and the game versions will be affected if it "
-        + "is missing."
-        + Environment.NewLine
-        + Environment.NewLine
-        + "If using the extractor, version 2026-02-15 or newer is required; using an older version "
-        + "will cause the application to not work at all."
-
     let selectedGameVersion model =
         match model.SelectedGame with
         | Ets2 -> model.Ets2Version
@@ -82,9 +60,9 @@ type MainWindowViewModel(
             store,
             fun model ->
                 if not model.WorkshopDirectory.PathExists
-                then noWorkshopDirectoryMessage
+                then locString "Loc.WorkshopDirectoryNotFound"
                 elif not model.Ets2ModsDirectory.PathExists && not model.AtsModsDirectory.PathExists
-                then workshopDirectoryButNoModsMessage
+                then locString "Loc.WorkshopButNoModDirectories"
                 else "")
 
     member this.IsShowWorkshopDirectoryMessage =
@@ -97,9 +75,9 @@ type MainWindowViewModel(
                 if model.Ets2ModsDirectory.PathExists
                 then
                     model.Ets2Version
-                    |> Option.map (fun version -> String.Format(ets2VersionMessage, version))
-                    |> Option.defaultValue ets2NoVersionMessage
-                else noEts2ModsDirectoryFoundMessage)
+                    |> Option.map (fun version -> String.Format(locString "Loc.Ets2Version.Format", version))
+                    |> Option.defaultValue (locString "Loc.Ets2")
+                else locString "Loc.Ets2ModsDirectoryNotFound")
 
     member this.IsEts2ModsDirectoryFound =
         this.Bind(store, _.Ets2ModsDirectory.PathExists)
@@ -111,9 +89,9 @@ type MainWindowViewModel(
                 if model.AtsModsDirectory.PathExists
                 then
                     model.AtsVersion
-                    |> Option.map (fun version -> String.Format(atsVersionMessage, version))
-                    |> Option.defaultValue atsNoVersionMessage
-                else noAtsModsDirectoryFoundMessage)
+                    |> Option.map (fun version -> String.Format(locString "Loc.AtsVersion.Format", version))
+                    |> Option.defaultValue (locString "Loc.Ats")
+                else locString "Loc.AtsModsDirectoryNotFound")
 
     member this.IsAtsModsDirectoryFound =
         this.Bind(store, _.AtsModsDirectory.PathExists)
@@ -127,8 +105,6 @@ type MainWindowViewModel(
                 model.Mods
                 |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
 
-    member this.ExtractorInfoMessage = extractorInfoMessage
-
     member this.SelectSteamDirectory() =
         task {
             let! path = folderPicker.TryPickFolder()
@@ -139,10 +115,10 @@ type MainWindowViewModel(
         task {
             let options =
                 FilePickerOpenOptions(
-                    Title = "Select extractor executable",
+                    Title = locString "Loc.SelectExtractorExecutable",
                     FileTypeFilter =
                         [
-                            FilePickerFileType("Extractor", Patterns = ["extractor.exe"])
+                            FilePickerFileType(locString "Loc.Extractor", Patterns = ["extractor.exe"])
                             FilePickerFileTypes.All
                         ])
 

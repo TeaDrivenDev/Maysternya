@@ -10,6 +10,14 @@
     </Application.DataTemplates>
     -->
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Localization/en-US.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme DensityStyle="Compact">
             <FluentTheme.Palettes>

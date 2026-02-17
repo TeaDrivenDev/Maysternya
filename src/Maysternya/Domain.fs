@@ -52,6 +52,9 @@ module Constants =
         [<Literal>]
         let VersionScs = "version.scs"
 
+        [<Literal>]
+        let ExtractorExe = "extractor.exe"
+
 type ConfiguredDirectory =
     {
         Path: string

@@ -7,7 +7,7 @@
         xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
         xmlns:vm="using:TeaDriven.Maysternya.ViewModels"
-        Title="Maysternya"
+        Title="{DynamicResource Loc.WindowTitle}"
         Width="1200"
         d:DesignHeight="450"
         d:DesignWidth="800"
@@ -65,7 +65,7 @@
                 <TextBox Grid.Column="0"
                          Classes.Valid="{Binding IsSteamDirectoryValid}"
                          Text="{Binding SteamDirectory}"
-                         Watermark="Steam Directory" />
+                         Watermark="{DynamicResource Loc.SteamDirectory}" />
                 <Button Grid.Column="1"
                         Classes="SelectFile"
                         Command="{Binding SelectSteamDirectory}" />
@@ -77,19 +77,19 @@
                 <TextBox Grid.Column="0"
                          Classes.Valid="{Binding IsHashFsExtractorPathValid}"
                          Text="{Binding HashFsExtractorPath}"
-                         Watermark="HashFS extractor" />
+                         Watermark="{DynamicResource Loc.HashFsExtractor}" />
                 <Button Grid.Column="1"
                         Classes="SelectFile"
                         Command="{Binding SelectHashFsExtractor}" />
                 <HyperlinkButton Grid.Column="2"
-                                 Content="Download"
+                                 Content="{DynamicResource Loc.Download}"
                                  NavigateUri="https://github.com/sk-zk/Extractor/releases" />
                 <mdi:MaterialIcon Grid.Column="3"
                                   Width="20"
                                   Height="20"
                                   Background="Transparent"
                                   Kind="QuestionMarkCircleOutline"
-                                  ToolTip.Tip="{Binding ExtractorInfoMessage}" />
+                                  ToolTip.Tip="{DynamicResource Loc.ExtractorInfoMessage}" />
             </Grid>
 
             <Grid Grid.Row="2"
@@ -97,6 +97,7 @@
                   ColumnDefinitions="*,*,Auto">
                 <TextBlock Grid.Column="0"
                            Grid.ColumnSpan="2"
+                           VerticalAlignment="Center"
                            IsVisible="{Binding IsShowWorkshopDirectoryMessage}"
                            Text="{Binding WorkshopDirectoryMessage}" />
 
@@ -140,7 +141,7 @@
                         IsEnabled="{Binding SelectedGame,
                                             Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsNotEqual},
                                             ConverterParameter={x:Static domain:SelectedGame.NoGame}}"
-                        ToolTip.Tip="Refresh list" />
+                        ToolTip.Tip="{DynamicResource Loc.RefreshList}" />
             </Grid>
 
             <Grid Grid.Row="3"
@@ -161,12 +162,12 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="100"
                                             Binding="{Binding Id}"
-                                            Header="ID" />
+                                            Header="{DynamicResource Loc.Id}" />
 
                         <DataGridTemplateColumn Width="*"
                                                 CanUserResize="True"
                                                 CanUserSort="True"
-                                                Header="Name"
+                                                Header="{DynamicResource Loc.Name}"
                                                 SortMemberPath="Name">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -217,7 +218,7 @@
                         <DataGridTemplateColumn Width="150"
                                                 CanUserResize="True"
                                                 CanUserSort="True"
-                                                Header="Author"
+                                                Header="{DynamicResource Loc.Author}"
                                                 SortMemberPath="Author">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -234,10 +235,10 @@
                         <DataGridTextColumn Width="100"
                                             Binding="{Binding Version}"
                                             CanUserSort="False"
-                                            Header="Version" />
+                                            Header="{DynamicResource Loc.Version}" />
 
                         <DataGridTemplateColumn Width="115"
-                                                Header="Usable with">
+                                                Header="{DynamicResource Loc.UsableWith}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Stretch"
@@ -289,7 +290,7 @@
                                                     VerticalAlignment="Center"
                                                     Command="{Binding RemoveVersionRestriction}"
                                                     Content="X"
-                                                    ToolTip.Tip="Temporarily remove version restriction">
+                                                    ToolTip.Tip="{DynamicResource Loc.RemoveRestrictionButtonToolTip}">
                                                 <Button.IsVisible>
                                                     <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
                                                              Path="VersionCompatibility">
