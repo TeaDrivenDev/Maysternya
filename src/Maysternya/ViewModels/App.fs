@@ -58,10 +58,18 @@ module App =
         | UpdateSteamDirectory of string option
         | UpdateHashFsExtractorPath of string option
         | SelectGame of SelectedGame
-        | RefreshGameVersions of Message
-        | RefreshModsList
+        | InitRefreshGameVersions of Message
+        | CompleteRefreshGameVersions of CompleteRefreshGameVersionsParameters
+        | InitRefreshModsList
+        | CompleteRefreshModsList of Mod list
         | RemoveVersionRestriction of string * string * Package list
         | Terminate
+    and CompleteRefreshGameVersionsParameters =
+        {
+            Ets2Version: Version option
+            AtsVersion: Version option
+            NextMessage: Message
+        }
 
     let commandAfterDirectorySelection model =
         let condition model game =
@@ -74,9 +82,9 @@ module App =
         | NoGame ->
             match model.DefaultSelectedGame with
             | NoGame -> Cmd.none
-            | game when condition model game -> Cmd.ofMsg (RefreshGameVersions (SelectGame game))
+            | game when condition model game -> Cmd.ofMsg (InitRefreshGameVersions (SelectGame game))
             | _ -> Cmd.none
-        | game when condition model game -> Cmd.ofMsg (RefreshGameVersions RefreshModsList)
+        | game when condition model game -> Cmd.ofMsg (InitRefreshGameVersions InitRefreshModsList)
         | _ -> Cmd.none
 
     let init () =
@@ -119,46 +127,76 @@ module App =
                                 model with HashFsExtractorPath = FileSystem.createConfiguredFile path
                             })
 
-            model, Cmd.ofMsg (RefreshGameVersions RefreshModsList)
+            model, Cmd.ofMsg (InitRefreshGameVersions InitRefreshModsList)
         | SelectGame game ->
-            { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg RefreshModsList
-        | RefreshGameVersions nextMessage ->
+            { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg InitRefreshModsList
+        | InitRefreshGameVersions nextMessage ->
             let steamDirectory = model.SteamDirectory
             let extractor = model.HashFsExtractorPath
 
-            let [ets2Version; atsVersion] =
-                if steamDirectory.PathExists && extractor.FileExists
-                then
-                    [Constants.Paths.Ets2Game; Constants.Paths.AtsGame]
-                    |> List.map (Mod.readGameVersion extractor.Path steamDirectory.Path)
-                else [None; None]
+            let readGameVersions () =
+                async {
+                    let! [ets2Version; atsVersion] =
+                        async {
+                            if steamDirectory.PathExists && extractor.FileExists
+                            then
+                                let versions = ResizeArray<_>()
+                                for game in [Constants.Paths.Ets2Game; Constants.Paths.AtsGame] do
+                                    let! version = Mod.readGameVersion extractor.Path steamDirectory.Path game
+                                    versions.Add version
 
-            { model with Ets2Version = ets2Version; AtsVersion = atsVersion }, Cmd.ofMsg nextMessage
-        | RefreshModsList ->
-            let mods =
-                if model.SteamDirectory.PathExists
-                then
-                    let modsPath =
-                        match model.SelectedGame with
-                        | Ets2 -> model.Ets2ModsDirectory.Path |> Some
-                        | Ats -> model.AtsModsDirectory.Path |> Some
-                        | NoGame -> None
+                                return versions |> Seq.toList
+                            else return [None; None]
+                        }
 
-                    let extractorPath =
-                        if model.HashFsExtractorPath.FileExists
-                        then Some model.HashFsExtractorPath.Path
-                        else None
+                    return
+                        {
+                            Ets2Version = ets2Version
+                            AtsVersion = atsVersion
+                            NextMessage = nextMessage
+                        }
+                }
 
-                    modsPath
-                    |> Option.map (Mod.readMods extractorPath)
-                    |> Option.defaultValue []
-                else []
+            model, Cmd.OfAsync.perform readGameVersions () CompleteRefreshGameVersions
+        | CompleteRefreshGameVersions parameters ->
+            {
+                model with
+                    Ets2Version = parameters.Ets2Version
+                    AtsVersion = parameters.AtsVersion
+            }, Cmd.ofMsg parameters.NextMessage
+        | InitRefreshModsList ->
+            let readMods () =
+                async {
+                    let! mods =
+                        async {
+                            if model.SteamDirectory.PathExists
+                            then
+                                let modsPath =
+                                    match model.SelectedGame with
+                                    | Ets2 -> model.Ets2ModsDirectory.Path |> Some
+                                    | Ats -> model.AtsModsDirectory.Path |> Some
+                                    | NoGame -> None
 
-            { model with Mods = mods } |> withoutCommand
+                                let extractorPath =
+                                    if model.HashFsExtractorPath.FileExists
+                                    then Some model.HashFsExtractorPath.Path
+                                    else None
+
+                                match modsPath with
+                                | Some modsPath -> return! Mod.readMods extractorPath modsPath
+                                | None -> return [||]
+                            else return [||]
+                        }
+
+                    return mods |> Array.toList
+                }
+
+            model, Cmd.OfAsync.perform readMods () CompleteRefreshModsList
+        | CompleteRefreshModsList mods -> { model with Mods = mods } |> withoutCommand
         | RemoveVersionRestriction (modPath, relevantPackageName, allPackages) ->
             Mod.removeVersionRestriction modPath relevantPackageName allPackages
 
-            model, Cmd.ofMsg RefreshModsList
+            model, Cmd.ofMsg InitRefreshModsList
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =

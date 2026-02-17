@@ -94,88 +94,109 @@ module Mod =
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
     let private loadFileFromFileSystem packagePath fileName =
-        let filePath = Path.Combine(packagePath, fileName)
-        File.ReadAllText(filePath)
+        async {
+            let filePath = Path.Combine(packagePath, fileName)
+            return! File.ReadAllTextAsync(filePath) |> Async.AwaitTask
+        }
 
     let private loadFileFromZipArchive archivePath fileName =
-        try
-            use archive = ZipFile.OpenRead(archivePath)
-            let manifestEntry = archive.GetEntry(fileName)
-            use manifestStream = manifestEntry.Open()
-            use reader = new StreamReader(manifestStream)
-            let contents = reader.ReadToEnd()
+        async {
+            try
+                use! archive = ZipFile.OpenReadAsync(archivePath) |> Async.AwaitTask
+                let manifestEntry = archive.GetEntry(fileName)
+                use! manifestStream = manifestEntry.OpenAsync() |> Async.AwaitTask
+                use reader = new StreamReader(manifestStream)
+                let! contents = reader.ReadToEndAsync() |> Async.AwaitTask
 
-            Success contents
-        with ex -> Failure archivePath
+                return Success contents
+            with ex -> return Failure archivePath
+        }
 
     let private extractFileFromHashFsArchive extractorPath tempPath archivePath fileName =
-        let parameters = $"\"{archivePath}\" -p=/{fileName} -d={tempPath} -q"
-        Command.Run(extractorPath, parameters, noEcho=true, createNoWindow=true)
+        async {
+            let parameters = $"\"{archivePath}\" -p=/{fileName} -d={tempPath} -q"
+            do! Command.RunAsync(extractorPath, parameters, noEcho=true, createNoWindow=true) |> Async.AwaitTask
 
-        Path.Combine(tempPath, fileName)
+            return Path.Combine(tempPath, fileName)
+        }
 
     let private loadFileFromHashFsArchive extractorPath archivePath fileName =
-        try
-            let tempPath = FileSystem.getTempDirectory Constants.Application.Application
+        async {
+            try
+                let tempPath = FileSystem.getTempDirectory Constants.Application.Application
+                let! path = extractFileFromHashFsArchive extractorPath tempPath archivePath fileName
+                let contents = File.ReadAllText(path)
 
-            let path = extractFileFromHashFsArchive extractorPath tempPath archivePath fileName
-            let contents = File.ReadAllText(path)
-            File.Delete(path)
-
-            Success contents
-        with ex -> Failure archivePath
+                return Success contents
+            with ex -> return Failure archivePath
+        }
 
     let private readManifest extractorPath modPath packageName =
-        let packagePath = Path.Combine(modPath, packageName)
-        let manifestFileName = Constants.FileNames.ManifestSii
+        async {
+            let packagePath = Path.Combine(modPath, packageName)
+            let manifestFileName = Constants.FileNames.ManifestSii
 
-        let manifestContents =
-            if Directory.Exists packagePath
-            then
-                let loadFile = loadFileFromFileSystem packagePath
-                let contents = loadFile manifestFileName
+            let! manifestContents =
+                async {
+                    if Directory.Exists packagePath
+                    then
+                        let loadFile = loadFileFromFileSystem packagePath
+                        let! contents = loadFile manifestFileName
 
-                (contents, loadFile >> Success) |> Success |> Some
-            else
-                let archiveExtensions = [ ".zip"; ".scs" ]
+                        let makeSuccess loadFile fileName =
+                            async {
+                                let! file = loadFile fileName
+                                return Success file
+                            }
 
-                archiveExtensions
-                |> List.tryPick
-                    (fun extension ->
-                        let archivePath = packagePath + extension
+                        return (contents, makeSuccess loadFile) |> Success |> Some
+                    else
+                        let archiveExtensions = [ ".zip"; ".scs" ]
 
-                        if File.Exists archivePath
-                        then Some archivePath
-                        else None)
-                |> Option.map
-                    (fun archivePath ->
-                        let loadFile = loadFileFromZipArchive archivePath
+                        let archivePath =
+                            archiveExtensions
+                            |> List.tryPick
+                                (fun extension ->
+                                    let archivePath = packagePath + extension
 
-                        loadFile manifestFileName
-                        |> function
-                            | Success contents -> Success (contents, loadFile)
+                                    if File.Exists archivePath
+                                    then Some archivePath
+                                    else None)
+
+                        match archivePath with
+                        | Some archivePath ->
+                            let loadFile = loadFileFromZipArchive archivePath
+                            let! manifestFile = loadFile manifestFileName
+
+                            match manifestFile with
+                            | Success contents -> return Success (contents, loadFile) |> Some
                             | Failure archivePath ->
-                                extractorPath
-                                |> Option.map
-                                    (fun extractorPath ->
-                                        let loadFile = loadFileFromHashFsArchive extractorPath archivePath
+                                match extractorPath with
+                                | Some extractorPath ->
+                                    let loadFile = loadFileFromHashFsArchive extractorPath archivePath
+                                    let! contents = loadFile manifestFileName
 
-                                        loadFile manifestFileName
-                                        |> function
-                                            | Success contents -> Success (contents, loadFile)
-                                            | Failure archivePath -> Failure archivePath)
-                                |> Option.defaultValue (Failure archivePath))
+                                    match contents with
+                                    | Success contents -> return Success (contents, loadFile) |> Some
+                                    | Failure archivePath -> return Failure archivePath |> Some
+                                | None -> return Failure archivePath |> Some
+                        | None -> return None
+                }
 
-        manifestContents
-        |> Option.map
-            (function
+            match manifestContents with
+            | Some manifestContents ->
+                match manifestContents with
                 | Success (contents, loadFile) ->
                     let modPackage = readManifestContents contents
 
-                    let description =
-                        if not <| String.IsNullOrWhiteSpace modPackage.DescriptionFile
-                        then loadFile modPackage.DescriptionFile |> Some
-                        else None
+                    let! description =
+                        async {
+                            if not <| String.IsNullOrWhiteSpace modPackage.DescriptionFile
+                            then
+                                let! descriptionFile = loadFile modPackage.DescriptionFile
+                                return Some descriptionFile
+                            else return None
+                        }
 
                     let descriptionText =
                         description
@@ -185,55 +206,57 @@ module Mod =
                                 | Failure _ -> "")
                         |> Option.defaultValue ""
 
-                    Accessible (modPackage, descriptionText)
-
-                | Failure archivePath -> Archive archivePath)
-        |> Option.defaultValue (NotFound packageName)
+                    return Accessible (modPackage, descriptionText)
+                | Failure archivePath -> return Archive archivePath
+            | None -> return NotFound packageName
+        }
 
     let readMetadata extractorPath modPath packageName =
-        let packageData =
-            readManifest extractorPath modPath packageName
+        async {
+            let! packageData = readManifest extractorPath modPath packageName
 
-        match packageData with
-        | Accessible (modPackage, description) ->
-            let displayName, source =
-                if String.IsNullOrWhiteSpace modPackage.DisplayName
-                then
-                    let firstLineOfDescription =
-                        if String.IsNullOrWhiteSpace description
-                        then None
-                        else
-                            use reader = new StringReader(description)
-                            reader.ReadLine() |> Some
+            return
+                match packageData with
+                | Accessible (modPackage, description) ->
+                    let displayName, source =
+                        if String.IsNullOrWhiteSpace modPackage.DisplayName
+                        then
+                            let firstLineOfDescription =
+                                if String.IsNullOrWhiteSpace description
+                                then None
+                                else
+                                    use reader = new StringReader(description)
+                                    reader.ReadLine() |> Some
 
-                    firstLineOfDescription
-                    |> Option.map (asFst DescriptionFile)
-                    |> Option.defaultValue ("[No display name]", Unavailable)
-                else modPackage.DisplayName, Package
+                            firstLineOfDescription
+                            |> Option.map (asFst DescriptionFile)
+                            |> Option.defaultValue ("[No display name]", Unavailable)
+                        else modPackage.DisplayName, Package
 
-            {|
-                DisplayName = displayName
-                DisplayNameSource = source
-                Author = modPackage.Author
-                ModVersion = modPackage.PackageVersion
-                Description = description
-            |}
-        | Archive path ->
-            {|
-                DisplayName = $"[Metadata in {Path.GetFileName path}]"
-                DisplayNameSource = Unavailable
-                Author = ""
-                ModVersion = ""
-                Description = ""
-            |}
-        | NotFound packageName ->
-            {|
-                DisplayName = $"[Package {packageName} not found]"
-                DisplayNameSource = Unavailable
-                Author = ""
-                ModVersion = ""
-                Description = ""
-            |}
+                    {|
+                        DisplayName = displayName
+                        DisplayNameSource = source
+                        Author = modPackage.Author
+                        ModVersion = modPackage.PackageVersion
+                        Description = description
+                    |}
+                | Archive path ->
+                    {|
+                        DisplayName = $"[Metadata in {Path.GetFileName path}]"
+                        DisplayNameSource = Unavailable
+                        Author = ""
+                        ModVersion = ""
+                        Description = ""
+                    |}
+                | NotFound packageName ->
+                    {|
+                        DisplayName = $"[Package {packageName} not found]"
+                        DisplayNameSource = Unavailable
+                        Author = ""
+                        ModVersion = ""
+                        Description = ""
+                    |}
+        }
 
     let convertPackage (packageVersionInfo: PackageVersionInfo) =
         {
@@ -246,24 +269,25 @@ module Mod =
         }
 
     let readMod extractorPath modPath =
-        let packages = readVersions modPath
-        let relevantPackage, compatibleVersion = determineRelevantPackage packages
+        async {
+            let packages = readVersions modPath
+            let relevantPackage, compatibleVersion = determineRelevantPackage packages
+            let! metadata = readMetadata extractorPath modPath relevantPackage.PackageName
+            let modId = Path.GetFileName modPath
 
-        let metadata = readMetadata extractorPath modPath relevantPackage.PackageName
-
-        let modId = Path.GetFileName modPath
-
-        {
-            Id = modId
-            Path = modPath
-            Name = metadata.DisplayName
-            DisplayNameSource = metadata.DisplayNameSource
-            Author = metadata.Author
-            Version = metadata.ModVersion
-            Description = metadata.Description
-            HighestCompatibleGameVersion = compatibleVersion
-            RelevantPackageName = relevantPackage.PackageName
-            AllPackages = packages |> List.map convertPackage
+            return
+                {
+                    Id = modId
+                    Path = modPath
+                    Name = metadata.DisplayName
+                    DisplayNameSource = metadata.DisplayNameSource
+                    Author = metadata.Author
+                    Version = metadata.ModVersion
+                    Description = metadata.Description
+                    HighestCompatibleGameVersion = compatibleVersion
+                    RelevantPackageName = relevantPackage.PackageName
+                    AllPackages = packages |> List.map convertPackage
+                }
         }
 
     let readMods extractorPath modsPath =
@@ -271,6 +295,7 @@ module Mod =
         |> Directory.GetDirectories
         |> List.ofArray
         |> List.map (readMod extractorPath)
+        |> Async.Sequential
 
     let writeVersions (packages: Package list) =
         let stringBuilder = System.Text.StringBuilder()
@@ -318,27 +343,29 @@ module Mod =
 
     let parseGameVersion (versionFileContents: string) =
         let gameVersionRegex =
-            System.Text.RegularExpressions.Regex("version: \"(?<version>.*)\"", System.Text.RegularExpressions.RegexOptions.Compiled)
+            System.Text.RegularExpressions.Regex(
+                "version: \"(?<version>.*)\"",
+                System.Text.RegularExpressions.RegexOptions.Compiled)
 
         let ``match`` = gameVersionRegex.Match(versionFileContents)
         ``match``.Groups["version"].Value
 
     let readGameVersion extractorPath steamPath gamePath =
-        let fullGamePath = Path.Combine(steamPath, Constants.Paths.GamesPath, gamePath)
+        async {
+            let fullGamePath = Path.Combine(steamPath, Constants.Paths.GamesPath, gamePath)
 
-        if Directory.Exists fullGamePath
-        then
-            let versionFilePath = Path.Combine(fullGamePath, Constants.FileNames.VersionScs)
+            if Directory.Exists fullGamePath
+            then
+                let versionFilePath = Path.Combine(fullGamePath, Constants.FileNames.VersionScs)
+                let! versionFile = loadFileFromHashFsArchive extractorPath versionFilePath Constants.FileNames.VersionSii
 
-            let versionFile =
-                loadFileFromHashFsArchive extractorPath versionFilePath Constants.FileNames.VersionSii
-
-            match versionFile with
-            | Success versionFileContents ->
-                let gameVersion = parseGameVersion versionFileContents |> Version
-                Some gameVersion
-            | Failure _ -> None
-        else None
+                match versionFile with
+                | Success versionFileContents ->
+                    let gameVersion = parseGameVersion versionFileContents |> Version
+                    return Some gameVersion
+                | Failure _ -> return None
+            else return None
+        }
 
     let determineVersionCompatibility compatibleVersion (gameVersion: Version option): VersionCompatibility =
         match compatibleVersion, gameVersion with
