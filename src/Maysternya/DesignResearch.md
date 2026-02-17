@@ -52,7 +52,7 @@ mod_package : .package_name {
 
 ### Compatible Versions
 
-A mod's packages are tied together by the `versions.sii` file in the mod's root directory. This file declares which packages are present within the mod, which game versions they are valid for, and which packages are informational.
+A mod's packages are tied together by the `versions.sii` file in the mod's root directory. This file declares which packages are present within the mod, which game versions they are valid for, and which packages are informational only.
 
 Example:
 
@@ -119,6 +119,6 @@ The game IDs are fixed values and defined as constants in the application. The m
 
 Determining the highest compatible version is easy: Parse `versions.sii` and find the non-informational package with the highest compatible version, or no compatible versions at all.
 
-Obtaining the metadata is fundamentally not difficult either: Read the `manifest.sii` file in the package determined above; it is assumed that every package contains a manifest file. The apparently frequent lack of a display name in the manifest files is an issue; the mod IDs are just long numbers and cannot be used to tell the user what the individual mods are. A possible workaround is showing (part of) the description file in place of the name; possibly with the entire file as a tooltip. 
+Obtaining the metadata is fundamentally not difficult either: Read the `manifest.sii` file in the package determined above; it is assumed that every package contains a manifest file. However, many mods don't include a display name in the manifest, apparently relying on the information shown in the game coming from Steam. As the mod IDs are just long numbers and cannot be used to tell the user what the individual mods are, as a workaround the first line of the description file is shown as the name instead. The entire description file is shown in the tooltip of an info icon next to the name. 
 
-If a relevant package is present as an archive, access it via .NET's built-in zip functionality to read the manifest file. If the archive cannot be read using the zip functionality, that means it is a HashFS archive; extract it to a temporary location using one of the extraction tools, and read the manifest file from the file system. 
+If a relevant package is present as an archive, access it via .NET's built-in zip functionality to read the manifest file. If the archive cannot be read using the zip functionality, that means it is a HashFS archive; extract it to a temporary location using one the open source HashFS extractor, and read the manifest file from the file system. The open source extractor is preferable to the SCS one, as it allows extracting individual files from the archive, avoiding the extraction of entire, possibly large packages just to access the small manifest and description files.  
