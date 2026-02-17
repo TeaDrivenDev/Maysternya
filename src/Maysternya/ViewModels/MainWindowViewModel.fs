@@ -147,11 +147,14 @@ type MainWindowViewModel(
                         ])
 
             let! path = filePicker.TryPickFile(Some options)
-            return store.Dispatch(UpdateHashFsExtractorPath path)
+            store.Dispatch(UpdateHashFsExtractorPath path)
         }
 
     member this.SetSelectedGame(selectedGame: SelectedGame) =
         store.Dispatch(SelectGame selectedGame)
+
+    member this.RefreshModsList() =
+        store.Dispatch(InitRefreshModsList)
 
     member this.Shutdown() =
         let settings =

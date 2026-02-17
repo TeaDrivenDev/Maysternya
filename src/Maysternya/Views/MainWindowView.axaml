@@ -94,7 +94,7 @@
 
             <Grid Grid.Row="2"
                   Margin="2 5 2 0"
-                  ColumnDefinitions="*,*">
+                  ColumnDefinitions="*,*,Auto">
                 <TextBlock Grid.Column="0"
                            Grid.ColumnSpan="2"
                            IsVisible="{Binding IsShowWorkshopDirectoryMessage}"
@@ -133,6 +133,14 @@
                         </MultiBinding>
                     </RadioButton.IsChecked>
                 </RadioButton>
+
+                <Button Grid.Column="2"
+                        Command="{Binding RefreshModsList}"
+                        Content="{mdi:MaterialIconExt Kind=Refresh}"
+                        IsEnabled="{Binding SelectedGame,
+                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsNotEqual},
+                                            ConverterParameter={x:Static domain:SelectedGame.NoGame}}"
+                        ToolTip.Tip="Refresh list" />
             </Grid>
 
             <Grid Grid.Row="3"
