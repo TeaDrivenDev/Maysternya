@@ -61,7 +61,7 @@
         <Grid RowDefinitions="Auto,Auto,Auto,*">
             <Grid Grid.Row="0"
                   Margin="0 0 0 5"
-                  ColumnDefinitions="*,Auto">
+                  ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0"
                          Classes.Valid="{Binding IsSteamDirectoryValid}"
                          Text="{Binding SteamDirectory}"
@@ -69,6 +69,13 @@
                 <Button Grid.Column="1"
                         Classes="SelectFile"
                         Command="{Binding SelectSteamDirectory}" />
+                <mdi:MaterialIcon Grid.Column="2"
+                                  Width="20"
+                                  Height="20"
+                                  Margin="7 0 0 0"
+                                  Background="Transparent"
+                                  Kind="QuestionMarkCircleOutline"
+                                  ToolTip.Tip="{DynamicResource Loc.SteamDirectoryInfoMessage}" />
             </Grid>
 
             <Grid Grid.Row="1"

@@ -3,6 +3,7 @@
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <system:String x:Key="Loc.WindowTitle">Maysternya</system:String>
     <system:String x:Key="Loc.SteamDirectory">Steam Directory</system:String>
+    <system:String x:Key="Loc.SteamDirectoryInfoMessage">This is the directory of the Steam library your SCS truck simulators are installed in. By default this is 'C:\Program Files (x86)\Steam', but if your games are installed in another location, this must be the directory that contains 'steamapps'.</system:String>
     <system:String x:Key="Loc.HashFsExtractor">HashFS Extractor</system:String>
     <system:String x:Key="Loc.Download">Download</system:String>
     <system:String x:Key="Loc.ExtractorInfoMessage">The HashFS extractor is used to get metadata (name, author, description, version) for mods packaged as HashFS, as well as the installed game versions. Using it is optional, but recommended; only the display of some mods and the game versions will be affected if it is missing.
