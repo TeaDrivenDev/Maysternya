@@ -10,6 +10,7 @@
     </Application.DataTemplates>
     -->
 
+    <!--  Localization approach from https://github.com/timunie/Tims.Avalonia.Samples?tab=readme-ov-file#localization-sample  -->
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
