@@ -155,7 +155,8 @@
 
             <Grid Grid.Row="3"
                   Margin="0 10 0 0">
-                <DataGrid ItemsSource="{Binding Mods}"
+                <DataGrid CanUserResizeColumns="True"
+                          ItemsSource="{Binding Mods}"
                           SelectionMode="Single">
 
                     <!--  see https://github.com/AvaloniaUI/Avalonia/discussions/8854  -->
@@ -171,6 +172,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="100"
                                             Binding="{Binding Id}"
+                                            CanUserResize="False"
                                             Header="{DynamicResource Loc.Id}" />
 
                         <DataGridTemplateColumn Width="*"
@@ -244,11 +246,14 @@
 
                         <DataGridTextColumn Width="100"
                                             Binding="{Binding Version}"
+                                            CanUserResize="False"
                                             CanUserSort="False"
                                             Header="{DynamicResource Loc.Version}" />
 
                         <DataGridTemplateColumn Width="115"
-                                                Header="{DynamicResource Loc.UsableWith}">
+                                                CanUserResize="False"
+                                                Header="{DynamicResource Loc.UsableWith}"
+                                                SortMemberPath="HighestCompatibleGameVersion">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Stretch"
