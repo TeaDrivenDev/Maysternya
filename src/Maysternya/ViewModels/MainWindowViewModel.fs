@@ -7,6 +7,7 @@ open ReactiveElmish
 
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
+open TeaDriven.Maysternya.Localization
 
 open App
 
@@ -60,9 +61,9 @@ type MainWindowViewModel(
             store,
             fun model ->
                 if not model.WorkshopDirectory.PathExists
-                then locString "Loc.WorkshopDirectoryNotFound"
+                then locString Loc.WorkshopDirectoryNotFound
                 elif not model.Ets2ModsDirectory.PathExists && not model.AtsModsDirectory.PathExists
-                then locString "Loc.WorkshopButNoModDirectories"
+                then locString Loc.WorkshopButNoModDirectories
                 else "")
 
     member this.IsShowWorkshopDirectoryMessage =
@@ -75,9 +76,9 @@ type MainWindowViewModel(
                 if model.Ets2ModsDirectory.PathExists
                 then
                     model.Ets2Version
-                    |> Option.map (fun version -> String.Format(locString "Loc.Ets2Version.Format", version))
-                    |> Option.defaultValue (locString "Loc.Ets2")
-                else locString "Loc.Ets2ModsDirectoryNotFound")
+                    |> Option.map (fun version -> String.Format(locString Loc.Ets2Version_Format, version))
+                    |> Option.defaultValue (locString Loc.Ets2)
+                else locString Loc.Ets2ModsDirectoryNotFound)
 
     member this.IsEts2ModsDirectoryFound =
         this.Bind(store, _.Ets2ModsDirectory.PathExists)
@@ -89,9 +90,9 @@ type MainWindowViewModel(
                 if model.AtsModsDirectory.PathExists
                 then
                     model.AtsVersion
-                    |> Option.map (fun version -> String.Format(locString "Loc.AtsVersion.Format", version))
-                    |> Option.defaultValue (locString "Loc.Ats")
-                else locString "Loc.AtsModsDirectoryNotFound")
+                    |> Option.map (fun version -> String.Format(locString Loc.AtsVersion_Format, version))
+                    |> Option.defaultValue (locString Loc.Ats)
+                else locString Loc.AtsModsDirectoryNotFound)
 
     member this.IsAtsModsDirectoryFound =
         this.Bind(store, _.AtsModsDirectory.PathExists)
@@ -115,10 +116,10 @@ type MainWindowViewModel(
         task {
             let options =
                 FilePickerOpenOptions(
-                    Title = locString "Loc.SelectExtractorExecutable",
+                    Title = locString Loc.SelectExtractorExecutable,
                     FileTypeFilter =
                         [
-                            FilePickerFileType(locString "Loc.Extractor", Patterns = ["extractor.exe"])
+                            FilePickerFileType(locString Loc.Extractor, Patterns = ["extractor.exe"])
                             FilePickerFileTypes.All
                         ])
 

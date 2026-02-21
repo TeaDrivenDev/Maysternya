@@ -9,6 +9,7 @@ module Mod =
     open SimpleExec
 
     open TeaDriven.Maysternya.Domain
+    open TeaDriven.Maysternya.Localization
     open TeaDriven.Maysternya.Prelude
     open TeaDriven.Maysternya.SiiUnit
 
@@ -230,7 +231,7 @@ module Mod =
 
                             firstLineOfDescription
                             |> Option.map (asFst DescriptionFile)
-                            |> Option.defaultValue (locString "Loc.NoDisplayName", Unavailable)
+                            |> Option.defaultValue (locString Loc.NoDisplayName, Unavailable)
                         else modPackage.DisplayName, Package
 
                     {|
@@ -242,7 +243,7 @@ module Mod =
                     |}
                 | Archive path ->
                     {|
-                        DisplayName = String.Format(locString "Loc.MetadataIn.Format", Path.GetFileName path)
+                        DisplayName = String.Format(locString Loc.MetadataIn_Format, Path.GetFileName path)
                         DisplayNameSource = Unavailable
                         Author = ""
                         ModVersion = ""
@@ -250,7 +251,7 @@ module Mod =
                     |}
                 | NotFound packageName ->
                     {|
-                        DisplayName = String.Format(locString "Loc.PackageNotFound.Format", packageName)
+                        DisplayName = String.Format(locString Loc.PackageNotFound_Format, packageName)
                         DisplayNameSource = Unavailable
                         Author = ""
                         ModVersion = ""
