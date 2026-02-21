@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Localization.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Services\Services.fs" />
     <Compile Include="Domain.fs" />
@@ -48,6 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="CreateLocalization.fsx" />
     <None Include="DesignResearch.md" />
   </ItemGroup>
 
