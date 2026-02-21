@@ -28,15 +28,23 @@ let updateLocalization resources destination =
     let locKeys = resources |> File.ReadAllText |> getLocKeys
 
     let sb = StringBuilder()
-    sb
-        .AppendLine("namespace TeaDriven.Maysternya.Localization")
-        .AppendLine()
-        .AppendLine("module Loc =")
-    |> ignore
+    sb.AppendLine("namespace TeaDriven.Maysternya.Localization") |> ignore
 
-    for key in locKeys do
-        let valueName = key.Replace(".", "")
-        sb.AppendLine($@"    let {valueName} = ""{key}""") |> ignore
+    let locKeyGroups =
+        locKeys
+        |> List.map (fun (locKey: string) -> (locKey.Split([| '.' |], 2), locKey))
+        |> List.groupBy (fst >> Array.head)
+
+    for groupKey, groupItems in locKeyGroups do
+        sb
+            .AppendLine()
+            .AppendLine($"module {groupKey} =")
+        |> ignore
+
+        for split, locKey in groupItems do
+            let key = split[1]
+            let valueName = key.Replace('.', '_')
+            sb.AppendLine($@"    let {valueName} = ""{locKey}""") |> ignore
 
     File.WriteAllText(destination, sb.ToString())
 
