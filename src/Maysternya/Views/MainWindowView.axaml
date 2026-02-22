@@ -345,8 +345,18 @@
                                 Grid.Row="1"
                                 Margin="3"
                                 HorizontalAlignment="Right"
-                                Command="{Binding ToggleIsShowLog}"
-                                Content="Log" />
+                                Classes.IsShowLog="{Binding IsShowLog}"
+                                Command="{Binding ToggleIsShowLog}">
+                            <Button.Styles>
+                                <Style Selector="Button.IsShowLog">
+                                    <Setter Property="Content" Value="{DynamicResource Loc.HideLog}" />
+                                </Style>
+
+                                <Style Selector="Button:not(.IsShowLog)">
+                                    <Setter Property="Content" Value="{DynamicResource Loc.ShowLog}" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
 
                         <DataGrid Grid.Row="2"
                                   IsVisible="{Binding IsShowLog}">
