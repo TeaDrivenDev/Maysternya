@@ -21,12 +21,21 @@ type MainWindowView () as this =
 
     member this.Window_OnClosing(sender: obj, e: WindowClosingEventArgs) =
         (this.DataContext :?> MainWindowViewModel).Shutdown()
-    
+
     member this.SelectedGame_OnIsCheckedChanged(sender: obj, e: RoutedEventArgs) =
         match sender with
-        | :? RadioButton as rb when rb.IsChecked.HasValue && rb.IsChecked.Value -> 
+        | :? RadioButton as rb when rb.IsChecked.HasValue && rb.IsChecked.Value ->
             match rb.Tag with
             | :? SelectedGame as selectedGame ->
                 (this.DataContext :?> MainWindowViewModel).SetSelectedGame(selectedGame)
             | _ -> ()
+        | _ -> ()
+
+    member this.ShowLogButton_OnClick(sender: obj, e: RoutedEventArgs) =
+        match sender with
+        | :? Button as button ->
+            let viewModel = this.DataContext :?> MainWindowViewModel
+            let isShowLog = viewModel.IsShowLog
+
+            viewModel.IsShowLog <- not isShowLog
         | _ -> ()

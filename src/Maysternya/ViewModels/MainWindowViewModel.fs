@@ -4,6 +4,7 @@ open System
 
 open Avalonia.Platform.Storage
 open ReactiveElmish
+open ReactiveUI
 
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
@@ -37,6 +38,8 @@ type MainWindowViewModel(
     folderPicker: Services.FolderPickerService,
     filePicker: Services.FilePickerService) =
     inherit ReactiveElmishViewModel()
+
+    let mutable isShowLog = false
 
     let selectedGameVersion model =
         match model.SelectedGame with
@@ -105,6 +108,11 @@ type MainWindowViewModel(
             fun model ->
                 model.Mods
                 |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
+
+    member this.IsShowLog
+        with get () = isShowLog
+        and set value =
+            this.RaiseAndSetIfChanged(&isShowLog, value) |> ignore
 
     member this.SelectSteamDirectory() =
         task {
