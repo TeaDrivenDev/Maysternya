@@ -58,7 +58,7 @@ module App =
         | UpdateSteamDirectory of string option
         | UpdateHashFsExtractorPath of string option
         | SelectGame of SelectedGame
-        | InitRefreshGameVersions of Message
+        | InitRefreshGameVersions of Message option
         | CompleteRefreshGameVersions of CompleteRefreshGameVersionsParameters
         | InitRefreshModsList
         | CompleteRefreshModsList of Mod list
@@ -68,7 +68,7 @@ module App =
         {
             Ets2Version: Version option
             AtsVersion: Version option
-            NextMessage: Message
+            NextMessage: Message option
         }
 
     let commandAfterDirectorySelection model =
@@ -78,14 +78,17 @@ module App =
             | Ats -> model.AtsModsDirectory.PathExists
             | NoGame -> false
 
-        match model.SelectedGame with
-        | NoGame ->
-            match model.DefaultSelectedGame with
-            | NoGame -> Cmd.none
-            | game when condition model game -> Cmd.ofMsg (InitRefreshGameVersions (SelectGame game))
-            | _ -> Cmd.none
-        | game when condition model game -> Cmd.ofMsg (InitRefreshGameVersions InitRefreshModsList)
-        | _ -> Cmd.none
+        let messageAfterRefreshingGameVersions =
+            match model.SelectedGame with
+            | NoGame ->
+                match model.DefaultSelectedGame with
+                | NoGame -> None
+                | game when condition model game -> Some (SelectGame game)
+                | _ -> None
+            | game when condition model game -> Some InitRefreshModsList
+            | _ -> None
+
+        Cmd.ofMsg (InitRefreshGameVersions messageAfterRefreshingGameVersions)
 
     let init () =
         let settings =
@@ -98,16 +101,13 @@ module App =
                 }
 
         let model =
-            settings.SteamPath
-            |> FileSystem.determinePaths
-            |> updatePaths
-                {
-                    Model.Default with
-                        HashFsExtractorPath = FileSystem.createConfiguredFile settings.HashFsExtractorPath
-                        DefaultSelectedGame = settings.DefaultGame
-                }
+            {
+                Model.Default with
+                    HashFsExtractorPath = FileSystem.createConfiguredFile settings.HashFsExtractorPath
+                    DefaultSelectedGame = settings.DefaultGame
+            }
 
-        model, commandAfterDirectorySelection model
+        model, Cmd.ofMsg (UpdateSteamDirectory (Some settings.SteamPath))
 
     let update message model =
         match message with
@@ -127,7 +127,7 @@ module App =
                                 model with HashFsExtractorPath = FileSystem.createConfiguredFile path
                             })
 
-            model, Cmd.ofMsg (InitRefreshGameVersions InitRefreshModsList)
+            model, Cmd.ofMsg (InitRefreshGameVersions (Some InitRefreshModsList))
         | SelectGame game ->
             { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg InitRefreshModsList
         | InitRefreshGameVersions nextMessage ->
@@ -163,7 +163,7 @@ module App =
                 model with
                     Ets2Version = parameters.Ets2Version
                     AtsVersion = parameters.AtsVersion
-            }, Cmd.ofMsg parameters.NextMessage
+            }, parameters.NextMessage |> Option.map Cmd.ofMsg |> Option.defaultValue Cmd.none
         | InitRefreshModsList ->
             let readMods () =
                 async {
