@@ -6,15 +6,15 @@ module Settings =
     open System.IO
     open System.Text.Json
     open System.Text.Json.Serialization
-    
+
     open TeaDriven.Maysternya.Domain
-    
+
     let private serializationOptions =
         let fsharpOptions =
             JsonFSharpOptions.Default()
-            
-        let jsonOptions = fsharpOptions.ToJsonSerializerOptions()
 
+        let jsonOptions = fsharpOptions.ToJsonSerializerOptions()
+        jsonOptions.WriteIndented <- true
         jsonOptions
 
     let settingsPath =
