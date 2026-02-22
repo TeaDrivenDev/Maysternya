@@ -30,12 +30,3 @@ type MainWindowView () as this =
                 (this.DataContext :?> MainWindowViewModel).SetSelectedGame(selectedGame)
             | _ -> ()
         | _ -> ()
-
-    member this.ShowLogButton_OnClick(sender: obj, e: RoutedEventArgs) =
-        match sender with
-        | :? Button as button ->
-            let viewModel = this.DataContext :?> MainWindowViewModel
-            let isShowLog = viewModel.IsShowLog
-
-            viewModel.IsShowLog <- not isShowLog
-        | _ -> ()

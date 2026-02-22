@@ -345,7 +345,7 @@
                                 Grid.Row="1"
                                 Margin="3"
                                 HorizontalAlignment="Right"
-                                Click="ShowLogButton_OnClick"
+                                Command="{Binding ToggleIsShowLog}"
                                 Content="Log" />
 
                         <DataGrid Grid.Row="2"

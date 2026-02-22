@@ -141,6 +141,9 @@ type MainWindowViewModel(
     member this.RefreshModsList() =
         store.Dispatch(InitRefreshModsList)
 
+    member this.ToggleIsShowLog() =
+        this.IsShowLog <- not this.IsShowLog
+
     member this.Shutdown() =
         let settings =
             {
