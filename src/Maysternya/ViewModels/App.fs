@@ -10,7 +10,7 @@ open ReactiveElmish.Avalonia
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
 open TeaDriven.Maysternya.FileSystemTypes
-open TeaDriven.Maysternya.Logging
+open TeaDriven.Maysternya.LoggingTypes
 
 module App =
     let withoutCommand model = model, Cmd.none
@@ -51,6 +51,12 @@ module App =
                     Mods = []
                     LogEntries = SourceCache.create _.Timestamp
                 }
+            interface ILogTarget<Activity, DateTimeOffset, Model> with
+                // First .LogEntries is the interface member, second is the record field.
+                // This works, but is probably not an ideal way to do this.
+                member this.LogEntries = this.LogEntries
+                member this.UpdateLogEntries(logEntries: SourceCache<LogEntry<Activity>, DateTimeOffset>) =
+                    { this with LogEntries = logEntries }
 
     let updatePaths model paths =
         {
@@ -212,7 +218,7 @@ module App =
 
             model, Cmd.ofMsg InitRefreshModsList
         | Log (logLevel, activity, message) ->
-            (model |> withLog logLevel activity message) |> withoutCommand
+            (model |> Logging.withLog logLevel activity message) |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =

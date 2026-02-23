@@ -1,33 +1,52 @@
-﻿namespace TeaDriven.Maysternya.Logging
+﻿namespace TeaDriven.Maysternya
 
-open System
-open DynamicData
-open ReactiveElmish
+module LoggingTypes =
+    open System
+    open DynamicData
+    open ReactiveElmish
 
-type LogLevel = Diagnostic | Informational | Warning | Error
+    type LogLevel = Diagnostic | Informational | Warning | Error
 
-type LogEntry<'Activity> =
-    {
-        Timestamp: DateTimeOffset
-        LogLevel: LogLevel
-        Activity: 'Activity
-        Message: string
-    } with
-        static member create logLevel activity message =
-            {
-                Timestamp = DateTimeOffset.Now
-                LogLevel = logLevel
-                Activity = activity
-                Message = message
-            }
+    type LogEntry<'Activity> =
+        {
+            Timestamp: DateTimeOffset
+            LogLevel: LogLevel
+            Activity: 'Activity
+            Message: string
+        } with
+            static member create logLevel activity message =
+                {
+                    Timestamp = DateTimeOffset.Now
+                    LogLevel = logLevel
+                    Activity = activity
+                    Message = message
+                }
 
-        member this.addTo (entries: SourceCache<_, _>) =
-            entries |> SourceCache.addOrUpdate this
+            member this.addTo (entries: SourceCache<_, _>) =
+                entries |> SourceCache.addOrUpdate this
 
-type LogEntryViewModel<'Activity>(logEntry: LogEntry<'Activity>) =
-    inherit ReactiveElmishViewModel()
+    type ILogTarget<'Activity, 'Key, 'Model> =
+        abstract member LogEntries: SourceCache<LogEntry<'Activity>, 'Key> with get
 
-    member _.Timestamp = logEntry.Timestamp
-    member _.LogLevel = logEntry.LogLevel
-    member _.Activity = logEntry.Activity
-    member _.Message = logEntry.Message
+        abstract member UpdateLogEntries<'Activity, 'Key, 'Model>: SourceCache<LogEntry<'Activity>, 'Key> -> 'Model
+
+    type LogEntryViewModel<'Activity>(logEntry: LogEntry<'Activity>) =
+        inherit ReactiveElmishViewModel()
+
+        member _.Timestamp = logEntry.Timestamp
+        member _.LogLevel = logEntry.LogLevel
+        member _.Activity = logEntry.Activity
+        member _.Message = logEntry.Message
+
+[<RequireQualifiedAccess>]
+module Logging =
+    open ReactiveElmish
+
+    open LoggingTypes
+
+    let withLog logLevel activity message (logTarget: ILogTarget<_, _, _>) =
+        let logEntry = LogEntry<_>.create logLevel activity message
+
+        logTarget.LogEntries
+        |> SourceCache.addOrUpdate logEntry
+        |> logTarget.UpdateLogEntries

@@ -11,9 +11,9 @@ open ReactiveUI
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
 open TeaDriven.Maysternya.Localization
+open TeaDriven.Maysternya.LoggingTypes
 
 open App
-open TeaDriven.Maysternya.Logging
 
 type ModViewModel(modData: Mod, gameVersion: Version option) as this =
     inherit ReactiveElmishViewModel()
