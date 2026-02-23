@@ -70,6 +70,7 @@ module App =
         | InitRefreshModsList
         | CompleteRefreshModsList of Mod list
         | RemoveVersionRestriction of string * string * Package list
+        | Log of LogLevel * Activity * string
         | Terminate
     and CompleteRefreshGameVersionsParameters =
         {
@@ -210,6 +211,8 @@ module App =
             Mod.removeVersionRestriction modPath relevantPackageName allPackages
 
             model, Cmd.ofMsg InitRefreshModsList
+        | Log (logLevel, activity, message) ->
+            (model |> withLog logLevel activity message) |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =
