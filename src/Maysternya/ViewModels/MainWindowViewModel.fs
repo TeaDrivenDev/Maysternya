@@ -45,7 +45,7 @@ type MainWindowViewModel(
     let mutable isShowLog = false
     let mutable logEntries = Unchecked.defaultof<_>
 
-    let selectedGameVersion model =
+    let selectedGameVersion (model: Model) =
         match model.SelectedGame with
         | Ets2 -> model.Ets2Version
         | Ats -> model.AtsVersion
@@ -156,7 +156,7 @@ type MainWindowViewModel(
         store.Dispatch(SelectGame selectedGame)
 
     member this.RefreshModsList() =
-        store.Dispatch(InitRefreshModsList)
+        store.Dispatch(InitRefreshModsList true)
 
     member this.ToggleIsShowLog() =
         this.IsShowLog <- not this.IsShowLog

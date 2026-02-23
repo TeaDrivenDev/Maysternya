@@ -13,7 +13,8 @@ open TeaDriven.Maysternya.FileSystemTypes
 open TeaDriven.Maysternya.LoggingTypes
 
 module App =
-    let withoutCommand model = model, Cmd.none
+    let inline withCommand command model = model, command
+    let inline withoutCommand model = model, Cmd.none
 
     type Activity = UpdatePaths | UpdateGameVersions | ReadMods | RemoveRestriction
 
@@ -29,6 +30,7 @@ module App =
             SelectedGame: SelectedGame
             DefaultSelectedGame: SelectedGame
             Mods: Mod list
+            LastRefreshConfiguration: LastRefreshConfiguration option
             LogEntries: SourceCache<LogEntry<Activity>, DateTimeOffset>
         }
         with
@@ -44,14 +46,22 @@ module App =
                     SelectedGame = NoGame
                     DefaultSelectedGame = NoGame
                     Mods = []
+                    LastRefreshConfiguration = None
                     LogEntries = SourceCache.create _.Timestamp
                 }
             interface ILogTarget<Activity, DateTimeOffset, Model> with
                 // First .LogEntries is the interface member, second is the record field.
                 // This works, but is probably not an ideal way to do this.
                 member this.LogEntries = this.LogEntries
+
                 member this.UpdateLogEntries(logEntries: SourceCache<LogEntry<Activity>, DateTimeOffset>) =
                     { this with LogEntries = logEntries }
+    and LastRefreshConfiguration =
+        {
+            SteamDirectory: string
+            HashFsExtractorPath: string
+            SelectedGame: SelectedGame
+        }
 
     let updatePaths model paths =
         {
@@ -68,7 +78,7 @@ module App =
         | SelectGame of SelectedGame
         | InitRefreshGameVersions of Message option
         | CompleteRefreshGameVersions of CompleteRefreshGameVersionsParameters
-        | InitRefreshModsList
+        | InitRefreshModsList of force: bool
         | CompleteRefreshModsList of Mod list
         | RemoveVersionRestriction of string * string * Package list
         | Log of LogLevel * Activity * string
@@ -80,13 +90,7 @@ module App =
             NextMessage: Message option
         }
 
-    let withLog logLevel activity message model =
-         let logEntry = LogEntry<_>.create logLevel activity message
-
-         { model with LogEntries = logEntry.addTo model.LogEntries }
-
-
-    let commandAfterDirectorySelection model =
+    let commandAfterDirectorySelection (model: Model) =
         let condition model game =
             match game with
             | Ets2 -> model.Ets2ModsDirectory.PathExists
@@ -100,7 +104,7 @@ module App =
                 | NoGame -> None
                 | game when condition model game -> Some (SelectGame game)
                 | _ -> None
-            | game when condition model game -> Some InitRefreshModsList
+            | game when condition model game -> Some (InitRefreshModsList false)
             | _ -> None
 
         Cmd.ofMsg (InitRefreshGameVersions messageAfterRefreshingGameVersions)
@@ -139,10 +143,11 @@ module App =
             |> Option.map
                 (fun path ->
                     { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
-                    |> withCommand (Cmd.ofMsg (InitRefreshGameVersions (Some InitRefreshModsList))))
+                    |> withCommand (Cmd.ofMsg (InitRefreshGameVersions (Some (InitRefreshModsList false)))))
             |> Option.defaultValue (model, Cmd.none)
         | SelectGame game ->
-            { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg InitRefreshModsList
+            { model with SelectedGame = game; DefaultSelectedGame = NoGame }
+            |> withCommand (Cmd.ofMsg (InitRefreshModsList false))
         | InitRefreshGameVersions nextMessage ->
             let steamDirectory = model.SteamDirectory
             let extractor = model.HashFsExtractorPath
@@ -177,39 +182,52 @@ module App =
                     Ets2Version = parameters.Ets2Version
                     AtsVersion = parameters.AtsVersion
             }, parameters.NextMessage |> Option.map Cmd.ofMsg |> Option.defaultValue Cmd.none
-        | InitRefreshModsList ->
-            let readMods () =
-                async {
-                    let! mods =
-                        async {
-                            if model.SteamDirectory.PathExists
-                            then
-                                let modsPath =
-                                    match model.SelectedGame with
-                                    | Ets2 -> model.Ets2ModsDirectory.Path |> Some
-                                    | Ats -> model.AtsModsDirectory.Path |> Some
-                                    | NoGame -> None
-
-                                let extractorPath =
-                                    if model.HashFsExtractorPath.FileExists
-                                    then Some model.HashFsExtractorPath.Path
-                                    else None
-
-                                match modsPath with
-                                | Some modsPath -> return! Mod.readMods extractorPath modsPath
-                                | None -> return [||]
-                            else return [||]
-                        }
-
-                    return mods |> Array.toList
+        | InitRefreshModsList force ->
+            let refreshConfiguration =
+                {
+                    SteamDirectory = model.SteamDirectory.Path
+                    HashFsExtractorPath = model.HashFsExtractorPath.Path
+                    SelectedGame = model.SelectedGame
                 }
 
-            model, Cmd.OfAsync.perform readMods () CompleteRefreshModsList
+            if
+                force
+                || model.LastRefreshConfiguration |> Option.map ((<>) refreshConfiguration) |> Option.defaultValue true
+            then
+                let readMods () =
+                    async {
+                        let! mods =
+                            async {
+                                if model.SteamDirectory.PathExists
+                                then
+                                    let modsPath =
+                                        match model.SelectedGame with
+                                        | Ets2 -> model.Ets2ModsDirectory.Path |> Some
+                                        | Ats -> model.AtsModsDirectory.Path |> Some
+                                        | NoGame -> None
+
+                                    let extractorPath =
+                                        if model.HashFsExtractorPath.FileExists
+                                        then Some model.HashFsExtractorPath.Path
+                                        else None
+
+                                    match modsPath with
+                                    | Some modsPath -> return! Mod.readMods extractorPath modsPath
+                                    | None -> return [||]
+                                else return [||]
+                            }
+
+                        return mods |> Array.toList
+                    }
+
+                { model with LastRefreshConfiguration = Some refreshConfiguration }
+                |> withCommand (Cmd.OfAsync.perform readMods () CompleteRefreshModsList)
+            else model, Cmd.none
         | CompleteRefreshModsList mods -> { model with Mods = mods } |> withoutCommand
         | RemoveVersionRestriction (modPath, relevantPackageName, allPackages) ->
             Mod.removeVersionRestriction modPath relevantPackageName allPackages
 
-            model, Cmd.ofMsg InitRefreshModsList
+            model, Cmd.ofMsg (InitRefreshModsList true)
         | Log (logLevel, activity, message) ->
             (model |> Logging.withLog logLevel activity message) |> withoutCommand
         | Terminate -> model |> withoutCommand
