@@ -1,8 +1,10 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
+open System.Collections.Generic
 
 open Avalonia.Platform.Storage
+open DynamicData
 open ReactiveElmish
 open ReactiveUI
 
@@ -11,6 +13,7 @@ open TeaDriven.Maysternya.Domain
 open TeaDriven.Maysternya.Localization
 
 open App
+open TeaDriven.Maysternya.Logging
 
 type ModViewModel(modData: Mod, gameVersion: Version option) as this =
     inherit ReactiveElmishViewModel()
@@ -36,16 +39,28 @@ type ModViewModel(modData: Mod, gameVersion: Version option) as this =
 
 type MainWindowViewModel(
     folderPicker: Services.FolderPickerService,
-    filePicker: Services.FilePickerService) =
+    filePicker: Services.FilePickerService) as this =
     inherit ReactiveElmishViewModel()
 
     let mutable isShowLog = false
+    let mutable logEntries = Unchecked.defaultof<_>
 
     let selectedGameVersion model =
         match model.SelectedGame with
         | Ets2 -> model.Ets2Version
         | Ats -> model.AtsVersion
         | NoGame -> None
+
+    do
+        store.Model.LogEntries
+            .Connect()
+            .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
+            .SortAndBind(
+                &logEntries,
+                Comparer.Create(fun (x: LogEntryViewModel<Activity>) y -> DateTimeOffset.Compare(x.Timestamp, y.Timestamp)))
+            .DisposeMany()
+            .Subscribe()
+        |> this.AddDisposable
 
     member this.SteamDirectory
         with get () = this.Bind(store, _.SteamDirectory.Path)
@@ -113,6 +128,8 @@ type MainWindowViewModel(
         with get () = isShowLog
         and set value =
             this.RaiseAndSetIfChanged(&isShowLog, value) |> ignore
+
+    member this.LogEntries = logEntries
 
     member this.SelectSteamDirectory() =
         task {

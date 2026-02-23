@@ -2,12 +2,15 @@
 
 open System
 
+open DynamicData
 open Elmish
+open ReactiveElmish
 open ReactiveElmish.Avalonia
 
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
 open TeaDriven.Maysternya.FileSystemTypes
+open TeaDriven.Maysternya.Logging
 
 module App =
     let withoutCommand model = model, Cmd.none
@@ -16,6 +19,8 @@ module App =
         value
         |> Option.map (createUpdatedModel model)
         |> Option.defaultValue model
+
+    type Activity = UpdatePaths | UpdateGameVersions | ReadMods | RemoveRestriction
 
     type Model =
         {
@@ -29,6 +34,7 @@ module App =
             SelectedGame: SelectedGame
             DefaultSelectedGame: SelectedGame
             Mods: Mod list
+            LogEntries: SourceCache<LogEntry<Activity>, DateTimeOffset>
         }
         with
             static member Default =
@@ -43,6 +49,7 @@ module App =
                     SelectedGame = NoGame
                     DefaultSelectedGame = NoGame
                     Mods = []
+                    LogEntries = SourceCache.create _.Timestamp
                 }
 
     let updatePaths model paths =
@@ -70,6 +77,12 @@ module App =
             AtsVersion: Version option
             NextMessage: Message option
         }
+
+    let withLog logLevel activity message model =
+         let logEntry = LogEntry<_>.create logLevel activity message
+
+         { model with LogEntries = logEntry.addTo model.LogEntries }
+
 
     let commandAfterDirectorySelection model =
         let condition model game =
