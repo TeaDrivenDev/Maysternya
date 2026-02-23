@@ -31,4 +31,8 @@ If using the extractor, version 2026-02-15 or newer is required; using an older 
     <system:String x:Key="Loc.PackageNotFound.Format">[Package {0} not found]</system:String>
     <system:String x:Key="Loc.ShowLog">Show Log</system:String>
     <system:String x:Key="Loc.HideLog">Hide Log</system:String>
+    <system:String x:Key="Loc.Time">Time</system:String>
+    <system:String x:Key="Loc.LogLevel">Log Level</system:String>
+    <system:String x:Key="Loc.Activity">Activity</system:String>
+    <system:String x:Key="Loc.Message">Message</system:String>
 </ResourceDictionary>

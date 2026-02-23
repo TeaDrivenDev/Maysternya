@@ -359,9 +359,18 @@
                         </Button>
 
                         <DataGrid Grid.Row="2"
-                                  IsVisible="{Binding IsShowLog}">
+                                  IsVisible="{Binding IsShowLog}"
+                                  ItemsSource="{Binding LogEntries}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="X" />
+                                <DataGridTextColumn Binding="{Binding Timestamp,
+                                                                      StringFormat=s}"
+                                                    Header="{DynamicResource Loc.Time}" />
+                                <DataGridTextColumn Binding="{Binding LogLevel}"
+                                                    Header="{DynamicResource Loc.LogLevel}" />
+                                <DataGridTextColumn Binding="{Binding Activity}"
+                                                    Header="{DynamicResource Loc.Activity}" />
+                                <DataGridTextColumn Binding="{Binding Message}"
+                                                    Header="{DynamicResource Loc.Message}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
