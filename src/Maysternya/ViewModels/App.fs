@@ -15,11 +15,6 @@ open TeaDriven.Maysternya.LoggingTypes
 module App =
     let withoutCommand model = model, Cmd.none
 
-    let updateIfSome createUpdatedModel model value =
-        value
-        |> Option.map (createUpdatedModel model)
-        |> Option.defaultValue model
-
     type Activity = UpdatePaths | UpdateGameVersions | ReadMods | RemoveRestriction
 
     type Model =
@@ -132,22 +127,20 @@ module App =
     let update message model =
         match message with
         | UpdateSteamDirectory value ->
-            let model =
-                (model, value)
-                ||> updateIfSome
-                        (fun model path -> path |> FileSystem.determinePaths |> updatePaths model)
+            value
+            |> Option.map
+                (fun path ->
+                    let model = path |> FileSystem.determinePaths |> updatePaths model
 
-            model, commandAfterDirectorySelection model
+                    model, commandAfterDirectorySelection model)
+            |> Option.defaultValue (model, Cmd.none)
         | UpdateHashFsExtractorPath value ->
-            let model =
-                (model, value)
-                ||> updateIfSome
-                        (fun model path ->
-                            {
-                                model with HashFsExtractorPath = FileSystem.createConfiguredFile path
-                            })
-
-            model, Cmd.ofMsg (InitRefreshGameVersions (Some InitRefreshModsList))
+            value
+            |> Option.map
+                (fun path ->
+                    { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
+                    |> withCommand (Cmd.ofMsg (InitRefreshGameVersions (Some InitRefreshModsList))))
+            |> Option.defaultValue (model, Cmd.none)
         | SelectGame game ->
             { model with SelectedGame = game; DefaultSelectedGame = NoGame }, Cmd.ofMsg InitRefreshModsList
         | InitRefreshGameVersions nextMessage ->
