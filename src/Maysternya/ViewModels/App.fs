@@ -10,6 +10,7 @@ open ReactiveElmish.Avalonia
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
 open TeaDriven.Maysternya.FileSystemTypes
+open TeaDriven.Maysternya.Localization
 open TeaDriven.Maysternya.LoggingTypes
 
 module App =
@@ -80,12 +81,12 @@ module App =
 
         let logLevel, logMessage =
             if not model.SteamDirectory.PathExists
-            then Warning, $":XX: Steam directory \"{model.SteamDirectory}\" not found"
+            then Warning, String.Format(locString Log.SteamDirectoryNotFound_Format, model.SteamDirectory.Path)
             elif not model.WorkshopDirectory.PathExists
-            then Warning, $":XX: Workshop directory not found in Steam directory \"{model.SteamDirectory.Path}\""
+            then Warning, String.Format(locString Log.WorkshopDirectoryNotFound_Format, model.SteamDirectory.Path)
             elif not model.Ets2ModsDirectory.PathExists && not model.AtsModsDirectory.PathExists
-            then Warning, $":XX: No ETS2 or ATS mod directories found in Workshop directory \"{model.WorkshopDirectory.Path}\""
-            else Informational, $":XX: Steam path is \"{model.SteamDirectory.Path}\""
+            then Warning, String.Format(locString Log.ModDirectoriesNotFound_Format, model.WorkshopDirectory.Path)
+            else Informational, String.Format(locString Log.SteamPathIs_Format, model.SteamDirectory.Path)
 
         model |> Logging.withLog logLevel UpdateDirectoryPaths logMessage
 
@@ -160,7 +161,10 @@ module App =
             |> Option.map
                 (fun path ->
                     { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
-                    |> Logging.withLog Informational UpdateExtractorPath $":XX: Extractor path is \"{path}\""
+                    |> Logging.withLog
+                        Informational
+                        UpdateExtractorPath
+                        (String.Format(locString Log.ExtractorPathIs_Format, model.HashFsExtractorPath.Path))
                     |> withCommand (Cmd.ofMsg (InitRefreshGameVersions (Some (InitRefreshModsList false)))))
             |> Option.defaultValue (model, Cmd.none)
         | SelectGame game ->
@@ -198,12 +202,12 @@ module App =
             let logMessage =
                 [
                     parameters.Ets2Version
-                    |> Option.map (fun version -> $":XX: ETS2 version {version}")
-                    |> Option.defaultValue ":XX: No ETS2 version"
+                    |> Option.map (fun version -> String.Format(locString Log.Ets2Version_Format, version))
+                    |> Option.defaultValue (locString Log.NoEts2Version)
 
                     parameters.AtsVersion
-                    |> Option.map (fun version -> $":XX: ATS version {version}")
-                    |> Option.defaultValue ":XX: No ATS version"
+                    |> Option.map (fun version -> String.Format(locString Log.AtsVersion_Format, version))
+                    |> Option.defaultValue (locString Log.NoAtsVersion)
                 ]
                 |> String.concat "; "
 
@@ -262,15 +266,18 @@ module App =
             else model, Cmd.none
         | CompleteRefreshModsList mods ->
             { model with Mods = mods }
-            |> Logging.withLog Informational ReadMods $":XX: {model.SelectedGame.ToString().ToUpper()}: {mods.Length} mods read"
+            |> Logging.withLog
+                Informational
+                ReadMods
+                (String.Format(locString Log.ModsRead_Format, model.SelectedGame.ToString().ToUpper(), mods.Length))
             |> withoutCommand
         | RemoveVersionRestriction (name, modPath, relevantPackageName, allPackages) ->
             let logLevel, logMessage =
                 try
                     Mod.removeVersionRestriction modPath relevantPackageName allPackages
-                    Informational, $":XX: Removed version restriction from {name}"
+                    Informational, String.Format(locString Log.RemovedVersionRestriction_Format, name)
                 with _ ->
-                    Error, $":XX: Error removing version restriction from {name}"
+                    Error, String.Format(locString Log.ErrorRemovingVersionRestriction_Format, name)
 
             model
             |> Logging.withLog logLevel RemoveRestriction logMessage
