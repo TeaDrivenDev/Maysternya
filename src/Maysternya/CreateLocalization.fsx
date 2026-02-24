@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿open System
+open System.IO
 open System.Text
 open System.Xml.Linq
 
@@ -21,7 +22,7 @@ let getLocKeys xaml =
     let qualifiedKeyAttributeName = xamlNamespace + keyAttributeName
 
     document.Root.Descendants(qualifiedStringElementName)
-    |> Seq.map (fun (element: XElement) -> element.Attribute(qualifiedKeyAttributeName).Value)
+    |> Seq.map (fun (element: XElement) -> element.Attribute(qualifiedKeyAttributeName).Value, element.Value)
     |> Seq.toList
 
 let updateLocalization resources destination =
@@ -32,7 +33,9 @@ let updateLocalization resources destination =
 
     let locKeyGroups =
         locKeys
-        |> List.map (fun (locKey: string) -> (locKey.Split([| '.' |], 2), locKey))
+        |> List.map
+            (fun (locKey: string, locString: string) ->
+                locKey.Split([| '.' |], 2), (locKey, locString))
         |> List.groupBy (fst >> Array.head)
 
     for groupKey, groupItems in locKeyGroups do
@@ -41,10 +44,14 @@ let updateLocalization resources destination =
             .AppendLine($"module {groupKey} =")
         |> ignore
 
-        for split, locKey in groupItems do
+        for split, (locKey, locString) in groupItems do
+            let locStringSplit = locString.Split([| "\r\n"; "\r"; "\n" |], StringSplitOptions.None)
+            for line in locStringSplit do
+                sb.AppendLine($"    /// {line}") |> ignore
+
             let key = split[1]
             let valueName = key.Replace('.', '_')
-            sb.AppendLine($@"    let {valueName} = ""{locKey}""") |> ignore
+            sb.AppendLine($@"    let {valueName} = ""{locKey}""").AppendLine() |> ignore
 
     File.WriteAllText(destination, sb.ToString())
 
