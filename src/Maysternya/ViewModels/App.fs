@@ -253,12 +253,12 @@ module App =
                                         else None
 
                                     match modsPath with
-                                    | Some modsPath -> return! Mod.readMods extractorPath modsPath
+                                    | Some modsPath -> return! Mod.readMods logAsync extractorPath modsPath
                                     | None -> return [||]
                                 else return [||]
                             }
 
-                        return mods |> Array.toList
+                        return mods |> Array.toList |> List.choose id
                     }
 
                 { model with LastRefreshConfiguration = Some refreshConfiguration }
