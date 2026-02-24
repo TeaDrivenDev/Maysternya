@@ -16,7 +16,12 @@ module App =
     let inline withCommand command model = model, command
     let inline withoutCommand model = model, Cmd.none
 
-    type Activity = UpdatePaths | UpdateGameVersions | ReadMods | RemoveRestriction
+    type Activity =
+        | UpdateDirectoryPaths
+        | UpdateExtractorPath
+        | UpdateGameVersions
+        | ReadMods
+        | RemoveRestriction
 
     type Model =
         {
@@ -64,13 +69,25 @@ module App =
         }
 
     let updatePaths model paths =
-        {
-            model with
-                SteamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
-                WorkshopDirectory = FileSystem.createConfiguredDirectory paths.WorkshopContentPath
-                Ets2ModsDirectory = FileSystem.createConfiguredDirectory paths.Ets2ModsPath
-                AtsModsDirectory = FileSystem.createConfiguredDirectory paths.AtsModsPath
-        }
+        let model =
+            {
+                model with
+                    SteamDirectory = FileSystem.createConfiguredDirectory paths.SteamPath
+                    WorkshopDirectory = FileSystem.createConfiguredDirectory paths.WorkshopContentPath
+                    Ets2ModsDirectory = FileSystem.createConfiguredDirectory paths.Ets2ModsPath
+                    AtsModsDirectory = FileSystem.createConfiguredDirectory paths.AtsModsPath
+            }
+
+        let logLevel, logMessage =
+            if not model.SteamDirectory.PathExists
+            then Warning, $":XX: Steam directory \"{model.SteamDirectory}\" not found"
+            elif not model.WorkshopDirectory.PathExists
+            then Warning, $":XX: Workshop directory not found in Steam directory \"{model.SteamDirectory.Path}\""
+            elif not model.Ets2ModsDirectory.PathExists && not model.AtsModsDirectory.PathExists
+            then Warning, $":XX: No ETS2 or ATS mod directories found in Workshop directory \"{model.WorkshopDirectory.Path}\""
+            else Informational, $":XX: Steam path is \"{model.SteamDirectory.Path}\""
+
+        model |> Logging.withLog logLevel UpdateDirectoryPaths logMessage
 
     type Message =
         | UpdateSteamDirectory of string option
@@ -80,7 +97,7 @@ module App =
         | CompleteRefreshGameVersions of CompleteRefreshGameVersionsParameters
         | InitRefreshModsList of force: bool
         | CompleteRefreshModsList of Mod list
-        | RemoveVersionRestriction of string * string * Package list
+        | RemoveVersionRestriction of name: string * modPath: string * relevantPackage: string * allPackages: Package list
         | Log of LogLevel * Activity * string
         | Terminate
     and CompleteRefreshGameVersionsParameters =
@@ -143,6 +160,7 @@ module App =
             |> Option.map
                 (fun path ->
                     { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
+                    |> Logging.withLog Informational UpdateExtractorPath $":XX: Extractor path is \"{path}\""
                     |> withCommand (Cmd.ofMsg (InitRefreshGameVersions (Some (InitRefreshModsList false)))))
             |> Option.defaultValue (model, Cmd.none)
         | SelectGame game ->
@@ -177,11 +195,30 @@ module App =
 
             model, Cmd.OfAsync.perform readGameVersions () CompleteRefreshGameVersions
         | CompleteRefreshGameVersions parameters ->
+            let logMessage =
+                [
+                    parameters.Ets2Version
+                    |> Option.map (fun version -> $":XX: ETS2 version {version}")
+                    |> Option.defaultValue ":XX: No ETS2 version"
+
+                    parameters.AtsVersion
+                    |> Option.map (fun version -> $":XX: ATS version {version}")
+                    |> Option.defaultValue ":XX: No ATS version"
+                ]
+                |> String.concat "; "
+
+            let logLevel =
+                match parameters.Ets2Version, parameters.AtsVersion with
+                | None, None -> Warning
+                | _ -> Informational
+
             {
                 model with
                     Ets2Version = parameters.Ets2Version
                     AtsVersion = parameters.AtsVersion
-            }, parameters.NextMessage |> Option.map Cmd.ofMsg |> Option.defaultValue Cmd.none
+            }
+            |> Logging.withLog logLevel UpdateGameVersions logMessage
+            |> withCommand (parameters.NextMessage |> Option.map Cmd.ofMsg |> Option.defaultValue Cmd.none)
         | InitRefreshModsList force ->
             let refreshConfiguration =
                 {
@@ -223,11 +260,21 @@ module App =
                 { model with LastRefreshConfiguration = Some refreshConfiguration }
                 |> withCommand (Cmd.OfAsync.perform readMods () CompleteRefreshModsList)
             else model, Cmd.none
-        | CompleteRefreshModsList mods -> { model with Mods = mods } |> withoutCommand
-        | RemoveVersionRestriction (modPath, relevantPackageName, allPackages) ->
-            Mod.removeVersionRestriction modPath relevantPackageName allPackages
+        | CompleteRefreshModsList mods ->
+            { model with Mods = mods }
+            |> Logging.withLog Informational ReadMods $":XX: {model.SelectedGame.ToString().ToUpper()}: {mods.Length} mods read"
+            |> withoutCommand
+        | RemoveVersionRestriction (name, modPath, relevantPackageName, allPackages) ->
+            let logLevel, logMessage =
+                try
+                    Mod.removeVersionRestriction modPath relevantPackageName allPackages
+                    Informational, $":XX: Removed version restriction from {name}"
+                with _ ->
+                    Error, $":XX: Error removing version restriction from {name}"
 
-            model, Cmd.ofMsg (InitRefreshModsList true)
+            model
+            |> Logging.withLog logLevel RemoveRestriction logMessage
+            |> withCommand (Cmd.ofMsg (InitRefreshModsList true))
         | Log (logLevel, activity, message) ->
             (model |> Logging.withLog logLevel activity message) |> withoutCommand
         | Terminate -> model |> withoutCommand
