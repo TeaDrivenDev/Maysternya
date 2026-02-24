@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <!--  Display localization  -->
     <system:String x:Key="Loc.WindowTitle">Maysternya</system:String>
     <system:String x:Key="Loc.SteamDirectory">Steam Directory</system:String>
     <system:String x:Key="Loc.SteamDirectoryInfoMessage">This is the directory of the Steam library your SCS truck simulators are installed in. By default this is 'C:\Program Files (x86)\Steam', but if your games are installed in another location, this must be the directory that contains 'steamapps'.</system:String>
@@ -35,4 +36,18 @@ If using the extractor, version 2026-02-15 or newer is required; using an older 
     <system:String x:Key="Loc.LogLevel">Log Level</system:String>
     <system:String x:Key="Loc.Activity">Activity</system:String>
     <system:String x:Key="Loc.Message">Message</system:String>
+
+    <!--  Logging  -->
+    <system:String x:Key="Log.SteamDirectoryNotFound.Format">Steam directory "{0}" not found</system:String>
+    <system:String x:Key="Log.WorkshopDirectoryNotFound.Format">Workshop directory not found in Steam directory "{0}"</system:String>
+    <system:String x:Key="Log.ModDirectoriesNotFound.Format">No ETS2 or ATS mod directories found in Workshop directory "{0}"</system:String>
+    <system:String x:Key="Log.SteamPathIs.Format">Steam path is "{0}"</system:String>
+    <system:String x:Key="Log.ExtractorPathIs.Format">Extractor path is "{0}"</system:String>
+    <system:String x:Key="Log.Ets2Version.Format">ETS2 version {0}</system:String>
+    <system:String x:Key="Log.NoEts2Version">No ETS2 version</system:String>
+    <system:String x:Key="Log.AtsVersion.Format">ATS version {0}</system:String>
+    <system:String x:Key="Log.NoAtsVersion">No ATS version</system:String>
+    <system:String x:Key="Log.ModsRead.Format">{0}: {1} mods read</system:String>
+    <system:String x:Key="Log.RemovedVersionRestriction.Format">Removed version restriction from {0}</system:String>
+    <system:String x:Key="Log.ErrorRemovingVersionRestriction.Format">Error removing version restriction from {0}: {1}</system:String>
 </ResourceDictionary>
