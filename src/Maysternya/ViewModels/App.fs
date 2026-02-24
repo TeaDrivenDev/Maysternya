@@ -17,13 +17,6 @@ module App =
     let inline withCommand command model = model, command
     let inline withoutCommand model = model, Cmd.none
 
-    type Activity =
-        | UpdateDirectoryPaths
-        | UpdateExtractorPath
-        | UpdateGameVersions
-        | ReadMods
-        | RemoveRestriction
-
     type Model =
         {
             SteamDirectory: ConfiguredDirectory
@@ -37,7 +30,7 @@ module App =
             DefaultSelectedGame: SelectedGame
             Mods: Mod list
             LastRefreshConfiguration: LastRefreshConfiguration option
-            LogEntries: SourceCache<LogEntry<Activity>, DateTimeOffset>
+            LogEntries: SourceCache<LogEntry<LogActivity>, DateTimeOffset>
         }
         with
             static member Default =
@@ -55,12 +48,12 @@ module App =
                     LastRefreshConfiguration = None
                     LogEntries = SourceCache.create _.Timestamp
                 }
-            interface ILogTarget<Activity, DateTimeOffset, Model> with
+            interface ILogTarget<LogActivity, DateTimeOffset, Model> with
                 // First .LogEntries is the interface member, second is the record field.
                 // This works, but is probably not an ideal way to do this.
                 member this.LogEntries = this.LogEntries
 
-                member this.UpdateLogEntries(logEntries: SourceCache<LogEntry<Activity>, DateTimeOffset>) =
+                member this.UpdateLogEntries(logEntries: SourceCache<LogEntry<LogActivity>, DateTimeOffset>) =
                     { this with LogEntries = logEntries }
     and LastRefreshConfiguration =
         {
@@ -99,7 +92,7 @@ module App =
         | InitRefreshModsList of force: bool
         | CompleteRefreshModsList of Mod list
         | RemoveVersionRestriction of name: string * modPath: string * relevantPackage: string * allPackages: Package list
-        | Log of LogLevel * Activity * string
+        | Log of LogLevel * LogActivity * string
         | Terminate
     and CompleteRefreshGameVersionsParameters =
         {

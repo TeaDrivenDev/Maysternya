@@ -77,6 +77,13 @@ type ConfiguredFile =
             FileExists = false
         }
 
+type LogActivity =
+    | UpdateDirectoryPaths
+    | UpdateExtractorPath
+    | UpdateGameVersions
+    | ReadMods
+    | RemoveRestriction
+
 type SelectedGame = NoGame | Ets2 | Ats
 
 type CompatibleVersion =
