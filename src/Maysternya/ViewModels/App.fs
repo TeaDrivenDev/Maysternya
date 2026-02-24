@@ -1,6 +1,7 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
+open System.Reactive.Subjects
 
 open DynamicData
 open Elmish
@@ -16,6 +17,8 @@ open TeaDriven.Maysternya.LoggingTypes
 module App =
     let inline withCommand command model = model, command
     let inline withoutCommand model = model, Cmd.none
+
+    let mutable asyncLogEntries = Unchecked.defaultof<Subject<LogLevel * LogActivity * string>>
 
     type Model =
         {
@@ -61,6 +64,8 @@ module App =
             HashFsExtractorPath: string
             SelectedGame: SelectedGame
         }
+
+    let logAsync logLevel logActivity logMessage = asyncLogEntries.OnNext(logLevel, logActivity, logMessage)
 
     let updatePaths model paths =
         let model =
@@ -121,6 +126,8 @@ module App =
         Cmd.ofMsg (InitRefreshGameVersions messageAfterRefreshingGameVersions)
 
     let init () =
+        asyncLogEntries <- new Subject<_>()
+
         let settings =
             Settings.loadSettings ()
             |> Option.defaultValue
@@ -280,7 +287,12 @@ module App =
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =
+        let asyncLogEntriesSub dispatch =
+            let subscription = asyncLogEntries |> Observable.subscribe (Log >> dispatch)
+            FSharp.Control.Reactive.Disposable.create (fun () -> subscription.Dispose())
+
         [
+            [ nameof(asyncLogEntriesSub) ], asyncLogEntriesSub
         ]
 
     let store =
