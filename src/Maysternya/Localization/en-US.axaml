@@ -50,4 +50,8 @@ If using the extractor, version 2026-02-15 or newer is required; using an older 
     <system:String x:Key="Log.ModsRead.Format">{0}: {1} mods read</system:String>
     <system:String x:Key="Log.RemovedVersionRestriction.Format">Removed version restriction from {0}</system:String>
     <system:String x:Key="Log.ErrorRemovingVersionRestriction.Format">Error removing version restriction from {0}: {1}</system:String>
+    <system:String x:Key="Log.ErrorReadingVersionsFrom.Format">Error reading versions from {0}: {1}</system:String>
+    <system:String x:Key="Log.ErrorReadingManifestFrom.Format">Error reading manifest from {0}: {1}</system:String>
+    <system:String x:Key="Log.ReadingMod.Format">Reading mod {0}</system:String>
+    <system:String x:Key="Log.ErrorReadingMod.Format">Error reading mod {0}: {1}</system:String>
 </ResourceDictionary>

@@ -137,3 +137,15 @@ module Log =
     /// Error removing version restriction from {0}: {1}
     let ErrorRemovingVersionRestriction_Format = "Log.ErrorRemovingVersionRestriction.Format"
 
+    /// Error reading versions from {0}: {1}
+    let ErrorReadingVersionsFrom_Format = "Log.ErrorReadingVersionsFrom.Format"
+
+    /// Error reading manifest from {0}: {1}
+    let ErrorReadingManifestFrom_Format = "Log.ErrorReadingManifestFrom.Format"
+
+    /// Reading mod {0}
+    let ReadingMod_Format = "Log.ReadingMod.Format"
+
+    /// Error reading mod {0}: {1}
+    let ErrorReadingMod_Format = "Log.ErrorReadingMod.Format"
+

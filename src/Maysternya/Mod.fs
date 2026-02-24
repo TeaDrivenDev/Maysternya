@@ -76,7 +76,7 @@ module Mod =
             |> Seq.toList
             |> Some
         with ex ->
-            log Error ReadMods $":XX: Error reading versions from \"{modPath}\": {ex.Message}"
+            log Error ReadMods (String.Format(locString Log.ErrorReadingVersionsFrom_Format, modPath, ex.Message))
             None
 
     let determineRelevantPackage (allPackages: PackageVersionInfo list) =
@@ -218,7 +218,7 @@ module Mod =
                     | Failure archivePath -> return Archive archivePath |> Some
                 | None -> return NotFound packageName |> Some
             with ex ->
-                log Error ReadMods $":XX: Error reading manifest from \"{modPath}\": {ex.Message}"
+                log Error ReadMods (String.Format(locString Log.ErrorReadingManifestFrom_Format, modPath, ex.Message))
                 return None
         }
 
@@ -281,8 +281,8 @@ module Mod =
             Informational = packageVersionInfo.Informational
         }
 
-    let readMod log extractorPath modPath =
-        log Diagnostic ReadMods $":XX: Reading mod \"{modPath}\""
+    let readMod log extractorPath (modPath: string) =
+        log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
 
         async {
             try
@@ -314,7 +314,7 @@ module Mod =
                     | None -> return None
                 | None -> return None
             with ex ->
-                log Error ReadMods $":XX: Error reading \"{modPath}\": {ex.Message}"
+                log Error ReadMods (String.Format(locString Log.ErrorReadingMod_Format, modPath, ex.Message))
 
                 return None
         }
