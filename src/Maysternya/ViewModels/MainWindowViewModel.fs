@@ -44,6 +44,7 @@ type MainWindowViewModel(
 
     let mutable isShowLog = false
     let mutable logEntries = Unchecked.defaultof<_>
+    let mutable maxLogLevel = LogLevel.Informational
 
     let selectedGameVersion (model: Model) =
         match model.SelectedGame with
@@ -160,6 +161,10 @@ type MainWindowViewModel(
 
     member this.ToggleIsShowLog() =
         this.IsShowLog <- not this.IsShowLog
+
+    member this.MaxLogLevel
+        with get () = maxLogLevel
+        and set value = this.RaiseAndSetIfChanged(&maxLogLevel, value) |> ignore
 
     member this.Shutdown() =
         let settings =

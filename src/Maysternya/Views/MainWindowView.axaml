@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:domain="using:TeaDriven.Maysternya.Domain"
+        xmlns:logging="using:TeaDriven.Maysternya"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
@@ -340,6 +341,19 @@
                     <Grid RowDefinitions="Auto,Auto,*">
                         <GridSplitter Grid.Row="0"
                                       IsEnabled="False" />
+
+                        <StackPanel Grid.Row="1"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding IsShowLog}"
+                                    Orientation="Horizontal">
+                            <TextBlock Margin="5 0"
+                                       VerticalAlignment="Center"
+                                       Text="{DynamicResource Loc.MinLogLevel}" />
+                            <ComboBox HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      ItemsSource="{uiUtilities:UnionCaseItemsSource x:TypeArguments=logging:LogLevel}"
+                                      SelectedValue="{Binding MaxLogLevel}" />
+                        </StackPanel>
 
                         <Button x:Name="ShowLogButton"
                                 Grid.Row="1"

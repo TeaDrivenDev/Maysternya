@@ -4,7 +4,9 @@ open System
 open System.Collections.Generic
 open System.Globalization
 
+open Microsoft.FSharp.Reflection
 open Avalonia.Data.Converters
+open Avalonia.Markup.Xaml
 
 type BytesToMegabytesConverter() =
     static member Instance = BytesToMegabytesConverter() :> IValueConverter
@@ -56,3 +58,11 @@ type ValuesEqualMultiConverter() =
             if values.Count > 1
             then values[0] = values[1]
             else false
+
+type UnionCaseItemsSourceExtension<'T>() =
+    inherit MarkupExtension()
+
+    override this.ProvideValue(serviceProvider) =
+        FSharpType.GetUnionCases(typeof<'T>)
+        |> Seq.map (fun x -> FSharpValue.MakeUnion(x, Array.zeroCreate(x.GetFields().Length)) :?> 'T)
+        |> box
