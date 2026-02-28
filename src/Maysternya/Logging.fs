@@ -1,14 +1,6 @@
 ﻿namespace TeaDriven.Maysternya
 
-type LogLevel =
-    Diagnostic | Informational | Warning | Error
-    with
-        member this.Priority =
-            match this with
-            | Diagnostic -> 1
-            | Informational -> 2
-            | Warning -> 3
-            | Error -> 4
+type LogLevel = Diagnostic | Informational | Warning | Error
 
 module LoggingTypes =
     open System

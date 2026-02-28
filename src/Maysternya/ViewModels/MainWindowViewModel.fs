@@ -56,7 +56,7 @@ type MainWindowViewModel(
             .WhenAnyValue(_.MinLogLevel)
             .Select(
                 fun logLevel ->
-                    Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel.Priority >= logLevel.Priority))
+                    Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel >= logLevel))
 
     do
         store.Model.LogEntries

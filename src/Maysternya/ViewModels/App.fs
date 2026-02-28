@@ -301,8 +301,8 @@ module App =
             |> withCommand (Cmd.ofMsg (InitRefreshModsList true))
         | Log (logLevel, activity, message) ->
             if not model.Display.IsShowLog
-               && logLevel.Priority >= model.Display.MinLogLevel.Priority
-               && logLevel.Priority >= minLogLevelToNotify.Priority
+               && logLevel >= model.Display.MinLogLevel
+               && logLevel >= minLogLevelToNotify
             then { model with Display.NewLogEntryNotification = Some logLevel }
             else model
             |> Logging.withLog logLevel activity message
