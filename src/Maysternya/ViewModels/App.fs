@@ -18,6 +18,8 @@ module App =
     let inline withCommand command model = model, command
     let inline withoutCommand model = model, Cmd.none
 
+    let minLogLevelToNotify = Warning
+
     let mutable asyncLogEntries = Unchecked.defaultof<Subject<LogLevel * LogActivity * string>>
 
     type Model =
@@ -55,6 +57,7 @@ module App =
                         {
                             IsShowLog = false
                             MinLogLevel = Informational
+                            NewLogEntryNotification = None
                         }
                 }
             interface ILogTarget<LogActivity, DateTimeOffset, Model> with
@@ -74,6 +77,7 @@ module App =
         {
             IsShowLog: bool
             MinLogLevel: LogLevel
+            NewLogEntryNotification: LogLevel option
         }
 
     let logAsync logLevel logActivity logMessage = asyncLogEntries.OnNext(logLevel, logActivity, logMessage)
@@ -296,9 +300,20 @@ module App =
             |> Logging.withLog logLevel RemoveRestriction logMessage
             |> withCommand (Cmd.ofMsg (InitRefreshModsList true))
         | Log (logLevel, activity, message) ->
-            (model |> Logging.withLog logLevel activity message) |> withoutCommand
+            if not model.Display.IsShowLog
+               && logLevel.Priority >= model.Display.MinLogLevel.Priority
+               && logLevel.Priority >= minLogLevelToNotify.Priority
+            then { model with Display.NewLogEntryNotification = Some logLevel }
+            else model
+            |> Logging.withLog logLevel activity message
+            |> withoutCommand
         | ToggleLog ->
-            { model with Display.IsShowLog = not model.Display.IsShowLog } |> withoutCommand
+            {
+                model with
+                    Display.IsShowLog = not model.Display.IsShowLog
+                    Display.NewLogEntryNotification = None
+            }
+            |> withoutCommand
         | ChangeMinLogLevel minLogLevel ->
             { model with Display.MinLogLevel = minLogLevel } |> withoutCommand
         | Terminate -> model |> withoutCommand
