@@ -34,6 +34,7 @@ module App =
             Mods: Mod list
             LastRefreshConfiguration: LastRefreshConfiguration option
             LogEntries: SourceCache<LogEntry<LogActivity>, DateTimeOffset>
+            Display: DisplayFeatures
         }
         with
             static member Default =
@@ -50,6 +51,10 @@ module App =
                     Mods = []
                     LastRefreshConfiguration = None
                     LogEntries = SourceCache.create _.Timestamp
+                    Display =
+                        {
+                            IsShowLog = false
+                        }
                 }
             interface ILogTarget<LogActivity, DateTimeOffset, Model> with
                 // First .LogEntries is the interface member, second is the record field.
@@ -63,6 +68,10 @@ module App =
             SteamDirectory: string
             HashFsExtractorPath: string
             SelectedGame: SelectedGame
+        }
+    and DisplayFeatures =
+        {
+            IsShowLog: bool
         }
 
     let logAsync logLevel logActivity logMessage = asyncLogEntries.OnNext(logLevel, logActivity, logMessage)
@@ -98,6 +107,7 @@ module App =
         | CompleteRefreshModsList of Mod list
         | RemoveVersionRestriction of name: string * modPath: string * relevantPackage: string * allPackages: Package list
         | Log of LogLevel * LogActivity * string
+        | ToggleLog
         | Terminate
     and CompleteRefreshGameVersionsParameters =
         {
@@ -284,6 +294,8 @@ module App =
             |> withCommand (Cmd.ofMsg (InitRefreshModsList true))
         | Log (logLevel, activity, message) ->
             (model |> Logging.withLog logLevel activity message) |> withoutCommand
+        | ToggleLog ->
+            { model with Display.IsShowLog = not model.Display.IsShowLog } |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =

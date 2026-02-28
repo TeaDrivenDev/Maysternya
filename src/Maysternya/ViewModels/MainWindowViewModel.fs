@@ -43,7 +43,6 @@ type MainWindowViewModel(
     filePicker: Services.FilePickerService) as this =
     inherit ReactiveElmishViewModel()
 
-    let mutable isShowLog = false
     let mutable logEntries = Unchecked.defaultof<_>
     let mutable minLogLevel = LogLevel.Informational
 
@@ -134,10 +133,7 @@ type MainWindowViewModel(
                 model.Mods
                 |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
 
-    member this.IsShowLog
-        with get () = isShowLog
-        and set value =
-            this.RaiseAndSetIfChanged(&isShowLog, value) |> ignore
+    member this.IsShowLog = this.Bind(store, _.Display.IsShowLog)
 
     member this.LogEntries = logEntries
 
@@ -168,8 +164,7 @@ type MainWindowViewModel(
     member this.RefreshModsList() =
         store.Dispatch(InitRefreshModsList true)
 
-    member this.ToggleIsShowLog() =
-        this.IsShowLog <- not this.IsShowLog
+    member this.ToggleIsShowLog() = store.Dispatch(ToggleLog)
 
     member this.MinLogLevel
         with get (): LogLevel = minLogLevel
