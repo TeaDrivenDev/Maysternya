@@ -5,8 +5,12 @@ open System.Collections.Generic
 open System.Globalization
 
 open Microsoft.FSharp.Reflection
+
+open Avalonia
 open Avalonia.Data.Converters
 open Avalonia.Markup.Xaml
+
+open TeaDriven.Maysternya
 
 type BytesToMegabytesConverter() =
     static member Instance = BytesToMegabytesConverter() :> IValueConverter
@@ -66,3 +70,37 @@ type UnionCaseItemsSourceExtension<'T>() =
         FSharpType.GetUnionCases(typeof<'T>)
         |> Seq.map (fun x -> FSharpValue.MakeUnion(x, Array.zeroCreate(x.GetFields().Length)) :?> 'T)
         |> box
+
+// https://github.com/AvaloniaUI/Avalonia/issues/2427#issuecomment-2861152275
+type BindableStyleClasses() =
+    static let ClassesProperty: AttachedProperty<string> =
+        AvaloniaProperty.RegisterAttached<BindableStyleClasses, StyledElement, string>("Classes", defaultValue="")
+
+    static let HandleClassesChanged (element: StyledElement) (e: AvaloniaPropertyChangedEventArgs): unit =
+        let newValue = e.NewValue |> Option.ofObj |> Option.map string |> Option.defaultValue ""
+
+        element.Classes.Clear()
+        element.Classes.AddRange(newValue.Split(' '))
+
+    static do
+        ClassesProperty.Changed.AddClassHandler<StyledElement, string>(Action<_, _> HandleClassesChanged) |> ignore
+
+    static member GetClasses(element: StyledElement) = element.GetValue(ClassesProperty)
+    static member SetClasses(element: StyledElement, value: string) = element.SetValue(ClassesProperty, value) |> ignore
+
+type LogLevelToStyleClassConverter() =
+    static member Instance = LogLevelToStyleClassConverter()
+
+    interface IValueConverter with
+        member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
+            match value with
+            | :? LogLevel as logLevel ->
+                match logLevel with
+                | Diagnostic -> "Diagnostic"
+                | Warning -> "Warning"
+                | Error -> "Error"
+                | _ -> ""
+            | _ -> ""
+
+        member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
+            raise (NotSupportedException())

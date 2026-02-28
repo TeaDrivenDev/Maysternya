@@ -36,6 +36,13 @@
                                      Color="DarkRed" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+
+            <SolidColorBrush x:Key="DiagnosticBrush"
+                             Color="DimGray" />
+            <SolidColorBrush x:Key="WarningBrush"
+                             Color="DarkOrange" />
+            <SolidColorBrush x:Key="ErrorBrush"
+                             Color="Red" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -380,8 +387,29 @@
                                 <DataGridTextColumn Binding="{Binding Timestamp,
                                                                       StringFormat=s}"
                                                     Header="{DynamicResource Loc.Time}" />
-                                <DataGridTextColumn Binding="{Binding LogLevel}"
-                                                    Header="{DynamicResource Loc.LogLevel}" />
+                                <DataGridTemplateColumn Header="{DynamicResource Loc.LogLevel}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Margin="10 0"
+                                                       VerticalAlignment="Center"
+                                                       uiUtilities:BindableStyleClasses.Classes="{Binding LogLevel,
+                                                                                                          Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
+                                                       Text="{Binding LogLevel}">
+                                                <TextBlock.Styles>
+                                                    <Style Selector="TextBlock.Diagnostic">
+                                                        <Setter Property="Foreground" Value="{StaticResource DiagnosticBrush}" />
+                                                    </Style>
+                                                    <Style Selector="TextBlock.Warning">
+                                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                                                    </Style>
+                                                    <Style Selector="TextBlock.Error">
+                                                        <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                                    </Style>
+                                                </TextBlock.Styles>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Binding="{Binding Activity}"
                                                     Header="{DynamicResource Loc.Activity}" />
                                 <DataGridTextColumn Binding="{Binding Message}"
