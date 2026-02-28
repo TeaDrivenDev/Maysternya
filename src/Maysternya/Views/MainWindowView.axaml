@@ -346,10 +346,11 @@
                                     VerticalAlignment="Center"
                                     IsVisible="{Binding IsShowLog}"
                                     Orientation="Horizontal">
-                            <TextBlock Margin="5 0"
+                            <TextBlock Margin="5 0 10 0"
                                        VerticalAlignment="Center"
                                        Text="{DynamicResource Loc.MinLogLevel}" />
-                            <ComboBox HorizontalAlignment="Left"
+                            <ComboBox Width="135"
+                                      HorizontalAlignment="Left"
                                       VerticalAlignment="Center"
                                       ItemsSource="{uiUtilities:UnionCaseItemsSource x:TypeArguments=logging:LogLevel}"
                                       SelectedValue="{Binding MinLogLevel}" />
