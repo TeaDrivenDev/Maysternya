@@ -417,7 +417,7 @@
                                   ItemsSource="{Binding LogEntries}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding Timestamp,
-                                                                      StringFormat=s}"
+                                                                      StringFormat=yyyy/MM/dd HH:mm:ss}"
                                                     Header="{DynamicResource Loc.Time}" />
                                 <DataGridTemplateColumn Header="{DynamicResource Loc.LogLevel}">
                                     <DataGridTemplateColumn.CellTemplate>
