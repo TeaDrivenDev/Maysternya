@@ -97,7 +97,7 @@ type LogLevelToStyleClassConverter() =
         | Error -> "LogError"
         | _ -> ""
 
-    static member Instance = LogLevelToStyleClassConverter()
+    static member Instance = LogLevelToStyleClassConverter() :> IValueConverter
 
     interface IValueConverter with
         member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
@@ -107,4 +107,14 @@ type LogLevelToStyleClassConverter() =
             | _ -> ""
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
+            raise (NotSupportedException())
+
+type OptionToBooleanConverter<'T>() =
+    interface IValueConverter with
+        member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
+            match value with
+            | :? Option<'T> as option -> option.IsSome
+            | _ -> false
+
+        member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())

@@ -43,6 +43,9 @@
                              Color="DarkOrange" />
             <SolidColorBrush x:Key="ErrorBrush"
                              Color="Red" />
+
+            <uiUtilities:OptionToBooleanConverter x:Key="LogLevelOptionToBooleanConverter"
+                                                  x:TypeArguments="logging:LogLevel" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -365,19 +368,23 @@
 
                         <Button x:Name="ShowLogButton"
                                 Grid.Row="1"
+                                Width="115"
                                 Margin="3"
                                 Padding="6 4"
                                 HorizontalAlignment="Right"
                                 Command="{Binding ToggleIsShowLog}">
-                            <Grid VerticalAlignment="Center"
+                            <Grid HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
                                   ColumnDefinitions="Auto,*">
                                 <mdi:MaterialIcon Grid.Column="0"
                                                   Width="16"
                                                   Height="16"
-                                                  Margin="0 0 5 0"
+                                                  Margin="0 1 5 0"
                                                   VerticalAlignment="Center"
                                                   uiUtilities:BindableStyleClasses.Classes="{Binding NewLogEntryNotification,
                                                                                                      Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
+                                                  IsVisible="{Binding NewLogEntryNotification,
+                                                                      Converter={StaticResource LogLevelOptionToBooleanConverter}}"
                                                   Kind="WarningOutline">
                                     <mdi:MaterialIcon.Styles>
                                         <Style Selector="mdi|MaterialIcon.LogWarning">
