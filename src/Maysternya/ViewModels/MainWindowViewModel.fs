@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Reactive.Linq
 
 open Avalonia.Platform.Storage
 open DynamicData
@@ -44,7 +45,7 @@ type MainWindowViewModel(
 
     let mutable isShowLog = false
     let mutable logEntries = Unchecked.defaultof<_>
-    let mutable maxLogLevel = LogLevel.Informational
+    let mutable minLogLevel = LogLevel.Informational
 
     let selectedGameVersion (model: Model) =
         match model.SelectedGame with
@@ -52,10 +53,18 @@ type MainWindowViewModel(
         | Ats -> model.AtsVersion
         | NoGame -> None
 
+    let byMinLogLevel: IObservable<Func<LogEntryViewModel<_>, bool>> =
+        this
+            .WhenAnyValue(_.MinLogLevel)
+            .Select(
+                fun logLevel ->
+                    Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel.Priority >= logLevel.Priority))
+
     do
         store.Model.LogEntries
             .Connect()
             .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
+            .Filter(byMinLogLevel)
             .SortAndBind(
                 &logEntries,
                 Comparer.Create(fun (x: LogEntryViewModel<LogActivity>) y -> DateTimeOffset.Compare(x.Timestamp, y.Timestamp)))
@@ -162,9 +171,9 @@ type MainWindowViewModel(
     member this.ToggleIsShowLog() =
         this.IsShowLog <- not this.IsShowLog
 
-    member this.MaxLogLevel
-        with get () = maxLogLevel
-        and set value = this.RaiseAndSetIfChanged(&maxLogLevel, value) |> ignore
+    member this.MinLogLevel
+        with get (): LogLevel = minLogLevel
+        and set value = this.RaiseAndSetIfChanged(&minLogLevel, value) |> ignore
 
     member this.Shutdown() =
         let settings =

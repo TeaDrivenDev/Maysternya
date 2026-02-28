@@ -352,7 +352,7 @@
                             <ComboBox HorizontalAlignment="Left"
                                       VerticalAlignment="Center"
                                       ItemsSource="{uiUtilities:UnionCaseItemsSource x:TypeArguments=logging:LogLevel}"
-                                      SelectedValue="{Binding MaxLogLevel}" />
+                                      SelectedValue="{Binding MinLogLevel}" />
                         </StackPanel>
 
                         <Button x:Name="ShowLogButton"
@@ -390,8 +390,6 @@
                     </Grid>
                 </SplitView.Pane>
             </SplitView>
-
-
         </Grid>
     </Grid>
 </Window>
