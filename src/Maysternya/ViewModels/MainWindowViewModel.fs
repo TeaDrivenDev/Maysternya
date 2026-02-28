@@ -136,6 +136,13 @@ type MainWindowViewModel(
 
     member this.LogEntries = logEntries
 
+    member this.MinLogLevel
+        with get (): LogLevel = this.Bind(store, _.Display.MinLogLevel)
+        and set value = store.Dispatch(ChangeMinLogLevel value)
+
+    member this.NewLogEntryNotification =
+        this.Bind(store, _.Display.NewLogEntryNotification)
+
     member this.SelectSteamDirectory() =
         task {
             let! path = folderPicker.TryPickFolder()
@@ -164,10 +171,6 @@ type MainWindowViewModel(
         store.Dispatch(InitRefreshModsList true)
 
     member this.ToggleIsShowLog() = store.Dispatch(ToggleLog)
-
-    member this.MinLogLevel
-        with get (): LogLevel = this.Bind(store, _.Display.MinLogLevel)
-        and set value = store.Dispatch(ChangeMinLogLevel value)
 
     member this.Shutdown() =
         let settings =

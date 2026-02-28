@@ -366,18 +366,43 @@
                         <Button x:Name="ShowLogButton"
                                 Grid.Row="1"
                                 Margin="3"
+                                Padding="6 4"
                                 HorizontalAlignment="Right"
-                                Classes.IsShowLog="{Binding IsShowLog}"
                                 Command="{Binding ToggleIsShowLog}">
-                            <Button.Styles>
-                                <Style Selector="Button.IsShowLog">
-                                    <Setter Property="Content" Value="{DynamicResource Loc.HideLog}" />
-                                </Style>
+                            <Grid VerticalAlignment="Center"
+                                  ColumnDefinitions="Auto,*">
+                                <mdi:MaterialIcon Grid.Column="0"
+                                                  Width="16"
+                                                  Height="16"
+                                                  Margin="0 0 5 0"
+                                                  VerticalAlignment="Center"
+                                                  uiUtilities:BindableStyleClasses.Classes="{Binding NewLogEntryNotification,
+                                                                                                     Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
+                                                  Kind="WarningOutline">
+                                    <mdi:MaterialIcon.Styles>
+                                        <Style Selector="mdi|MaterialIcon.Warning">
+                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                                        </Style>
+                                        <Style Selector="mdi|MaterialIcon.Error">
+                                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                        </Style>
+                                    </mdi:MaterialIcon.Styles>
+                                </mdi:MaterialIcon>
 
-                                <Style Selector="Button:not(.IsShowLog)">
-                                    <Setter Property="Content" Value="{DynamicResource Loc.ShowLog}" />
-                                </Style>
-                            </Button.Styles>
+                                <TextBlock Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Classes.IsShowLog="{Binding IsShowLog}">
+                                    <TextBlock.Styles>
+                                        <Style Selector="TextBlock.IsShowLog">
+                                            <Setter Property="Text" Value="{DynamicResource Loc.HideLog}" />
+                                        </Style>
+
+                                        <Style Selector="TextBlock:not(.IsShowLog)">
+                                            <Setter Property="Text" Value="{DynamicResource Loc.ShowLog}" />
+                                        </Style>
+                                    </TextBlock.Styles>
+                                </TextBlock>
+                            </Grid>
                         </Button>
 
                         <DataGrid Grid.Row="2"

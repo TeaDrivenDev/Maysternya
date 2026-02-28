@@ -89,17 +89,20 @@ type BindableStyleClasses() =
     static member SetClasses(element: StyledElement, value: string) = element.SetValue(ClassesProperty, value) |> ignore
 
 type LogLevelToStyleClassConverter() =
+    let classForLogLevel logLevel =
+        match logLevel with
+        | Diagnostic -> "Diagnostic"
+        | Warning -> "Warning"
+        | Error -> "Error"
+        | _ -> ""
+
     static member Instance = LogLevelToStyleClassConverter()
 
     interface IValueConverter with
         member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =
             match value with
-            | :? LogLevel as logLevel ->
-                match logLevel with
-                | Diagnostic -> "Diagnostic"
-                | Warning -> "Warning"
-                | Error -> "Error"
-                | _ -> ""
+            | :? Option<LogLevel> as maybe -> maybe |> Option.map classForLogLevel |> Option.defaultValue "" |> box
+            | :? LogLevel as logLevel -> classForLogLevel logLevel
             | _ -> ""
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo) =

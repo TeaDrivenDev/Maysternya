@@ -82,6 +82,16 @@ module App =
 
     let logAsync logLevel logActivity logMessage = asyncLogEntries.OnNext(logLevel, logActivity, logMessage)
 
+    let withLog logLevel logActivity logMessage model =
+        let model =
+            if not model.Display.IsShowLog
+                && logLevel >= model.Display.MinLogLevel
+                && logLevel >= minLogLevelToNotify
+            then { model with Display.NewLogEntryNotification = Some logLevel }
+            else model
+
+        model |> Logging.withLog logLevel logActivity logMessage
+
     let updatePaths model paths =
         let model =
             {
@@ -101,7 +111,7 @@ module App =
             then Warning, String.Format(locString Log.ModDirectoriesNotFound_Format, model.WorkshopDirectory.Path)
             else Informational, String.Format(locString Log.SteamPathIs_Format, model.SteamDirectory.Path)
 
-        model |> Logging.withLog logLevel UpdateDirectoryPaths logMessage
+        model |> withLog logLevel UpdateDirectoryPaths logMessage
 
     type Message =
         | UpdateSteamDirectory of string option
@@ -178,7 +188,7 @@ module App =
             |> Option.map
                 (fun path ->
                     { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
-                    |> Logging.withLog
+                    |> withLog
                         Informational
                         UpdateExtractorPath
                         (String.Format(locString Log.ExtractorPathIs_Format, model.HashFsExtractorPath.Path))
@@ -238,7 +248,7 @@ module App =
                     Ets2Version = parameters.Ets2Version
                     AtsVersion = parameters.AtsVersion
             }
-            |> Logging.withLog logLevel UpdateGameVersions logMessage
+            |> withLog logLevel UpdateGameVersions logMessage
             |> withCommand (parameters.NextMessage |> Option.map Cmd.ofMsg |> Option.defaultValue Cmd.none)
         | InitRefreshModsList force ->
             let refreshConfiguration =
@@ -283,8 +293,8 @@ module App =
             else model, Cmd.none
         | CompleteRefreshModsList mods ->
             { model with Mods = mods }
-            |> Logging.withLog
                 Informational
+            |> withLog
                 ReadMods
                 (String.Format(locString Log.ModsRead_Format, model.SelectedGame.ToString().ToUpper(), mods.Length))
             |> withoutCommand
@@ -297,16 +307,10 @@ module App =
                     Error, String.Format(locString Log.ErrorRemovingVersionRestriction_Format, name)
 
             model
-            |> Logging.withLog logLevel RemoveRestriction logMessage
+            |> withLog logLevel RemoveRestriction logMessage
             |> withCommand (Cmd.ofMsg (InitRefreshModsList true))
         | Log (logLevel, activity, message) ->
-            if not model.Display.IsShowLog
-               && logLevel >= model.Display.MinLogLevel
-               && logLevel >= minLogLevelToNotify
-            then { model with Display.NewLogEntryNotification = Some logLevel }
-            else model
-            |> Logging.withLog logLevel activity message
-            |> withoutCommand
+            model |> withLog logLevel activity message |> withoutCommand
         | ToggleLog ->
             {
                 model with
