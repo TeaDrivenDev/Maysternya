@@ -380,10 +380,10 @@
                                                                                                      Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
                                                   Kind="WarningOutline">
                                     <mdi:MaterialIcon.Styles>
-                                        <Style Selector="mdi|MaterialIcon.Warning">
+                                        <Style Selector="mdi|MaterialIcon.LogWarning">
                                             <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
                                         </Style>
-                                        <Style Selector="mdi|MaterialIcon.Error">
+                                        <Style Selector="mdi|MaterialIcon.LogError">
                                             <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
                                         </Style>
                                     </mdi:MaterialIcon.Styles>
@@ -421,13 +421,13 @@
                                                                                                           Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
                                                        Text="{Binding LogLevel}">
                                                 <TextBlock.Styles>
-                                                    <Style Selector="TextBlock.Diagnostic">
+                                                    <Style Selector="TextBlock.LogDiagnostic">
                                                         <Setter Property="Foreground" Value="{StaticResource DiagnosticBrush}" />
                                                     </Style>
-                                                    <Style Selector="TextBlock.Warning">
+                                                    <Style Selector="TextBlock.LogWarning">
                                                         <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
                                                     </Style>
-                                                    <Style Selector="TextBlock.Error">
+                                                    <Style Selector="TextBlock.LogError">
                                                         <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
                                                     </Style>
                                                 </TextBlock.Styles>

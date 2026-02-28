@@ -63,6 +63,7 @@ type ValuesEqualMultiConverter() =
             then values[0] = values[1]
             else false
 
+// https://www.fssnip.net/7VM/title/Getting-a-sequence-of-all-union-cases-in-discriminated-union
 type UnionCaseItemsSourceExtension<'T>() =
     inherit MarkupExtension()
 
@@ -91,9 +92,9 @@ type BindableStyleClasses() =
 type LogLevelToStyleClassConverter() =
     let classForLogLevel logLevel =
         match logLevel with
-        | Diagnostic -> "Diagnostic"
-        | Warning -> "Warning"
-        | Error -> "Error"
+        | Diagnostic -> "LogDiagnostic"
+        | Warning -> "LogWarning"
+        | Error -> "LogError"
         | _ -> ""
 
     static member Instance = LogLevelToStyleClassConverter()
