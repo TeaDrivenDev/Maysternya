@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:domain="using:TeaDriven.Maysternya.Domain"
+        xmlns:logging="using:TeaDriven.Maysternya"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
@@ -35,6 +36,16 @@
                                      Color="DarkRed" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+
+            <SolidColorBrush x:Key="DiagnosticBrush"
+                             Color="DimGray" />
+            <SolidColorBrush x:Key="WarningBrush"
+                             Color="DarkOrange" />
+            <SolidColorBrush x:Key="ErrorBrush"
+                             Color="Red" />
+
+            <uiUtilities:OptionToBooleanConverter x:Key="LogLevelOptionToBooleanConverter"
+                                                  x:TypeArguments="logging:LogLevel" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -153,182 +164,293 @@
                         ToolTip.Tip="{DynamicResource Loc.RefreshList}" />
             </Grid>
 
-            <Grid Grid.Row="3"
-                  Margin="0 10 0 0">
-                <DataGrid CanUserResizeColumns="True"
-                          IsEnabled="{Binding SelectedGame,
-                                              Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsNotEqual},
-                                              ConverterParameter={x:Static domain:SelectedGame.NoGame}}"
-                          ItemsSource="{Binding Mods}"
-                          SelectionMode="Single">
+            <SplitView Grid.Row="3"
+                       Margin="0 10 0 0"
+                       CompactPaneLength="40"
+                       DisplayMode="CompactInline"
+                       IsPaneOpen="{Binding IsShowLog}"
+                       OpenPaneLength="300"
+                       PanePlacement="Bottom">
+                <SplitView.Content>
+                    <DataGrid CanUserResizeColumns="True"
+                              IsEnabled="{Binding SelectedGame,
+                                                  Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsNotEqual},
+                                                  ConverterParameter={x:Static domain:SelectedGame.NoGame}}"
+                              ItemsSource="{Binding Mods}"
+                              SelectionMode="Single">
 
-                    <!--  see https://github.com/AvaloniaUI/Avalonia/discussions/8854  -->
-                    <DataGrid.Styles>
-                        <Style Selector="DataGridCell:focus /template/ Grid#FocusVisual">
-                            <Setter Property="IsVisible" Value="False" />
-                        </Style>
-                        <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
-                            <Setter Property="IsVisible" Value="False" />
-                        </Style>
-                    </DataGrid.Styles>
+                        <!--  see https://github.com/AvaloniaUI/Avalonia/discussions/8854  -->
+                        <DataGrid.Styles>
+                            <Style Selector="DataGridCell:focus /template/ Grid#FocusVisual">
+                                <Setter Property="IsVisible" Value="False" />
+                            </Style>
+                            <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
+                                <Setter Property="IsVisible" Value="False" />
+                            </Style>
+                        </DataGrid.Styles>
 
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Width="100"
-                                            Binding="{Binding Id}"
-                                            CanUserResize="False"
-                                            Header="{DynamicResource Loc.Id}" />
-
-                        <DataGridTemplateColumn Width="*"
-                                                CanUserResize="True"
-                                                CanUserSort="True"
-                                                Header="{DynamicResource Loc.Name}"
-                                                SortMemberPath="Name">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="10 0"
-                                          Background="Transparent"
-                                          ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0"
-                                                   Margin="0 0 10 0"
-                                                   VerticalAlignment="Center"
-                                                   Classes.DescriptionDisplayName="{Binding DisplayNameSource,
-                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
-                                                                                            ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
-                                                   Classes.UnavailableDisplayName="{Binding DisplayNameSource,
-                                                                                            Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
-                                                                                            ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}"
-                                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}">
-                                            <TextBlock.Styles>
-                                                <Style Selector="TextBlock">
-                                                    <Setter Property="Text" Value="{Binding Name}" />
-                                                </Style>
-
-                                                <Style Selector="TextBlock.DescriptionDisplayName">
-                                                    <Setter Property="Text" Value="{Binding Name, StringFormat=> {0}}" />
-                                                    <Setter Property="FontStyle" Value="Italic" />
-                                                    <Setter Property="Foreground" Value="LightGray" />
-                                                </Style>
-
-                                                <Style Selector="TextBlock.UnavailableDisplayName">
-                                                    <Setter Property="FontStyle" Value="Italic" />
-                                                    <Setter Property="Foreground" Value="LightSlateGray" />
-                                                </Style>
-                                            </TextBlock.Styles>
-                                        </TextBlock>
-
-                                        <mdi:MaterialIcon Grid.Column="1"
-                                                          Width="20"
-                                                          Height="20"
-                                                          Background="Transparent"
-                                                          IsVisible="{Binding Description,
-                                                                              Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                                          Kind="InformationOutline"
-                                                          ToolTip.Tip="{Binding Description}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-
-                        <DataGridTemplateColumn Width="150"
-                                                CanUserResize="True"
-                                                CanUserSort="True"
-                                                Header="{DynamicResource Loc.Author}"
-                                                SortMemberPath="Author">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="10 0"
-                                          Background="Transparent"
-                                          ToolTip.Tip="{Binding Author}">
-                                        <TextBlock VerticalAlignment="Center"
-                                                   Text="{Binding Author}"
-                                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-
-                        <DataGridTextColumn Width="100"
-                                            Binding="{Binding Version}"
-                                            CanUserResize="False"
-                                            CanUserSort="False"
-                                            Header="{DynamicResource Loc.Version}" />
-
-                        <DataGridTemplateColumn Width="115"
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="100"
+                                                Binding="{Binding Id}"
                                                 CanUserResize="False"
-                                                Header="{DynamicResource Loc.UsableWith}"
-                                                SortMemberPath="HighestCompatibleGameVersion">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid VerticalAlignment="Stretch"
-                                          Classes.Allowed="{Binding VersionCompatibility,
-                                                                    Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
-                                                                    ConverterParameter={x:Static domain:VersionCompatibility.Allowed}}"
-                                          Classes.Incompatible="{Binding VersionCompatibility,
-                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
-                                                                         ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
-                                          Classes.Unrestricted="{Binding VersionCompatibility,
-                                                                         Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
-                                                                         ConverterParameter={x:Static domain:VersionCompatibility.Unrestricted}}">
-                                        <Grid.Styles>
-                                            <Style Selector="Grid.Allowed">
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Opacity="0.7"
-                                                                         Color="ForestGreen" />
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
+                                                Header="{DynamicResource Loc.Id}" />
 
-                                            <Style Selector="Grid.Incompatible">
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Opacity="0.7"
-                                                                         Color="DarkRed" />
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
-
-                                            <Style Selector="Grid.Unrestricted">
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Opacity="0.3"
-                                                                         Color="ForestGreen" />
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
-                                        </Grid.Styles>
-
+                            <DataGridTemplateColumn Width="*"
+                                                    CanUserResize="True"
+                                                    CanUserSort="True"
+                                                    Header="{DynamicResource Loc.Name}"
+                                                    SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
                                         <Grid Margin="10 0"
+                                              Background="Transparent"
                                               ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0"
+                                                       Margin="0 0 10 0"
                                                        VerticalAlignment="Center"
-                                                       Text="{Binding HighestCompatibleGameVersion}" />
-                                            <Button Grid.Column="1"
-                                                    Margin="0 0 10 0"
-                                                    VerticalAlignment="Center"
-                                                    Command="{Binding RemoveVersionRestriction}"
-                                                    Content="X"
-                                                    ToolTip.Tip="{DynamicResource Loc.RemoveRestrictionButtonToolTip}">
-                                                <Button.IsVisible>
-                                                    <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
-                                                             Path="VersionCompatibility">
-                                                        <Binding.ConverterParameter>
-                                                            <uiUtilities:XamlValueCollection>
-                                                                <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Incompatible}" />
-                                                                <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Indeterminate}" />
-                                                            </uiUtilities:XamlValueCollection>
-                                                        </Binding.ConverterParameter>
-                                                    </Binding>
-                                                </Button.IsVisible>
-                                            </Button>
+                                                       Classes.DescriptionDisplayName="{Binding DisplayNameSource,
+                                                                                                Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
+                                                                                                ConverterParameter={x:Static domain:DisplayNameSource.DescriptionFile}}"
+                                                       Classes.UnavailableDisplayName="{Binding DisplayNameSource,
+                                                                                                Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
+                                                                                                ConverterParameter={x:Static domain:DisplayNameSource.Unavailable}}"
+                                                       TextTrimming="{x:Static TextTrimming.CharacterEllipsis}">
+                                                <TextBlock.Styles>
+                                                    <Style Selector="TextBlock">
+                                                        <Setter Property="Text" Value="{Binding Name}" />
+                                                    </Style>
+
+                                                    <Style Selector="TextBlock.DescriptionDisplayName">
+                                                        <Setter Property="Text" Value="{Binding Name, StringFormat=> {0}}" />
+                                                        <Setter Property="FontStyle" Value="Italic" />
+                                                        <Setter Property="Foreground" Value="LightGray" />
+                                                    </Style>
+
+                                                    <Style Selector="TextBlock.UnavailableDisplayName">
+                                                        <Setter Property="FontStyle" Value="Italic" />
+                                                        <Setter Property="Foreground" Value="LightSlateGray" />
+                                                    </Style>
+                                                </TextBlock.Styles>
+                                            </TextBlock>
+
+                                            <mdi:MaterialIcon Grid.Column="1"
+                                                              Width="20"
+                                                              Height="20"
+                                                              Background="Transparent"
+                                                              IsVisible="{Binding Description,
+                                                                                  Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                              Kind="InformationOutline"
+                                                              ToolTip.Tip="{Binding Description}" />
                                         </Grid>
-                                    </Grid>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="150"
+                                                    CanUserResize="True"
+                                                    CanUserSort="True"
+                                                    Header="{DynamicResource Loc.Author}"
+                                                    SortMemberPath="Author">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="10 0"
+                                              Background="Transparent"
+                                              ToolTip.Tip="{Binding Author}">
+                                            <TextBlock VerticalAlignment="Center"
+                                                       Text="{Binding Author}"
+                                                       TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Width="100"
+                                                Binding="{Binding Version}"
+                                                CanUserResize="False"
+                                                CanUserSort="False"
+                                                Header="{DynamicResource Loc.Version}" />
+
+                            <DataGridTemplateColumn Width="115"
+                                                    CanUserResize="False"
+                                                    Header="{DynamicResource Loc.UsableWith}"
+                                                    SortMemberPath="HighestCompatibleGameVersion">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Stretch"
+                                              Classes.Allowed="{Binding VersionCompatibility,
+                                                                        Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
+                                                                        ConverterParameter={x:Static domain:VersionCompatibility.Allowed}}"
+                                              Classes.Incompatible="{Binding VersionCompatibility,
+                                                                             Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
+                                                                             ConverterParameter={x:Static domain:VersionCompatibility.Incompatible}}"
+                                              Classes.Unrestricted="{Binding VersionCompatibility,
+                                                                             Converter={x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual},
+                                                                             ConverterParameter={x:Static domain:VersionCompatibility.Unrestricted}}">
+                                            <Grid.Styles>
+                                                <Style Selector="Grid.Allowed">
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <SolidColorBrush Opacity="0.7"
+                                                                             Color="ForestGreen" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+
+                                                <Style Selector="Grid.Incompatible">
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <SolidColorBrush Opacity="0.7"
+                                                                             Color="DarkRed" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+
+                                                <Style Selector="Grid.Unrestricted">
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <SolidColorBrush Opacity="0.3"
+                                                                             Color="ForestGreen" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Grid.Styles>
+
+                                            <Grid Margin="10 0"
+                                                  ColumnDefinitions="*,Auto">
+                                                <TextBlock Grid.Column="0"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding HighestCompatibleGameVersion}" />
+                                                <Button Grid.Column="1"
+                                                        Margin="0 0 10 0"
+                                                        VerticalAlignment="Center"
+                                                        Command="{Binding RemoveVersionRestriction}"
+                                                        Content="X"
+                                                        ToolTip.Tip="{DynamicResource Loc.RemoveRestrictionButtonToolTip}">
+                                                    <Button.IsVisible>
+                                                        <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
+                                                                 Path="VersionCompatibility">
+                                                            <Binding.ConverterParameter>
+                                                                <uiUtilities:XamlValueCollection>
+                                                                    <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Incompatible}" />
+                                                                    <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Indeterminate}" />
+                                                                </uiUtilities:XamlValueCollection>
+                                                            </Binding.ConverterParameter>
+                                                        </Binding>
+                                                    </Button.IsVisible>
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </SplitView.Content>
+
+                <SplitView.Pane>
+                    <Grid RowDefinitions="Auto,Auto,*">
+                        <GridSplitter Grid.Row="0"
+                                      IsEnabled="False" />
+
+                        <StackPanel Grid.Row="1"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding IsShowLog}"
+                                    Orientation="Horizontal">
+                            <TextBlock Margin="5 0 10 0"
+                                       VerticalAlignment="Center"
+                                       Text="{DynamicResource Loc.MinLogLevel}" />
+                            <ComboBox Width="135"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      ItemsSource="{uiUtilities:UnionCaseItemsSource x:TypeArguments=logging:LogLevel}"
+                                      SelectedValue="{Binding MinLogLevel}" />
+                        </StackPanel>
+
+                        <Button x:Name="ShowLogButton"
+                                Grid.Row="1"
+                                Width="115"
+                                Margin="3"
+                                Padding="6 4"
+                                HorizontalAlignment="Right"
+                                Command="{Binding ToggleIsShowLog}">
+                            <Grid HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  ColumnDefinitions="Auto,*">
+                                <mdi:MaterialIcon Grid.Column="0"
+                                                  Width="16"
+                                                  Height="16"
+                                                  Margin="0 1 5 0"
+                                                  VerticalAlignment="Center"
+                                                  uiUtilities:BindableStyleClasses.Classes="{Binding NewLogEntryNotification,
+                                                                                                     Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
+                                                  IsVisible="{Binding NewLogEntryNotification,
+                                                                      Converter={StaticResource LogLevelOptionToBooleanConverter}}"
+                                                  Kind="WarningOutline">
+                                    <mdi:MaterialIcon.Styles>
+                                        <Style Selector="mdi|MaterialIcon.LogWarning">
+                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                                        </Style>
+                                        <Style Selector="mdi|MaterialIcon.LogError">
+                                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                        </Style>
+                                    </mdi:MaterialIcon.Styles>
+                                </mdi:MaterialIcon>
+
+                                <TextBlock Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Classes.IsShowLog="{Binding IsShowLog}">
+                                    <TextBlock.Styles>
+                                        <Style Selector="TextBlock.IsShowLog">
+                                            <Setter Property="Text" Value="{DynamicResource Loc.HideLog}" />
+                                        </Style>
+
+                                        <Style Selector="TextBlock:not(.IsShowLog)">
+                                            <Setter Property="Text" Value="{DynamicResource Loc.ShowLog}" />
+                                        </Style>
+                                    </TextBlock.Styles>
+                                </TextBlock>
+                            </Grid>
+                        </Button>
+
+                        <DataGrid Grid.Row="2"
+                                  IsVisible="{Binding IsShowLog}"
+                                  ItemsSource="{Binding LogEntries}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Timestamp,
+                                                                      StringFormat=yyyy/MM/dd HH:mm:ss}"
+                                                    Header="{DynamicResource Loc.Time}" />
+                                <DataGridTemplateColumn Header="{DynamicResource Loc.LogLevel}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Margin="10 0"
+                                                       VerticalAlignment="Center"
+                                                       uiUtilities:BindableStyleClasses.Classes="{Binding LogLevel,
+                                                                                                          Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
+                                                       Text="{Binding LogLevel}">
+                                                <TextBlock.Styles>
+                                                    <Style Selector="TextBlock.LogDiagnostic">
+                                                        <Setter Property="Foreground" Value="{StaticResource DiagnosticBrush}" />
+                                                    </Style>
+                                                    <Style Selector="TextBlock.LogWarning">
+                                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                                                    </Style>
+                                                    <Style Selector="TextBlock.LogError">
+                                                        <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                                    </Style>
+                                                </TextBlock.Styles>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding Activity}"
+                                                    Header="{DynamicResource Loc.Activity}" />
+                                <DataGridTextColumn Binding="{Binding Message}"
+                                                    Header="{DynamicResource Loc.Message}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </SplitView.Pane>
+            </SplitView>
         </Grid>
     </Grid>
 </Window>

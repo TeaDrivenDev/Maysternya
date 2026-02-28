@@ -1,13 +1,18 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
+open System.Collections.Generic
+open System.Reactive.Linq
 
 open Avalonia.Platform.Storage
+open DynamicData
 open ReactiveElmish
+open ReactiveUI
 
 open TeaDriven.Maysternya
 open TeaDriven.Maysternya.Domain
 open TeaDriven.Maysternya.Localization
+open TeaDriven.Maysternya.LoggingTypes
 
 open App
 
@@ -31,18 +36,39 @@ type ModViewModel(modData: Mod, gameVersion: Version option) as this =
         Mod.determineVersionCompatibility modData.HighestCompatibleGameVersion gameVersion
 
     member _.RemoveVersionRestriction() =
-        store.Dispatch(RemoveVersionRestriction (this.ModPath, this.RelevantPackageName, this.AllPackages))
+        store.Dispatch(RemoveVersionRestriction (this.Name, this.ModPath, this.RelevantPackageName, this.AllPackages))
 
 type MainWindowViewModel(
     folderPicker: Services.FolderPickerService,
-    filePicker: Services.FilePickerService) =
+    filePicker: Services.FilePickerService) as this =
     inherit ReactiveElmishViewModel()
 
-    let selectedGameVersion model =
+    let mutable logEntries = Unchecked.defaultof<_>
+
+    let selectedGameVersion (model: Model) =
         match model.SelectedGame with
         | Ets2 -> model.Ets2Version
         | Ats -> model.AtsVersion
         | NoGame -> None
+
+    let byMinLogLevel: IObservable<Func<LogEntryViewModel<_>, bool>> =
+        this
+            .WhenAnyValue(_.MinLogLevel)
+            .Select(
+                fun logLevel ->
+                    Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel >= logLevel))
+
+    do
+        store.Model.LogEntries
+            .Connect()
+            .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
+            .Filter(byMinLogLevel)
+            .SortAndBind(
+                &logEntries,
+                Comparer.Create(fun (x: LogEntryViewModel<LogActivity>) y -> DateTimeOffset.Compare(x.Timestamp, y.Timestamp)))
+            .DisposeMany()
+            .Subscribe()
+        |> this.AddDisposable
 
     member this.SteamDirectory
         with get () = this.Bind(store, _.SteamDirectory.Path)
@@ -106,6 +132,17 @@ type MainWindowViewModel(
                 model.Mods
                 |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
 
+    member this.IsShowLog = this.Bind(store, _.Display.IsShowLog)
+
+    member this.LogEntries = logEntries
+
+    member this.MinLogLevel
+        with get (): LogLevel = this.Bind(store, _.Display.MinLogLevel)
+        and set value = store.Dispatch(ChangeMinLogLevel value)
+
+    member this.NewLogEntryNotification =
+        this.Bind(store, _.Display.NewLogEntryNotification)
+
     member this.SelectSteamDirectory() =
         task {
             let! path = folderPicker.TryPickFolder()
@@ -131,7 +168,9 @@ type MainWindowViewModel(
         store.Dispatch(SelectGame selectedGame)
 
     member this.RefreshModsList() =
-        store.Dispatch(InitRefreshModsList)
+        store.Dispatch(InitRefreshModsList true)
+
+    member this.ToggleIsShowLog() = store.Dispatch(ToggleLog)
 
     member this.Shutdown() =
         let settings =

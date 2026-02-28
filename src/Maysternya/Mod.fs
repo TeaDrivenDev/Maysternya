@@ -10,6 +10,7 @@ module Mod =
 
     open TeaDriven.Maysternya.Domain
     open TeaDriven.Maysternya.Localization
+    open TeaDriven.Maysternya.LoggingTypes
     open TeaDriven.Maysternya.Prelude
     open TeaDriven.Maysternya.SiiUnit
 
@@ -62,16 +63,21 @@ module Mod =
     let private siiParsingOptions =
         SiiParsingOptions.IncludeNamelessClasses ||| SiiParsingOptions.AllowExtraContentAfterEnd
 
-    let readVersions modPath =
-        let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
-        let versionsFileContent = File.ReadAllText(versionsFilePath)
+    let readVersions log modPath =
+        try
+            let versionsFilePath = Path.Combine(modPath, Constants.FileNames.VersionsSii)
+            let versionsFileContent = File.ReadAllText(versionsFilePath)
 
-        let document = SiiDocument(typeof<PackageVersionInfo>)
-        document.Load(versionsFileContent, siiParsingOptions) |> ignore
+            let document = SiiDocument(typeof<PackageVersionInfo>)
+            document.Load(versionsFileContent, siiParsingOptions) |> ignore
 
-        document.Definitions.Keys
-        |> Seq.map document.GetDefinition<PackageVersionInfo>
-        |> Seq.toList
+            document.Definitions.Keys
+            |> Seq.map document.GetDefinition<PackageVersionInfo>
+            |> Seq.toList
+            |> Some
+        with ex ->
+            log Error ReadMods (String.Format(locString Log.ErrorReadingVersionsFrom_Format, modPath, ex.Message))
+            None
 
     let determineRelevantPackage (allPackages: PackageVersionInfo list) =
         let contentPackages = allPackages |> List.filter (_.Informational >> not)
@@ -132,131 +138,137 @@ module Mod =
             with ex -> return Failure archivePath
         }
 
-    let private readManifest extractorPath modPath packageName =
+    let private readManifest log extractorPath modPath packageName =
         async {
-            let packagePath = Path.Combine(modPath, packageName)
-            let manifestFileName = Constants.FileNames.ManifestSii
+            try
+                let packagePath = Path.Combine(modPath, packageName)
+                let manifestFileName = Constants.FileNames.ManifestSii
 
-            let! manifestContents =
-                async {
-                    if Directory.Exists packagePath
-                    then
-                        let loadFile = loadFileFromFileSystem packagePath
-                        let! contents = loadFile manifestFileName
+                let! manifestContents =
+                    async {
+                        if Directory.Exists packagePath
+                        then
+                            let loadFile = loadFileFromFileSystem packagePath
+                            let! contents = loadFile manifestFileName
 
-                        let makeSuccess loadFile fileName =
+                            let makeSuccess loadFile fileName =
+                                async {
+                                    let! file = loadFile fileName
+                                    return Success file
+                                }
+
+                            return (contents, makeSuccess loadFile) |> Success |> Some
+                        else
+                            let archiveExtensions = [ ".zip"; ".scs" ]
+
+                            let archivePath =
+                                archiveExtensions
+                                |> List.tryPick
+                                    (fun extension ->
+                                        let archivePath = packagePath + extension
+
+                                        if File.Exists archivePath
+                                        then Some archivePath
+                                        else None)
+
+                            match archivePath with
+                            | Some archivePath ->
+                                let loadFile = loadFileFromZipArchive archivePath
+                                let! manifestFile = loadFile manifestFileName
+
+                                match manifestFile with
+                                | Success contents -> return Success (contents, loadFile) |> Some
+                                | Failure archivePath ->
+                                    match extractorPath with
+                                    | Some extractorPath ->
+                                        let loadFile = loadFileFromHashFsArchive extractorPath archivePath
+                                        let! contents = loadFile manifestFileName
+
+                                        match contents with
+                                        | Success contents -> return Success (contents, loadFile) |> Some
+                                        | Failure archivePath -> return Failure archivePath |> Some
+                                    | None -> return Failure archivePath |> Some
+                            | None -> return None
+                    }
+
+                match manifestContents with
+                | Some manifestContents ->
+                    match manifestContents with
+                    | Success (contents, loadFile) ->
+                        let modPackage = readManifestContents contents
+
+                        let! description =
                             async {
-                                let! file = loadFile fileName
-                                return Success file
+                                if not <| String.IsNullOrWhiteSpace modPackage.DescriptionFile
+                                then
+                                    let! descriptionFile = loadFile modPackage.DescriptionFile
+                                    return Some descriptionFile
+                                else return None
                             }
 
-                        return (contents, makeSuccess loadFile) |> Success |> Some
-                    else
-                        let archiveExtensions = [ ".zip"; ".scs" ]
+                        let descriptionText =
+                            description
+                            |> Option.map
+                                (function
+                                    | Success description -> description
+                                    | Failure _ -> "")
+                            |> Option.defaultValue ""
 
-                        let archivePath =
-                            archiveExtensions
-                            |> List.tryPick
-                                (fun extension ->
-                                    let archivePath = packagePath + extension
-
-                                    if File.Exists archivePath
-                                    then Some archivePath
-                                    else None)
-
-                        match archivePath with
-                        | Some archivePath ->
-                            let loadFile = loadFileFromZipArchive archivePath
-                            let! manifestFile = loadFile manifestFileName
-
-                            match manifestFile with
-                            | Success contents -> return Success (contents, loadFile) |> Some
-                            | Failure archivePath ->
-                                match extractorPath with
-                                | Some extractorPath ->
-                                    let loadFile = loadFileFromHashFsArchive extractorPath archivePath
-                                    let! contents = loadFile manifestFileName
-
-                                    match contents with
-                                    | Success contents -> return Success (contents, loadFile) |> Some
-                                    | Failure archivePath -> return Failure archivePath |> Some
-                                | None -> return Failure archivePath |> Some
-                        | None -> return None
-                }
-
-            match manifestContents with
-            | Some manifestContents ->
-                match manifestContents with
-                | Success (contents, loadFile) ->
-                    let modPackage = readManifestContents contents
-
-                    let! description =
-                        async {
-                            if not <| String.IsNullOrWhiteSpace modPackage.DescriptionFile
-                            then
-                                let! descriptionFile = loadFile modPackage.DescriptionFile
-                                return Some descriptionFile
-                            else return None
-                        }
-
-                    let descriptionText =
-                        description
-                        |> Option.map
-                            (function
-                                | Success description -> description
-                                | Failure _ -> "")
-                        |> Option.defaultValue ""
-
-                    return Accessible (modPackage, descriptionText)
-                | Failure archivePath -> return Archive archivePath
-            | None -> return NotFound packageName
+                        return Accessible (modPackage, descriptionText) |> Some
+                    | Failure archivePath -> return Archive archivePath |> Some
+                | None -> return NotFound packageName |> Some
+            with ex ->
+                log Error ReadMods (String.Format(locString Log.ErrorReadingManifestFrom_Format, modPath, ex.Message))
+                return None
         }
 
-    let readMetadata extractorPath modPath packageName =
+    let readMetadata log extractorPath modPath packageName =
         async {
-            let! packageData = readManifest extractorPath modPath packageName
+            let! packageData = readManifest log extractorPath modPath packageName
 
             return
-                match packageData with
-                | Accessible (modPackage, description) ->
-                    let displayName, source =
-                        if String.IsNullOrWhiteSpace modPackage.DisplayName
-                        then
-                            let firstLineOfDescription =
-                                if String.IsNullOrWhiteSpace description
-                                then None
-                                else
-                                    use reader = new StringReader(description)
-                                    reader.ReadLine() |> Some
+                packageData
+                |> Option.map
+                    (function
+                    | Accessible (modPackage, description) ->
+                        let displayName, source =
+                            if String.IsNullOrWhiteSpace modPackage.DisplayName
+                            then
+                                let firstLineOfDescription =
+                                    if String.IsNullOrWhiteSpace description
+                                    then None
+                                    else
+                                        use reader = new StringReader(description)
+                                        reader.ReadLine() |> Some
 
-                            firstLineOfDescription
-                            |> Option.map (asFst DescriptionFile)
-                            |> Option.defaultValue (locString Loc.NoDisplayName, Unavailable)
-                        else modPackage.DisplayName, Package
+                                firstLineOfDescription
+                                |> Option.map (asFst DescriptionFile)
+                                |> Option.defaultValue (locString Loc.NoDisplayName, Unavailable)
+                            else modPackage.DisplayName, Package
 
-                    {|
-                        DisplayName = displayName
-                        DisplayNameSource = source
-                        Author = modPackage.Author
-                        ModVersion = modPackage.PackageVersion
-                        Description = description
-                    |}
-                | Archive path ->
-                    {|
-                        DisplayName = String.Format(locString Loc.MetadataIn_Format, Path.GetFileName path)
-                        DisplayNameSource = Unavailable
-                        Author = ""
-                        ModVersion = ""
-                        Description = ""
-                    |}
-                | NotFound packageName ->
-                    {|
-                        DisplayName = String.Format(locString Loc.PackageNotFound_Format, packageName)
-                        DisplayNameSource = Unavailable
-                        Author = ""
-                        ModVersion = ""
-                        Description = ""
-                    |}
+                        {|
+                            DisplayName = displayName
+                            DisplayNameSource = source
+                            Author = modPackage.Author
+                            ModVersion = modPackage.PackageVersion
+                            Description = description
+                        |}
+                    | Archive path ->
+                        {|
+                            DisplayName = String.Format(locString Loc.MetadataIn_Format, Path.GetFileName path)
+                            DisplayNameSource = Unavailable
+                            Author = ""
+                            ModVersion = ""
+                            Description = ""
+                        |}
+                    | NotFound packageName ->
+                        {|
+                            DisplayName = String.Format(locString Loc.PackageNotFound_Format, packageName)
+                            DisplayNameSource = Unavailable
+                            Author = ""
+                            ModVersion = ""
+                            Description = ""
+                        |})
         }
 
     let convertPackage (packageVersionInfo: PackageVersionInfo) =
@@ -269,33 +281,49 @@ module Mod =
             Informational = packageVersionInfo.Informational
         }
 
-    let readMod extractorPath modPath =
-        async {
-            let packages = readVersions modPath
-            let relevantPackage, compatibleVersion = determineRelevantPackage packages
-            let! metadata = readMetadata extractorPath modPath relevantPackage.PackageName
-            let modId = Path.GetFileName modPath
+    let readMod log extractorPath (modPath: string) =
+        log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
 
-            return
-                {
-                    Id = modId
-                    Path = modPath
-                    Name = metadata.DisplayName
-                    DisplayNameSource = metadata.DisplayNameSource
-                    Author = metadata.Author
-                    Version = metadata.ModVersion
-                    Description = metadata.Description
-                    HighestCompatibleGameVersion = compatibleVersion
-                    RelevantPackageName = relevantPackage.PackageName
-                    AllPackages = packages |> List.map convertPackage
-                }
+        async {
+            try
+                let packages = readVersions log modPath
+
+                match packages with
+                | Some packages ->
+                    let relevantPackage, compatibleVersion = determineRelevantPackage packages
+                    let! metadata = readMetadata log extractorPath modPath relevantPackage.PackageName
+
+                    match metadata with
+                    | Some metadata ->
+                        let modId = Path.GetFileName modPath
+
+                        return
+                            {
+                                Id = modId
+                                Path = modPath
+                                Name = metadata.DisplayName
+                                DisplayNameSource = metadata.DisplayNameSource
+                                Author = metadata.Author
+                                Version = metadata.ModVersion
+                                Description = metadata.Description
+                                HighestCompatibleGameVersion = compatibleVersion
+                                RelevantPackageName = relevantPackage.PackageName
+                                AllPackages = packages |> List.map convertPackage
+                            }
+                            |> Some
+                    | None -> return None
+                | None -> return None
+            with ex ->
+                log Error ReadMods (String.Format(locString Log.ErrorReadingMod_Format, modPath, ex.Message))
+
+                return None
         }
 
-    let readMods extractorPath modsPath =
+    let readMods log extractorPath modsPath =
         modsPath
         |> Directory.GetDirectories
         |> List.ofArray
-        |> List.map (readMod extractorPath)
+        |> List.map (readMod log extractorPath)
         |> Async.Sequential
 
     let writeVersions (packages: Package list) =
