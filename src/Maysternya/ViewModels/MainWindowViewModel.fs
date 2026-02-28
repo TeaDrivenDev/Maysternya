@@ -44,7 +44,6 @@ type MainWindowViewModel(
     inherit ReactiveElmishViewModel()
 
     let mutable logEntries = Unchecked.defaultof<_>
-    let mutable minLogLevel = LogLevel.Informational
 
     let selectedGameVersion (model: Model) =
         match model.SelectedGame with
@@ -167,8 +166,8 @@ type MainWindowViewModel(
     member this.ToggleIsShowLog() = store.Dispatch(ToggleLog)
 
     member this.MinLogLevel
-        with get (): LogLevel = minLogLevel
-        and set value = this.RaiseAndSetIfChanged(&minLogLevel, value) |> ignore
+        with get (): LogLevel = this.Bind(store, _.Display.MinLogLevel)
+        and set value = store.Dispatch(ChangeMinLogLevel value)
 
     member this.Shutdown() =
         let settings =

@@ -54,6 +54,7 @@ module App =
                     Display =
                         {
                             IsShowLog = false
+                            MinLogLevel = Informational
                         }
                 }
             interface ILogTarget<LogActivity, DateTimeOffset, Model> with
@@ -72,6 +73,7 @@ module App =
     and DisplayFeatures =
         {
             IsShowLog: bool
+            MinLogLevel: LogLevel
         }
 
     let logAsync logLevel logActivity logMessage = asyncLogEntries.OnNext(logLevel, logActivity, logMessage)
@@ -108,6 +110,7 @@ module App =
         | RemoveVersionRestriction of name: string * modPath: string * relevantPackage: string * allPackages: Package list
         | Log of LogLevel * LogActivity * string
         | ToggleLog
+        | ChangeMinLogLevel of LogLevel
         | Terminate
     and CompleteRefreshGameVersionsParameters =
         {
@@ -296,6 +299,8 @@ module App =
             (model |> Logging.withLog logLevel activity message) |> withoutCommand
         | ToggleLog ->
             { model with Display.IsShowLog = not model.Display.IsShowLog } |> withoutCommand
+        | ChangeMinLogLevel minLogLevel ->
+            { model with Display.MinLogLevel = minLogLevel } |> withoutCommand
         | Terminate -> model |> withoutCommand
 
     let subscriptions (model: Model) : Sub<Message> =
