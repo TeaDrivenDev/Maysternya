@@ -87,7 +87,17 @@ module App =
             if not model.Display.IsShowLog
                 && logLevel >= model.Display.MinLogLevel
                 && logLevel >= minLogLevelToNotify
-            then { model with Display.NewLogEntryNotification = Some logLevel }
+            then
+                {
+                    model with
+                        Display.NewLogEntryNotification =
+                            model.Display.NewLogEntryNotification
+                            |> Option.map
+                                (fun notificationLevel ->
+                                    if logLevel > notificationLevel then logLevel else notificationLevel)
+                            |> Option.defaultValue logLevel
+                            |> Some
+                }
             else model
 
         model |> Logging.withLog logLevel logActivity logMessage
@@ -293,8 +303,8 @@ module App =
             else model, Cmd.none
         | CompleteRefreshModsList mods ->
             { model with Mods = mods }
-                Informational
             |> withLog
+                Informational
                 ReadMods
                 (String.Format(locString Log.ModsRead_Format, model.SelectedGame.ToString().ToUpper(), mods.Length))
             |> withoutCommand
