@@ -419,7 +419,8 @@
                                 <DataGridTextColumn Binding="{Binding Timestamp,
                                                                       StringFormat=yyyy/MM/dd HH:mm:ss}"
                                                     Header="{DynamicResource Loc.Time}" />
-                                <DataGridTemplateColumn Header="{DynamicResource Loc.LogLevel}">
+                                <DataGridTemplateColumn CanUserSort="False"
+                                                        Header="{DynamicResource Loc.LogLevel}">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Margin="10 0"
@@ -443,8 +444,11 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Binding="{Binding Activity}"
+                                                    CanUserSort="False"
                                                     Header="{DynamicResource Loc.Activity}" />
-                                <DataGridTextColumn Binding="{Binding Message}"
+                                <DataGridTextColumn Width="*"
+                                                    Binding="{Binding Message}"
+                                                    CanUserSort="False"
                                                     Header="{DynamicResource Loc.Message}" />
                             </DataGrid.Columns>
                         </DataGrid>
