@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Controls\ValidatedTextBox.axaml.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Services\Services.fs" />

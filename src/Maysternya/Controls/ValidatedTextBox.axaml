@@ -1,0 +1,32 @@
+<UserControl x:Class="TeaDriven.Maysternya.Controls.ValidatedTextBox"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:heroIcons="clr-namespace:HeroIconsAvalonia.Controls;assembly=HeroIconsAvalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Name="ValidatedTextBoxControl"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <Grid>
+        <TextBox Grid.Column="0"
+                 Text="{Binding #ValidatedTextBoxControl.Text}"
+                 Watermark="{Binding #ValidatedTextBoxControl.Watermark}" />
+        <heroIcons:HeroIcon Width="16"
+                            Height="16"
+                            Margin="0 0 3 3"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Foreground="ForestGreen"
+                            IsVisible="{Binding #ValidatedTextBoxControl.IsValid}"
+                            Type="Check" />
+        <heroIcons:HeroIcon Width="16"
+                            Height="16"
+                            Margin="0 0 3 3"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Foreground="DarkRed"
+                            IsVisible="{Binding !#ValidatedTextBoxControl.IsValid}"
+                            Type="XMark" />
+    </Grid>
+</UserControl>
