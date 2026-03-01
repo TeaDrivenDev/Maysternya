@@ -281,7 +281,8 @@ module Mod =
         }
 
     let readMod log extractorPath (modPath: string) =
-        log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
+        // TODO Figure out how to use this without tanking performance
+        // log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
 
         backgroundTask {
             try
