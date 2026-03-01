@@ -1,7 +1,6 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
-open System.Collections.Generic
 open System.Reactive.Linq
 
 open Avalonia.Platform.Storage
@@ -63,9 +62,7 @@ type MainWindowViewModel(
             .Connect()
             .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
             .Filter(byMinLogLevel)
-            .SortAndBind(
-                &logEntries,
-                Comparer.Create(fun (x: LogEntryViewModel<LogActivity>) y -> DateTimeOffset.Compare(x.Timestamp, y.Timestamp)))
+            .Bind(&logEntries)
             .DisposeMany()
             .Subscribe()
         |> this.AddDisposable
