@@ -10,7 +10,6 @@ module Mod =
 
     open TeaDriven.Maysternya.Domain
     open TeaDriven.Maysternya.Localization
-    open TeaDriven.Maysternya.LoggingTypes
     open TeaDriven.Maysternya.Prelude
     open TeaDriven.Maysternya.SiiUnit
 
@@ -101,34 +100,34 @@ module Mod =
         document.GetDefinition<ModPackage>(Seq.head document.Definitions.Keys)
 
     let private loadFileFromFileSystem packagePath fileName =
-        async {
+        task {
             let filePath = Path.Combine(packagePath, fileName)
-            return! File.ReadAllTextAsync(filePath) |> Async.AwaitTask
+            return! File.ReadAllTextAsync(filePath)
         }
 
     let private loadFileFromZipArchive archivePath fileName =
-        async {
+        task {
             try
-                use! archive = ZipFile.OpenReadAsync(archivePath) |> Async.AwaitTask
+                use! archive = ZipFile.OpenReadAsync(archivePath)
                 let manifestEntry = archive.GetEntry(fileName)
-                use! manifestStream = manifestEntry.OpenAsync() |> Async.AwaitTask
+                use! manifestStream = manifestEntry.OpenAsync()
                 use reader = new StreamReader(manifestStream)
-                let! contents = reader.ReadToEndAsync() |> Async.AwaitTask
+                let! contents = reader.ReadToEndAsync()
 
                 return Success contents
             with ex -> return Failure archivePath
         }
 
     let private extractFileFromHashFsArchive extractorPath tempPath archivePath fileName =
-        async {
+        task {
             let parameters = $"\"{archivePath}\" -p=/{fileName} -d={tempPath} -q"
-            do! Command.RunAsync(extractorPath, parameters, noEcho=true, createNoWindow=true) |> Async.AwaitTask
+            do! Command.RunAsync(extractorPath, parameters, noEcho=true, createNoWindow=true)
 
             return Path.Combine(tempPath, fileName)
         }
 
     let private loadFileFromHashFsArchive extractorPath archivePath fileName =
-        async {
+        task {
             try
                 let tempPath = FileSystem.getTempDirectory Constants.Application.Application
                 let! path = extractFileFromHashFsArchive extractorPath tempPath archivePath fileName
@@ -139,20 +138,20 @@ module Mod =
         }
 
     let private readManifest log extractorPath modPath packageName =
-        async {
+        task {
             try
                 let packagePath = Path.Combine(modPath, packageName)
                 let manifestFileName = Constants.FileNames.ManifestSii
 
                 let! manifestContents =
-                    async {
+                    task {
                         if Directory.Exists packagePath
                         then
                             let loadFile = loadFileFromFileSystem packagePath
                             let! contents = loadFile manifestFileName
 
                             let makeSuccess loadFile fileName =
-                                async {
+                                task {
                                     let! file = loadFile fileName
                                     return Success file
                                 }
@@ -198,7 +197,7 @@ module Mod =
                         let modPackage = readManifestContents contents
 
                         let! description =
-                            async {
+                            task {
                                 if not <| String.IsNullOrWhiteSpace modPackage.DescriptionFile
                                 then
                                     let! descriptionFile = loadFile modPackage.DescriptionFile
@@ -223,7 +222,7 @@ module Mod =
         }
 
     let readMetadata log extractorPath modPath packageName =
-        async {
+        task {
             let! packageData = readManifest log extractorPath modPath packageName
 
             return
@@ -284,7 +283,7 @@ module Mod =
     let readMod log extractorPath (modPath: string) =
         log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
 
-        async {
+        backgroundTask {
             try
                 let packages = readVersions log modPath
 
@@ -323,7 +322,7 @@ module Mod =
         modsPath
         |> Directory.GetDirectories
         |> List.ofArray
-        |> List.map (readMod log extractorPath)
+        |> List.map (readMod log extractorPath >> Async.AwaitTask)
         |> Async.Sequential
 
     let writeVersions (packages: Package list) =
@@ -380,7 +379,7 @@ module Mod =
         ``match``.Groups["version"].Value
 
     let readGameVersion extractorPath steamPath gamePath =
-        async {
+        task {
             let fullGamePath = Path.Combine(steamPath, Constants.Paths.GamesPath, gamePath)
 
             if Directory.Exists fullGamePath
