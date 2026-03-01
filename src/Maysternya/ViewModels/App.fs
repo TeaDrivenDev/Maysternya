@@ -212,9 +212,9 @@ module App =
             let extractor = model.HashFsExtractorPath
 
             let readGameVersions () =
-                task {
+                async {
                     let! [ets2Version; atsVersion] =
-                        task {
+                        async {
                             if steamDirectory.PathExists && extractor.FileExists
                             then
                                 let versions = ResizeArray<_>()
@@ -234,7 +234,7 @@ module App =
                         }
                 }
 
-            model, Cmd.OfTask.perform readGameVersions () CompleteRefreshGameVersions
+            model, Cmd.OfAsync.perform readGameVersions () CompleteRefreshGameVersions
         | CompleteRefreshGameVersions parameters ->
             let logMessage =
                 [
