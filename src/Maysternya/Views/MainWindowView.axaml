@@ -240,7 +240,13 @@
                                                               IsVisible="{Binding Description,
                                                                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                                               Kind="InformationOutline"
-                                                              ToolTip.Tip="{Binding Description}" />
+                                                              ToolTip.Tip="{Binding Description}">
+                                                <mdi:MaterialIcon.Styles>
+                                                    <Style Selector="DataGridRow:not(:pointerover) mdi|MaterialIcon">
+                                                        <Setter Property="Opacity" Value="0.25" />
+                                                    </Style>
+                                                </mdi:MaterialIcon.Styles>
+                                            </mdi:MaterialIcon>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
