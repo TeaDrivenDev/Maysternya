@@ -74,6 +74,7 @@
                   ColumnDefinitions="*,Auto,Auto,Auto">
                 <controls:ValidatedTextBox Grid.Column="0"
                                            IsValid="{Binding IsHashFsExtractorPathValid}"
+                                           RequirementLevel="{x:Static controls:RequirementLevel.Recommended}"
                                            Text="{Binding HashFsExtractorPath}"
                                            Watermark="{DynamicResource Loc.HashFsExtractor}" />
                 <Button Grid.Column="1"

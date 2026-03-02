@@ -1,32 +1,32 @@
-<UserControl x:Class="TeaDriven.Maysternya.Controls.ValidatedTextBox"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:TeaDriven.Maysternya.Controls"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             x:Name="ValidatedTextBoxControl"
-             d:DesignHeight="450"
-             d:DesignWidth="800"
-             mc:Ignorable="d">
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="TeaDriven.Maysternya.Controls.ValidatedTextBox"
+    x:Name="ValidatedTextBoxControl"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:TeaDriven.Maysternya.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
-        <TextBox x:Name="Text"
-                 Grid.Column="0"
-                 Text="{Binding #ValidatedTextBoxControl.Text}"
-                 Watermark="{Binding #ValidatedTextBoxControl.Watermark}" />
-        <mdi:MaterialIcon Width="14"
-                          Height="14"
-                          Margin="0 0 5 0"
-                          HorizontalAlignment="Right"
-                          VerticalAlignment="Center">
+        <TextBox
+            Grid.Column="0"
+            Text="{Binding #ValidatedTextBoxControl.Text}"
+            Watermark="{Binding #ValidatedTextBoxControl.Watermark}"
+            x:Name="Text" />
+        <mdi:MaterialIcon
+            Height="14"
+            HorizontalAlignment="Right"
+            Margin="0 0 5 0"
+            VerticalAlignment="Center"
+            Width="14">
             <controls:BindableStyleClasses.Classes>
                 <MultiBinding Converter="{x:Static controls:ValidatedTextBox.IconClassConverter}">
-                    <Binding ElementName="ValidatedTextBoxControl"
-                             Path="IsValid" />
-                    <Binding ElementName="ValidatedTextBoxControl"
-                             Path="IsOptional" />
-                    <Binding ElementName="Text"
-                             Path="Text" />
+                    <Binding ElementName="ValidatedTextBoxControl" Path="IsValid" />
+                    <Binding ElementName="ValidatedTextBoxControl" Path="RequirementLevel" />
+                    <Binding ElementName="Text" Path="Text" />
                 </MultiBinding>
             </controls:BindableStyleClasses.Classes>
 
@@ -34,6 +34,16 @@
                 <Style Selector="mdi|MaterialIcon.Valid">
                     <Setter Property="Foreground" Value="Green" />
                     <Setter Property="Kind" Value="Check" />
+                </Style>
+
+                <Style Selector="mdi|MaterialIcon.Recommended">
+                    <Setter Property="Foreground" Value="DarkOrange" />
+                    <Setter Property="Kind" Value="Exclamation" />
+                </Style>
+
+                <Style Selector="mdi|MaterialIcon.Optional">
+                    <Setter Property="Foreground" Value="DodgerBlue" />
+                    <Setter Property="Kind" Value="Exclamation" />
                 </Style>
 
                 <Style Selector="mdi|MaterialIcon.Invalid">

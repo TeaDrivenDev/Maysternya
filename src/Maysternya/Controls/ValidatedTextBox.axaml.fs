@@ -10,6 +10,8 @@ open Avalonia.Data.Converters
 open Avalonia.Markup.Xaml
 open Avalonia.Data
 
+type RequirementLevel = Required | Recommended | Optional
+
 type ValidatedTextBox () as this =
     inherit UserControl ()
 
@@ -32,30 +34,34 @@ type ValidatedTextBox () as this =
             (fun o -> o.IsValid),
             (fun o v -> o.IsValid <- v))
 
-    static let IsOptionalProperty =
-        AvaloniaProperty.RegisterDirect<ValidatedTextBox, bool>(
-            nameof(Unchecked.defaultof<ValidatedTextBox>.IsOptional),
-            (fun o -> o.IsOptional),
-            (fun o v -> o.IsOptional <- v))
+    static let RequirementLevelProperty =
+        AvaloniaProperty.RegisterDirect<ValidatedTextBox, RequirementLevel>(
+            nameof(Unchecked.defaultof<ValidatedTextBox>.RequirementLevel),
+            (fun o -> o.RequirementLevel),
+            (fun o v -> o.RequirementLevel <- v))
 
     static let iconClassConverter =
         {
             new IMultiValueConverter with
                 member this.Convert(values: IList<obj>, targetType: Type, parameter: obj, culture: CultureInfo) =
                     match values |> Seq.toList with
-                    | [ :? bool as isValid; :? bool as isOptional ; :? string as text ] ->
+                    | [ :? bool as isValid; :? RequirementLevel as requirementLevel ; :? string as text ] ->
                         if isValid
                         then "Valid"
-                        elif isOptional && String.IsNullOrWhiteSpace text
-                        then "Optional"
-                        else "Invalid"
-                    | _ -> ()
+                        elif not <| String.IsNullOrWhiteSpace text
+                        then "Invalid"
+                        else
+                            match requirementLevel with
+                            | Required -> "Invalid"
+                            | Recommended -> "Recommended"
+                            | Optional -> "Optional"
+                    | _ -> ""
         }
 
     let mutable text = Unchecked.defaultof<string>
     let mutable watermark = Unchecked.defaultof<string>
     let mutable isValid = false
-    let mutable isOptional = false
+    let mutable requirementLevel = Required
 
     do this.InitializeComponent()
 
@@ -74,9 +80,9 @@ type ValidatedTextBox () as this =
         with get () = isValid
         and set value = this.SetAndRaise(IsValidProperty, &isValid, value) |> ignore
 
-    member this.IsOptional
-        with get () = isOptional
-        and set value = this.SetAndRaise(IsOptionalProperty, &isOptional, value) |> ignore
+    member this.RequirementLevel
+        with get () = requirementLevel
+        and set value = this.SetAndRaise(RequirementLevelProperty, &requirementLevel, value) |> ignore
 
     static member IconClassConverter = iconClassConverter
 
