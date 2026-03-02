@@ -309,7 +309,6 @@
                                                         Margin="0 0 10 0"
                                                         VerticalAlignment="Center"
                                                         Command="{Binding RemoveVersionRestriction}"
-                                                        Content="X"
                                                         ToolTip.Tip="{DynamicResource Loc.RemoveRestrictionButtonToolTip}">
                                                     <Button.IsVisible>
                                                         <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
@@ -322,6 +321,12 @@
                                                             </Binding.ConverterParameter>
                                                         </Binding>
                                                     </Button.IsVisible>
+
+                                                    <mdi:MaterialIcon Width="10"
+                                                                      Height="10"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"
+                                                                      Kind="Close" />
                                                 </Button>
                                             </Grid>
                                         </Grid>
