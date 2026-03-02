@@ -10,7 +10,8 @@
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
-        <TextBox Grid.Column="0"
+        <TextBox x:Name="Text"
+                 Grid.Column="0"
                  Text="{Binding #ValidatedTextBoxControl.Text}"
                  Watermark="{Binding #ValidatedTextBoxControl.Watermark}" />
         <mdi:MaterialIcon Width="14"
@@ -18,13 +19,24 @@
                           Margin="0 0 5 0"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Center">
+            <controls:BindableStyleClasses.Classes>
+                <MultiBinding Converter="{x:Static controls:ValidatedTextBox.IconClassConverter}">
+                    <Binding ElementName="ValidatedTextBoxControl"
+                             Path="IsValid" />
+                    <Binding ElementName="ValidatedTextBoxControl"
+                             Path="IsOptional" />
+                    <Binding ElementName="Text"
+                             Path="Text" />
+                </MultiBinding>
+            </controls:BindableStyleClasses.Classes>
+
             <mdi:MaterialIcon.Styles>
-                <Style Selector="controls|ValidatedTextBox[IsValid=True] mdi|MaterialIcon">
+                <Style Selector="mdi|MaterialIcon.Valid">
                     <Setter Property="Foreground" Value="Green" />
                     <Setter Property="Kind" Value="Check" />
                 </Style>
 
-                <Style Selector="controls|ValidatedTextBox[IsValid=False] mdi|MaterialIcon">
+                <Style Selector="mdi|MaterialIcon.Invalid">
                     <Setter Property="Foreground" Value="Red" />
                     <Setter Property="Kind" Value="Close" />
                 </Style>

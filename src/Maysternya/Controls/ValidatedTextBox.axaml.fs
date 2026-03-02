@@ -1,7 +1,12 @@
 namespace TeaDriven.Maysternya.Controls
 
+open System
+open System.Collections.Generic
+open System.Globalization
+
 open Avalonia
 open Avalonia.Controls
+open Avalonia.Data.Converters
 open Avalonia.Markup.Xaml
 open Avalonia.Data
 
@@ -27,9 +32,30 @@ type ValidatedTextBox () as this =
             (fun o -> o.IsValid),
             (fun o v -> o.IsValid <- v))
 
+    static let IsOptionalProperty =
+        AvaloniaProperty.RegisterDirect<ValidatedTextBox, bool>(
+            nameof(Unchecked.defaultof<ValidatedTextBox>.IsOptional),
+            (fun o -> o.IsOptional),
+            (fun o v -> o.IsOptional <- v))
+
+    static let iconClassConverter =
+        {
+            new IMultiValueConverter with
+                member this.Convert(values: IList<obj>, targetType: Type, parameter: obj, culture: CultureInfo) =
+                    match values |> Seq.toList with
+                    | [ :? bool as isValid; :? bool as isOptional ; :? string as text ] ->
+                        if isValid
+                        then "Valid"
+                        elif isOptional && String.IsNullOrWhiteSpace text
+                        then "Optional"
+                        else "Invalid"
+                    | _ -> ()
+        }
+
     let mutable text = Unchecked.defaultof<string>
     let mutable watermark = Unchecked.defaultof<string>
     let mutable isValid = false
+    let mutable isOptional = false
 
     do this.InitializeComponent()
 
@@ -47,3 +73,27 @@ type ValidatedTextBox () as this =
     member this.IsValid
         with get () = isValid
         and set value = this.SetAndRaise(IsValidProperty, &isValid, value) |> ignore
+
+    member this.IsOptional
+        with get () = isOptional
+        and set value = this.SetAndRaise(IsOptionalProperty, &isOptional, value) |> ignore
+
+    static member IconClassConverter = iconClassConverter
+
+// TODO Deduplicate
+// https://github.com/AvaloniaUI/Avalonia/issues/2427#issuecomment-2861152275
+type BindableStyleClasses() =
+    static let ClassesProperty: AttachedProperty<string> =
+        AvaloniaProperty.RegisterAttached<BindableStyleClasses, StyledElement, string>("Classes", defaultValue="")
+
+    static let HandleClassesChanged (element: StyledElement) (e: AvaloniaPropertyChangedEventArgs): unit =
+        let newValue = e.NewValue |> Option.ofObj |> Option.map string |> Option.defaultValue ""
+
+        element.Classes.Clear()
+        element.Classes.AddRange(newValue.Split(' '))
+
+    static do
+        ClassesProperty.Changed.AddClassHandler<StyledElement, string>(Action<_, _> HandleClassesChanged) |> ignore
+
+    static member GetClasses(element: StyledElement) = element.GetValue(ClassesProperty)
+    static member SetClasses(element: StyledElement, value: string) = element.SetValue(ClassesProperty, value) |> ignore
