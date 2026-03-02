@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Controls\ValidatedTextBox.axaml.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Services\Services.fs" />
@@ -42,7 +43,7 @@
     <PackageReference Include="DynamicData" Version="9.4.1" />
     <PackageReference Include="FSharp.Control.Reactive" Version="6.1.2" />
     <PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
-    <PackageReference Include="Material.Icons.Avalonia" Version="2.4.1" />
+    <PackageReference Include="Material.Icons.Avalonia" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
     <PackageReference Include="ReactiveElmish.Avalonia" Version="1.5.0" />
     <PackageReference Include="SimpleExec" Version="13.0.0" />

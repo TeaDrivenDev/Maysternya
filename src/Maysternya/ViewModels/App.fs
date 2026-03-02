@@ -197,7 +197,10 @@ module App =
             value
             |> Option.map
                 (fun path ->
-                    { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
+                    let model =
+                        { model with HashFsExtractorPath = FileSystem.createConfiguredFile path }
+
+                    model
                     |> withLog
                         Informational
                         UpdateExtractorPath

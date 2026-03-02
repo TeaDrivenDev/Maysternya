@@ -1,6 +1,7 @@
 <Window x:Class="TeaDriven.Maysternya.Views.MainWindowView"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:TeaDriven.Maysternya.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:domain="using:TeaDriven.Maysternya.Domain"
         xmlns:logging="using:TeaDriven.Maysternya"
@@ -21,22 +22,6 @@
         mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="FileSelectionOk"
-                                     Color="LimeGreen" />
-                    <SolidColorBrush x:Key="FileSelectionError"
-                                     Color="IndianRed" />
-                </ResourceDictionary>
-
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="FileSelectionOk"
-                                     Color="DarkGreen" />
-                    <SolidColorBrush x:Key="FileSelectionError"
-                                     Color="DarkRed" />
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-
             <SolidColorBrush x:Key="DiagnosticBrush"
                              Color="DimGray" />
             <SolidColorBrush x:Key="WarningBrush"
@@ -50,13 +35,6 @@
     </Window.Resources>
 
     <Window.Styles>
-        <Style Selector="TextBox.Valid">
-            <Setter Property="Background" Value="{DynamicResource FileSelectionOk}" />
-        </Style>
-        <Style Selector="TextBox:not(.Valid)">
-            <Setter Property="Background" Value="{DynamicResource FileSelectionError}" />
-        </Style>
-
         <Style Selector="Button.SelectFile">
             <Setter Property="Content" Value="…" />
             <Setter Property="Width" Value="25" />
@@ -75,10 +53,10 @@
             <Grid Grid.Row="0"
                   Margin="0 0 0 5"
                   ColumnDefinitions="*,Auto,Auto">
-                <TextBox Grid.Column="0"
-                         Classes.Valid="{Binding IsSteamDirectoryValid}"
-                         Text="{Binding SteamDirectory}"
-                         Watermark="{DynamicResource Loc.SteamDirectory}" />
+                <controls:ValidatedTextBox Grid.Column="0"
+                                           IsValid="{Binding IsSteamDirectoryValid}"
+                                           Text="{Binding SteamDirectory}"
+                                           Watermark="{DynamicResource Loc.SteamDirectory}" />
                 <Button Grid.Column="1"
                         Classes="SelectFile"
                         Command="{Binding SelectSteamDirectory}" />
@@ -94,10 +72,11 @@
             <Grid Grid.Row="1"
                   Margin="0 0 0 5"
                   ColumnDefinitions="*,Auto,Auto,Auto">
-                <TextBox Grid.Column="0"
-                         Classes.Valid="{Binding IsHashFsExtractorPathValid}"
-                         Text="{Binding HashFsExtractorPath}"
-                         Watermark="{DynamicResource Loc.HashFsExtractor}" />
+                <controls:ValidatedTextBox Grid.Column="0"
+                                           IsValid="{Binding IsHashFsExtractorPathValid}"
+                                           RequirementLevel="{x:Static controls:RequirementLevel.Recommended}"
+                                           Text="{Binding HashFsExtractorPath}"
+                                           Watermark="{DynamicResource Loc.HashFsExtractor}" />
                 <Button Grid.Column="1"
                         Classes="SelectFile"
                         Command="{Binding SelectHashFsExtractor}" />
@@ -330,7 +309,6 @@
                                                         Margin="0 0 10 0"
                                                         VerticalAlignment="Center"
                                                         Command="{Binding RemoveVersionRestriction}"
-                                                        Content="X"
                                                         ToolTip.Tip="{DynamicResource Loc.RemoveRestrictionButtonToolTip}">
                                                     <Button.IsVisible>
                                                         <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
@@ -343,6 +321,12 @@
                                                             </Binding.ConverterParameter>
                                                         </Binding>
                                                     </Button.IsVisible>
+
+                                                    <mdi:MaterialIcon Width="10"
+                                                                      Height="10"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"
+                                                                      Kind="Close" />
                                                 </Button>
                                             </Grid>
                                         </Grid>
