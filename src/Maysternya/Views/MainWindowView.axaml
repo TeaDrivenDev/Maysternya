@@ -46,6 +46,14 @@
         <Style Selector="DataGridRow DataGridCell">
             <Setter Property="FontSize" Value="12" />
         </Style>
+
+        <!--  see https://github.com/AvaloniaUI/Avalonia/discussions/8854  -->
+        <Style Selector="DataGridCell:focus /template/ Grid#FocusVisual">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
     </Window.Styles>
 
     <Grid Margin="5">
@@ -157,17 +165,6 @@
                                                   ConverterParameter={x:Static domain:SelectedGame.NoGame}}"
                               ItemsSource="{Binding Mods}"
                               SelectionMode="Single">
-
-                        <!--  see https://github.com/AvaloniaUI/Avalonia/discussions/8854  -->
-                        <DataGrid.Styles>
-                            <Style Selector="DataGridCell:focus /template/ Grid#FocusVisual">
-                                <Setter Property="IsVisible" Value="False" />
-                            </Style>
-                            <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
-                                <Setter Property="IsVisible" Value="False" />
-                            </Style>
-                        </DataGrid.Styles>
-
                         <DataGrid.Columns>
                             <DataGridTextColumn Width="100"
                                                 Binding="{Binding Id}"
