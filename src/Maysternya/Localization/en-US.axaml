@@ -55,4 +55,5 @@ If using the extractor, version 2026-02-15 or newer is required; using an older 
     <system:String x:Key="Log.ErrorReadingManifestFrom.Format">Error reading manifest from {0}: {1}</system:String>
     <system:String x:Key="Log.ReadingMod.Format">Reading mod {0}</system:String>
     <system:String x:Key="Log.ErrorReadingMod.Format">Error reading mod {0}: {1}</system:String>
+    <system:String x:Key="Log.Updated.Format">Updated {0}</system:String>
 </ResourceDictionary>

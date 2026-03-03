@@ -17,7 +17,7 @@ module Loc =
     let Download = "Loc.Download"
 
     /// The HashFS extractor is used to get metadata (name, author, description, version) for mods packaged as HashFS, as well as the installed game versions. Using it is optional, but recommended; only the display of some mods and the game versions will be affected if it is missing.
-    /// 
+    ///
     /// If using the extractor, version 2026-02-15 or newer is required; using an older version will cause the application to not work at all.
     let ExtractorInfoMessage = "Loc.ExtractorInfoMessage"
 
@@ -99,6 +99,8 @@ module Loc =
     /// Message
     let Message = "Loc.Message"
 
+    /// Min. Log Level
+    let MinLogLevel = "Loc.MinLogLevel"
 
 module Log =
     /// Steam directory "{0}" not found
@@ -149,3 +151,5 @@ module Log =
     /// Error reading mod {0}: {1}
     let ErrorReadingMod_Format = "Log.ErrorReadingMod.Format"
 
+    /// Updated {0}
+    let Updated_Format = "Log.Updated.Format"

@@ -149,6 +149,8 @@ module App =
         | CompleteRefreshGameVersions of CompleteRefreshGameVersionsParameters
         | InitRefreshModsList of force: bool
         | CompleteRefreshModsList of Mod list
+        | InitRefreshSingleMod of modId: string
+        | CompleteRefreshSingleMod of Mod option
         | RemoveVersionRestriction of RemoveVersionRestrictionParameters
         | Log of LogLevel * LogActivity * string
         | ToggleLog
@@ -327,6 +329,26 @@ module App =
                 ReadMods
                 (String.Format(locString Log.ModsRead_Format, model.SelectedGame.ToString().ToUpper(), mods.Length))
             |> withoutCommand
+        | InitRefreshSingleMod modId ->
+            let refreshMod modId =
+                async {
+                    match getPathsForRefresh model with
+                    | Some paths ->
+                        return!
+                            Path.Combine(paths.ModsPath, modId)
+                            |> Mod.readMod logAsync paths.ExtractorPath
+                    | None -> return None
+                }
+
+            model |> withCommand (Cmd.OfAsync.perform refreshMod modId CompleteRefreshSingleMod)
+        | CompleteRefreshSingleMod ``mod`` ->
+            ``mod``
+            |> Option.map
+                (fun ``mod`` ->
+                    { model with Mods = model.Mods |> SourceCache.addOrUpdate ``mod`` }
+                    |> withLog Informational ReadMods (String.Format(locString Log.Updated_Format, ``mod``.Name)))
+            |> Option.defaultValue model
+            |> withoutCommand
         | RemoveVersionRestriction parameters ->
             let logLevel, logMessage =
                 try
@@ -337,7 +359,7 @@ module App =
 
             model
             |> withLog logLevel RemoveRestriction logMessage
-            |> withCommand (Cmd.ofMsg (InitRefreshModsList true))
+            |> withCommand (Cmd.ofMsg (InitRefreshSingleMod parameters.ModId))
         | Log (logLevel, activity, message) ->
             model |> withLog logLevel activity message |> withoutCommand
         | ToggleLog ->
