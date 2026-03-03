@@ -232,12 +232,33 @@
                                                                       Kind="Steam" />
                                                 </HyperlinkButton>
 
-                                                <mdi:MaterialIcon Margin="5 0"
-                                                                  Background="Transparent"
-                                                                  Cursor="Hand"
-                                                                  Kind="FolderOpenOutline"
-                                                                  Tag="{Binding Id}"
-                                                                  ToolTip.Tip="{DynamicResource Loc.OpenFolder}" />
+                                                <!--
+                                                    TODO This is a hack to make both icons look and behave mostly the same.
+                                                    Ideally neither would appear like a button at all, but that would require
+                                                    more work and research replacing both of the control templates.
+                                                -->
+                                                <Grid ColumnDefinitions="Auto"
+                                                      Cursor="Hand">
+                                                    <Button Command="{Binding OpenModDirectory}">
+                                                        <Button.Styles>
+                                                            <Style Selector="Button:not(:pointerover)">
+                                                                <Setter Property="Opacity" Value="0" />
+                                                            </Style>
+
+                                                            <Style Selector="Button:pointerover">
+                                                                <Setter Property="Opacity" Value="0.8" />
+                                                            </Style>
+                                                        </Button.Styles>
+
+                                                        <mdi:MaterialIcon Opacity="0" />
+                                                    </Button>
+
+                                                    <mdi:MaterialIcon IsHitTestVisible="False"
+                                                                      Kind="FolderOpenOutline"
+                                                                      Tag="{Binding Id}"
+                                                                      ToolTip.Tip="{DynamicResource Loc.OpenFolder}" />
+                                                </Grid>
+
                                             </StackPanel>
 
                                             <mdi:MaterialIcon Grid.Column="2"
