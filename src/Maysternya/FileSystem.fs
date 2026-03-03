@@ -12,6 +12,7 @@ module FileSystemTypes =
 [<RequireQualifiedAccess>]
 module FileSystem =
     open System
+    open System.Diagnostics
     open System.IO
 
     open TeaDriven.Maysternya.Domain
@@ -50,3 +51,7 @@ module FileSystem =
     let deleteTempDirectory productName =
         let path = Path.Combine(Path.GetTempPath(), productName)
         Directory.Delete(path, recursive=true)
+
+    let openDirectoryInFileManager (directoryPath: string) =
+        ProcessStartInfo($"\"{directoryPath}\"", UseShellExecute = true)
+        |> Process.Start

@@ -9,6 +9,7 @@ open Microsoft.FSharp.Reflection
 open Avalonia
 open Avalonia.Data.Converters
 open Avalonia.Markup.Xaml
+open Avalonia.Metadata
 
 open TeaDriven.Maysternya
 
@@ -118,3 +119,16 @@ type OptionToBooleanConverter<'T>() =
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())
+
+type UrlExtension(url: string) =
+    inherit MarkupExtension()
+
+    [<MarkupExtensionDefaultOption>]
+    member val Url = url with get, set
+
+    override this.ProvideValue(serviceProvider) = Uri this.Url
+
+module Converters =
+    let ModIdToSteamUrlConverter =
+        FuncValueConverter<string, _>(
+            fun modId -> Uri $"{Domain.Constants.Urls.SteamPrefix}{Domain.Constants.Urls.SteamWorkshopItem}{modId}")

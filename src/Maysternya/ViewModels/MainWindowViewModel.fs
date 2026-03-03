@@ -46,6 +46,8 @@ type ModViewModel(modData: Mod, gameVersion: Version option) as this =
         |> RemoveVersionRestriction
         |> store.Dispatch
 
+    member _.OpenModDirectory() = FileSystem.openDirectoryInFileManager this.ModPath
+
 type MainWindowViewModel(
     folderPicker: Services.FolderPickerService,
     filePicker: Services.FilePickerService) as this =
