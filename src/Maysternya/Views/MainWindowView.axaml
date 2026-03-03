@@ -311,10 +311,10 @@
                                                         <Binding Converter="{x:Static uiUtilities:ValueEqualsParameterConverter.IsEqual}"
                                                                  Path="VersionCompatibility">
                                                             <Binding.ConverterParameter>
-                                                                <uiUtilities:XamlValueCollection>
-                                                                    <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Incompatible}" />
-                                                                    <uiUtilities:XamlWrapper Item="{x:Static domain:VersionCompatibility.Indeterminate}" />
-                                                                </uiUtilities:XamlValueCollection>
+                                                                <uiUtilities:XamlComparisonValueCollection>
+                                                                    <uiUtilities:XamlComparisonValue Value="{x:Static domain:VersionCompatibility.Incompatible}" />
+                                                                    <uiUtilities:XamlComparisonValue Value="{x:Static domain:VersionCompatibility.Indeterminate}" />
+                                                                </uiUtilities:XamlComparisonValueCollection>
                                                             </Binding.ConverterParameter>
                                                         </Binding>
                                                     </Button.IsVisible>

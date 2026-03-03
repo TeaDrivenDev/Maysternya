@@ -25,17 +25,17 @@ type BytesToMegabytesConverter() =
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())
 
-type XamlValueCollection() = inherit List<obj>()
+type XamlComparisonValueCollection() = inherit List<obj>()
 
-type XamlWrapper() as this =
-    member val Item: obj = null with get, set
+type XamlComparisonValue() as this =
+    member val Value: obj = null with get, set
 
-    override _.GetHashCode() = hash this.Item
+    override _.GetHashCode() = hash this.Value
 
     override _.Equals(other) =
         match other with
-        | :? XamlWrapper as otherWrapper -> this.Item.Equals(otherWrapper.Item)
-        | _ -> this.Item.Equals(other)
+        | :? XamlComparisonValue as otherWrapper -> this.Value.Equals(otherWrapper.Value)
+        | _ -> this.Value.Equals(other)
 
 type ValueEqualsParameterConverter(inverted: bool) =
     static member IsEqual = ValueEqualsParameterConverter(inverted = false) :> IValueConverter
@@ -44,7 +44,7 @@ type ValueEqualsParameterConverter(inverted: bool) =
     interface IValueConverter with
         member this.Convert(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             match parameter with
-            | :? XamlValueCollection as collection ->
+            | :? XamlComparisonValueCollection as collection ->
                 collection
                 |> Seq.exists _.Equals(value)
                 |> ((<>) inverted)
