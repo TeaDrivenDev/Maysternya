@@ -33,7 +33,7 @@ module App =
             AtsVersion: Version option
             SelectedGame: SelectedGame
             DefaultSelectedGame: SelectedGame
-            Mods: Mod list
+            Mods: SourceCache<Mod, string>
             LastRefreshConfiguration: LastRefreshConfiguration option
             LogEntries: SourceCache<LogEntry<LogActivity>, DateTimeOffset>
             Display: DisplayFeatures
@@ -50,7 +50,7 @@ module App =
                     AtsVersion = None
                     SelectedGame = NoGame
                     DefaultSelectedGame = NoGame
-                    Mods = []
+                    Mods = SourceCache.create _.Id
                     LastRefreshConfiguration = None
                     LogEntries = SourceCache.create _.Timestamp
                     Display =
@@ -305,7 +305,11 @@ module App =
                 |> withCommand (Cmd.OfAsync.perform readMods () CompleteRefreshModsList)
             else model, Cmd.none
         | CompleteRefreshModsList mods ->
-            { model with Mods = mods }
+            let sourceCache = model.Mods
+            sourceCache.Clear()
+            sourceCache.AddOrUpdate mods
+
+            { model with Mods = sourceCache }
             |> withLog
                 Informational
                 ReadMods

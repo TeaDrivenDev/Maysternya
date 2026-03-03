@@ -1,6 +1,7 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
+open System.Collections.Generic
 open System.Reactive.Linq
 
 open Avalonia.Platform.Storage
@@ -42,6 +43,7 @@ type MainWindowViewModel(
     filePicker: Services.FilePickerService) as this =
     inherit ReactiveElmishViewModel()
 
+    let mutable mods = Unchecked.defaultof<_>
     let mutable logEntries = Unchecked.defaultof<_>
 
     let selectedGameVersion (model: Model) =
@@ -58,6 +60,16 @@ type MainWindowViewModel(
                     Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel >= logLevel))
 
     do
+        store.Model.Mods
+            .Connect()
+            .Transform(fun ``mod`` -> new ModViewModel(``mod``, selectedGameVersion store.Model))
+            .SortAndBind(
+                &mods,
+                Comparer.Create(fun (x: ModViewModel) (y: ModViewModel) -> String.Compare(x.Id, y.Id)))
+            .DisposeMany()
+            .Subscribe()
+        |> this.AddDisposable
+
         store.Model.LogEntries
             .Connect()
             .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
@@ -122,12 +134,7 @@ type MainWindowViewModel(
 
     member this.SelectedGame = this.Bind(store, _.SelectedGame)
 
-    member this.Mods =
-        this.Bind(
-            store,
-            fun model ->
-                model.Mods
-                |> List.map (fun modData -> new ModViewModel(modData, selectedGameVersion model)))
+    member this.Mods = mods
 
     member this.IsShowLog = this.Bind(store, _.Display.IsShowLog)
 
