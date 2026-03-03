@@ -123,6 +123,23 @@ module App =
 
         model |> withLog logLevel UpdateDirectoryPaths logMessage
 
+    let getPathsForRefresh (model: Model) =
+        if model.SteamDirectory.PathExists
+        then
+            let modsPath =
+                match model.SelectedGame with
+                | Ets2 -> model.Ets2ModsDirectory.Path |> Some
+                | Ats -> model.AtsModsDirectory.Path |> Some
+                | NoGame -> None
+
+            let extractorPath =
+                if model.HashFsExtractorPath.FileExists
+                then Some model.HashFsExtractorPath.Path
+                else None
+
+            modsPath |> Option.map (fun modsPath -> {| ModsPath = modsPath; ExtractorPath = extractorPath |})
+        else None
+
     type Message =
         | UpdateSteamDirectory of string option
         | UpdateHashFsExtractorPath of string option
@@ -279,23 +296,9 @@ module App =
                     async {
                         let! mods =
                             async {
-                                if model.SteamDirectory.PathExists
-                                then
-                                    let modsPath =
-                                        match model.SelectedGame with
-                                        | Ets2 -> model.Ets2ModsDirectory.Path |> Some
-                                        | Ats -> model.AtsModsDirectory.Path |> Some
-                                        | NoGame -> None
-
-                                    let extractorPath =
-                                        if model.HashFsExtractorPath.FileExists
-                                        then Some model.HashFsExtractorPath.Path
-                                        else None
-
-                                    match modsPath with
-                                    | Some modsPath -> return! Mod.readMods logAsync extractorPath modsPath
-                                    | None -> return [||]
-                                else return [||]
+                                match getPathsForRefresh model with
+                                | Some paths -> return! Mod.readMods logAsync paths.ExtractorPath paths.ModsPath
+                                | None -> return [||]
                             }
 
                         return mods |> Array.toList |> List.choose id
