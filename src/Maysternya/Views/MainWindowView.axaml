@@ -220,16 +220,23 @@
                                                     <Style Selector="mdi|MaterialIcon">
                                                         <Setter Property="Height" Value="16" />
                                                         <Setter Property="Width" Value="16" />
-                                                        <Setter Property="Margin" Value="5 0" />
                                                         <Setter Property="VerticalAlignment" Value="Center" />
-                                                        <Setter Property="Cursor" Value="Hand" />
-                                                        <Setter Property="Background" Value="Transparent" />
                                                     </Style>
                                                 </StackPanel.Styles>
 
-                                                <mdi:MaterialIcon Kind="Steam"
-                                                                  ToolTip.Tip="{DynamicResource Loc.OpenInSteam}" />
-                                                <mdi:MaterialIcon Kind="FolderOpenOutline"
+                                                <HyperlinkButton VerticalAlignment="Center"
+                                                                 NavigateUri="{Binding Id,
+                                                                                       Converter={x:Static uiUtilities:Converters.ModIdToSteamUrlConverter}}"
+                                                                 ToolTip.Tip="{DynamicResource Loc.OpenInSteam}">
+                                                    <mdi:MaterialIcon Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                                                                      Kind="Steam" />
+                                                </HyperlinkButton>
+
+                                                <mdi:MaterialIcon Margin="5 0"
+                                                                  Background="Transparent"
+                                                                  Cursor="Hand"
+                                                                  Kind="FolderOpenOutline"
+                                                                  Tag="{Binding Id}"
                                                                   ToolTip.Tip="{DynamicResource Loc.OpenFolder}" />
                                             </StackPanel>
 
