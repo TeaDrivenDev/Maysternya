@@ -36,7 +36,15 @@ type ModViewModel(modData: Mod, gameVersion: Version option) as this =
         Mod.determineVersionCompatibility modData.HighestCompatibleGameVersion gameVersion
 
     member _.RemoveVersionRestriction() =
-        store.Dispatch(RemoveVersionRestriction (this.Name, this.ModPath, this.RelevantPackageName, this.AllPackages))
+        {
+            ModId = this.Id
+            Name = this.Name
+            ModPath = this.ModPath
+            RelevantPackageName = this.RelevantPackageName
+            AllPackages = this.AllPackages
+        }
+        |> RemoveVersionRestriction
+        |> store.Dispatch
 
 type MainWindowViewModel(
     folderPicker: Services.FolderPickerService,

@@ -1,6 +1,7 @@
 ﻿namespace TeaDriven.Maysternya.ViewModels
 
 open System
+open System.IO
 open System.Reactive.Subjects
 
 open DynamicData
@@ -148,7 +149,7 @@ module App =
         | CompleteRefreshGameVersions of CompleteRefreshGameVersionsParameters
         | InitRefreshModsList of force: bool
         | CompleteRefreshModsList of Mod list
-        | RemoveVersionRestriction of name: string * modPath: string * relevantPackage: string * allPackages: Package list
+        | RemoveVersionRestriction of RemoveVersionRestrictionParameters
         | Log of LogLevel * LogActivity * string
         | ToggleLog
         | ChangeMinLogLevel of LogLevel
@@ -158,6 +159,14 @@ module App =
             Ets2Version: Version option
             AtsVersion: Version option
             NextMessage: Message option
+        }
+    and RemoveVersionRestrictionParameters =
+        {
+            ModId: string
+            Name: string
+            ModPath: string
+            RelevantPackageName: string
+            AllPackages: Package list
         }
 
     let commandAfterDirectorySelection (model: Model) =
@@ -318,13 +327,13 @@ module App =
                 ReadMods
                 (String.Format(locString Log.ModsRead_Format, model.SelectedGame.ToString().ToUpper(), mods.Length))
             |> withoutCommand
-        | RemoveVersionRestriction (name, modPath, relevantPackageName, allPackages) ->
+        | RemoveVersionRestriction parameters ->
             let logLevel, logMessage =
                 try
-                    Mod.removeVersionRestriction modPath relevantPackageName allPackages
-                    Informational, String.Format(locString Log.RemovedVersionRestriction_Format, name)
+                    Mod.removeVersionRestriction parameters.ModPath parameters.RelevantPackageName parameters.AllPackages
+                    Informational, String.Format(locString Log.RemovedVersionRestriction_Format, parameters.Name)
                 with _ ->
-                    Error, String.Format(locString Log.ErrorRemovingVersionRestriction_Format, name)
+                    Error, String.Format(locString Log.ErrorRemovingVersionRestriction_Format, parameters.Name)
 
             model
             |> withLog logLevel RemoveRestriction logMessage
