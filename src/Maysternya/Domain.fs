@@ -32,6 +32,10 @@ module Constants =
         [<Literal>]
         let AtsGame = "American Truck Simulator"
 
+    module Urls =
+        [<Literal>]
+        let HashFsExtractor = "https://github.com/sk-zk/Extractor/releases"
+
     module SteamIds =
         [<Literal>]
         let Ets2 = "227300"

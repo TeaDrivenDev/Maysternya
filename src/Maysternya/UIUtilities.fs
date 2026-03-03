@@ -118,3 +118,11 @@ type OptionToBooleanConverter<'T>() =
 
         member this.ConvertBack(value: obj, targetType: Type, parameter: obj, culture: CultureInfo): obj =
             raise (NotSupportedException())
+
+type UrlExtension(url: string) =
+    inherit MarkupExtension()
+
+    [<MarkupExtensionDefaultOption>]
+    member val Url = url with get, set
+
+    override this.ProvideValue(serviceProvider) = Uri this.Url

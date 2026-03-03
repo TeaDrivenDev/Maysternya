@@ -90,7 +90,7 @@
                         Command="{Binding SelectHashFsExtractor}" />
                 <HyperlinkButton Grid.Column="2"
                                  Content="{DynamicResource Loc.Download}"
-                                 NavigateUri="https://github.com/sk-zk/Extractor/releases" />
+                                 NavigateUri="{uiUtilities:Url {x:Static domain:Constants+Urls.HashFsExtractor}}" />
                 <mdi:MaterialIcon Grid.Column="3"
                                   Width="20"
                                   Height="20"
