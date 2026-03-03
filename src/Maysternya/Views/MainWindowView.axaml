@@ -244,13 +244,18 @@
                                                               Width="16"
                                                               Height="16"
                                                               Background="Transparent"
-                                                              IsVisible="{Binding Description,
-                                                                                  Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                                               Kind="InformationOutline"
+                                                              Tag="{Binding Description,
+                                                                            Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                                               ToolTip.Tip="{Binding Description}">
                                                 <mdi:MaterialIcon.Styles>
                                                     <Style Selector="DataGridRow:not(:pointerover) mdi|MaterialIcon">
                                                         <Setter Property="Opacity" Value="0.25" />
+                                                    </Style>
+
+                                                    <Style Selector="mdi|MaterialIcon[Tag=False]">
+                                                        <Setter Property="Opacity" Value="0" />
+                                                        <Setter Property="ToolTip.ServiceEnabled" Value="False" />
                                                     </Style>
                                                 </mdi:MaterialIcon.Styles>
                                             </mdi:MaterialIcon>
