@@ -227,8 +227,10 @@
                                                     </Style>
                                                 </StackPanel.Styles>
 
-                                                <mdi:MaterialIcon Kind="Steam" />
-                                                <mdi:MaterialIcon Kind="FolderOpenOutline" />
+                                                <mdi:MaterialIcon Kind="Steam"
+                                                                  ToolTip.Tip="{DynamicResource Loc.OpenInSteam}" />
+                                                <mdi:MaterialIcon Kind="FolderOpenOutline"
+                                                                  ToolTip.Tip="{DynamicResource Loc.OpenFolder}" />
                                             </StackPanel>
 
                                             <mdi:MaterialIcon Grid.Column="2"

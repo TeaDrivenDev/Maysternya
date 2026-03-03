@@ -37,6 +37,8 @@ If using the extractor, version 2026-02-15 or newer is required; using an older 
     <system:String x:Key="Loc.Activity">Activity</system:String>
     <system:String x:Key="Loc.Message">Message</system:String>
     <system:String x:Key="Loc.MinLogLevel">Min. Log Level</system:String>
+    <system:String x:Key="Loc.OpenInSteam">Open in Steam</system:String>
+    <system:String x:Key="Loc.OpenFolder">Open Folder</system:String>
 
     <!--  Logging  -->
     <system:String x:Key="Log.SteamDirectoryNotFound.Format">Steam directory "{0}" not found</system:String>
