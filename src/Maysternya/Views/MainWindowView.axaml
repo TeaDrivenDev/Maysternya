@@ -180,7 +180,7 @@
                                     <DataTemplate>
                                         <Grid Margin="10 0"
                                               Background="Transparent"
-                                              ColumnDefinitions="*,Auto">
+                                              ColumnDefinitions="*,Auto,Auto">
                                             <TextBlock Grid.Column="0"
                                                        Margin="0 0 10 0"
                                                        VerticalAlignment="Center"
@@ -209,7 +209,29 @@
                                                 </TextBlock.Styles>
                                             </TextBlock>
 
-                                            <mdi:MaterialIcon Grid.Column="1"
+                                            <StackPanel Grid.Column="1"
+                                                        Margin="5 0"
+                                                        Orientation="Horizontal">
+                                                <StackPanel.Styles>
+                                                    <Style Selector="Grid:not(:pointerover) StackPanel">
+                                                        <Setter Property="IsVisible" Value="False" />
+                                                    </Style>
+
+                                                    <Style Selector="mdi|MaterialIcon">
+                                                        <Setter Property="Height" Value="16" />
+                                                        <Setter Property="Width" Value="16" />
+                                                        <Setter Property="Margin" Value="5 0" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Cursor" Value="Hand" />
+                                                        <Setter Property="Background" Value="Transparent" />
+                                                    </Style>
+                                                </StackPanel.Styles>
+
+                                                <mdi:MaterialIcon Kind="Steam" />
+                                                <mdi:MaterialIcon Kind="FolderOpenOutline" />
+                                            </StackPanel>
+
+                                            <mdi:MaterialIcon Grid.Column="2"
                                                               Width="16"
                                                               Height="16"
                                                               Background="Transparent"
