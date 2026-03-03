@@ -55,9 +55,7 @@ type MainWindowViewModel(
     let byMinLogLevel: IObservable<Func<LogEntryViewModel<_>, bool>> =
         this
             .WhenAnyValue(_.MinLogLevel)
-            .Select(
-                fun logLevel ->
-                    Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel >= logLevel))
+            .Select(fun logLevel -> Func<_, _>(fun (entry: LogEntryViewModel<_>) -> entry.LogLevel >= logLevel))
 
     do
         store.Model.Mods

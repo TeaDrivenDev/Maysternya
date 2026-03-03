@@ -1,6 +1,7 @@
 ﻿namespace TeaDriven.Maysternya
 
 [<RequireQualifiedAccess>]
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Mod =
     open System
     open System.IO
@@ -10,7 +11,6 @@ module Mod =
 
     open TeaDriven.Maysternya.Domain
     open TeaDriven.Maysternya.Localization
-    open TeaDriven.Maysternya.LoggingTypes
     open TeaDriven.Maysternya.Prelude
     open TeaDriven.Maysternya.SiiUnit
 
@@ -282,8 +282,7 @@ module Mod =
         }
 
     let readMod log extractorPath (modPath: string) =
-        // TODO Figure out how to use this without tanking performance
-        // log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
+        log Diagnostic ReadMods (String.Format(locString Log.ReadingMod_Format, modPath))
 
         async {
             try
