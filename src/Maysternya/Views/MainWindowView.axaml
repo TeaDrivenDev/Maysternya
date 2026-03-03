@@ -199,7 +199,7 @@
                                                     <Style Selector="TextBlock.DescriptionDisplayName">
                                                         <Setter Property="Text" Value="{Binding Name, StringFormat=> {0}}" />
                                                         <Setter Property="FontStyle" Value="Italic" />
-                                                        <Setter Property="Foreground" Value="LightGray" />
+                                                        <Setter Property="Foreground" Value="DarkGray" />
                                                     </Style>
 
                                                     <Style Selector="TextBlock.UnavailableDisplayName">
