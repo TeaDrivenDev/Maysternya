@@ -213,7 +213,7 @@
                                                         Margin="5 0"
                                                         Orientation="Horizontal">
                                                 <StackPanel.Styles>
-                                                    <Style Selector="Grid:not(:pointerover) StackPanel">
+                                                    <Style Selector="DataGridRow:not(:pointerover) StackPanel">
                                                         <Setter Property="IsVisible" Value="False" />
                                                     </Style>
 
