@@ -210,8 +210,8 @@
                                             </TextBlock>
 
                                             <mdi:MaterialIcon Grid.Column="1"
-                                                              Width="20"
-                                                              Height="20"
+                                                              Width="16"
+                                                              Height="16"
                                                               Background="Transparent"
                                                               IsVisible="{Binding Description,
                                                                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
