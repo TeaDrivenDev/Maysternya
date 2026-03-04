@@ -120,6 +120,7 @@ type Mod =
         Author: string
         Version: string
         Description: string
+        Categories: string list
         HighestCompatibleGameVersion: CompatibleVersion
         RelevantPackageName: string
         AllPackages: Package list

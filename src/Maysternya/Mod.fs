@@ -252,6 +252,7 @@ module Mod =
                             Author = modPackage.Author
                             ModVersion = modPackage.PackageVersion
                             Description = description
+                            Categories = modPackage.Category |> Option.ofObj |> Option.defaultValue [| |]
                         |}
                     | Archive path ->
                         {|
@@ -260,6 +261,7 @@ module Mod =
                             Author = ""
                             ModVersion = ""
                             Description = ""
+                            Categories = [| |]
                         |}
                     | NotFound packageName ->
                         {|
@@ -268,6 +270,7 @@ module Mod =
                             Author = ""
                             ModVersion = ""
                             Description = ""
+                            Categories = [|  |]
                         |})
         }
 
@@ -306,6 +309,7 @@ module Mod =
                                 Author = metadata.Author
                                 Version = metadata.ModVersion
                                 Description = metadata.Description
+                                Categories = metadata.Categories |> Array.toList
                                 HighestCompatibleGameVersion = compatibleVersion
                                 RelevantPackageName = relevantPackage.PackageName
                                 AllPackages = packages |> List.map convertPackage

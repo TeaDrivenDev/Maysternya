@@ -23,6 +23,7 @@ If using the extractor, version 2026-02-15 or newer is required; using an older 
     <system:String x:Key="Loc.RefreshList">Refresh list</system:String>
     <system:String x:Key="Loc.Id">ID</system:String>
     <system:String x:Key="Loc.Name">Name</system:String>
+    <system:String x:Key="Loc.Categories">Categories</system:String>
     <system:String x:Key="Loc.Author">Author</system:String>
     <system:String x:Key="Loc.Version">Version</system:String>
     <system:String x:Key="Loc.UsableWith">Usable with</system:String>

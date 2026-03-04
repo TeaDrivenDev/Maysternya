@@ -258,7 +258,6 @@
                                                                       Tag="{Binding Id}"
                                                                       ToolTip.Tip="{DynamicResource Loc.OpenFolder}" />
                                                 </Grid>
-
                                             </StackPanel>
 
                                             <mdi:MaterialIcon Grid.Column="2"
@@ -280,6 +279,24 @@
                                                     </Style>
                                                 </mdi:MaterialIcon.Styles>
                                             </mdi:MaterialIcon>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="110"
+                                                    CanUserResize="True"
+                                                    CanUserSort="True"
+                                                    Header="{DynamicResource Loc.Categories}"
+                                                    SortMemberPath="Categories">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="10 0"
+                                              Background="Transparent"
+                                              ToolTip.Tip="{Binding Categories}">
+                                            <TextBlock VerticalAlignment="Center"
+                                                       Text="{Binding Categories}"
+                                                       TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

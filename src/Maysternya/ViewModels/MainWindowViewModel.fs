@@ -25,6 +25,7 @@ type ModViewModel(modData: Mod, gameVersion: Version option) as this =
     member _.Author = modData.Author
     member _.Description = modData.Description
     member _.Version = modData.Version
+    member _.Categories = modData.Categories |> String.concat ", "
     member _.HighestCompatibleGameVersion =
         match modData.HighestCompatibleGameVersion with
         | SpecificVersion version -> version
