@@ -9,7 +9,7 @@
         xmlns:mdi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:uiUtilities="using:TeaDriven.Maysternya.UIUtilities"
         xmlns:vm="using:TeaDriven.Maysternya.ViewModels"
-        Title="{DynamicResource Loc.WindowTitle}"
+        Title="{Binding WindowTitle}"
         Width="1024"
         MinWidth="800"
         MinHeight="500"

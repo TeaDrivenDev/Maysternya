@@ -3,6 +3,7 @@
 open System
 open System.Collections.Generic
 open System.Reactive.Linq
+open System.Reflection
 
 open Avalonia.Platform.Storage
 open DynamicData
@@ -87,6 +88,16 @@ type MainWindowViewModel(
             .DisposeMany()
             .Subscribe()
         |> this.AddDisposable
+
+    member _.WindowTitle =
+        let version = Assembly.GetExecutingAssembly().GetName().Version
+        let components =
+            match version.Build, version.Revision with
+            | 0, 0 -> 2
+            | _, 0 -> 3
+            | _, _ -> 4
+
+        $"{locString Loc.WindowTitle} v{version.ToString(components)}"
 
     member this.SteamDirectory
         with get () = this.Bind(store, _.SteamDirectory.Path)
