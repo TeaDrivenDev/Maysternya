@@ -1,0 +1,110 @@
+name: Release Maysternya
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+env:
+  PROJECT_PATH: src/Maysternya/Maysternya.fsproj
+
+jobs:
+  build:
+    name: Build (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+#          - os: ubuntu-latest
+#            rid: linux-x64
+          - os: windows-latest
+            rid: win-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.fsproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Publish self-contained
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Base self-contained publish - no .NET runtime required
+          dotnet publish ${{ env.PROJECT_PATH }} \
+            -c Release \
+            -r ${{ matrix.rid }} \
+            --self-contained true \
+            -p:DebugType=None \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:StripSymbols=true \
+            -p:PublishSingleFile=true \
+            -o bin/publish/${{ matrix.rid }}
+          echo "Published to bin/publish/${{ matrix.rid }}"
+          ls -al bin/publish/${{ matrix.rid }}
+
+      - name: Get release version
+        id: get-version
+        uses: KyoriPowered/action-regex-match@v3
+        with:
+          text: ${{ github.event.release.tag_name }}
+          regex: '^release-(.+)'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maysternya-${{ steps.get-version.outputs.group1 }}-${{ matrix.rid }}
+          path: bin/publish/${{ matrix.rid }}
+          if-no-files-found: error
+
+  release-assets:
+    name: Attach Release Assets
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Add Windows file suffix
+        run: |
+          set -euo pipefail
+          if [ -d "dist/win-x64" ]; then
+            mv "dist/win-x64" "dist/win-x64-windows.exe"
+          fi
+
+      - name: Zip artifacts
+        run: |
+          set -euo pipefail
+          cd dist
+          for dir in *; do
+            if [ -d "$dir" ]; then
+              zip -r "${dir}.zip" "$dir"
+            fi
+          done
+          ls -al
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

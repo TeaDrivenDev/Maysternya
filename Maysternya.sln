@@ -17,6 +17,13 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Maysternya.Tests", "tests\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maysternya.SiiUnit", "src\Maysternya.SiiUnit\Maysternya.SiiUnit.csproj", "{7428C140-FE9C-4C5C-876A-6BF538FDDAB3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{309BB3F5-F7FD-4ACE-BA5B-366A09542D9D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{ABEA4500-A7D0-4873-85E5-8640BD81FFF8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +48,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B8BD6C1B-7E51-4275-B811-B76457B1C5A5}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ABEA4500-A7D0-4873-85E5-8640BD81FFF8} = {309BB3F5-F7FD-4ACE-BA5B-366A09542D9D}
 	EndGlobalSection
 EndGlobal
