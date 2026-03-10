@@ -84,7 +84,9 @@ type MainWindowViewModel(
             .Connect()
             .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
             .Filter(byMinLogLevel)
-            .Bind(&logEntries)
+            .SortAndBind(
+                &logEntries,
+                Comparer.Create(fun (x: LogEntryViewModel<_>) (y: LogEntryViewModel<_>) -> x.Timestamp.CompareTo(y.Timestamp)))
             .DisposeMany()
             .Subscribe()
         |> this.AddDisposable
