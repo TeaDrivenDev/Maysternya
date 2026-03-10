@@ -54,6 +54,16 @@
         <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
             <Setter Property="IsVisible" Value="False" />
         </Style>
+
+        <Style Selector="TextBlock.LogDiagnostic">
+            <Setter Property="Foreground" Value="{StaticResource DiagnosticBrush}" />
+        </Style>
+        <Style Selector="TextBlock.LogWarning">
+            <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+        </Style>
+        <Style Selector="TextBlock.LogError">
+            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+        </Style>
     </Window.Styles>
 
     <Grid Margin="5">
@@ -436,9 +446,18 @@
                                    Margin="10 0"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
-                                   IsVisible="{Binding !IsShowLog}"
-                                   Text="{Binding LastLogMessage}"
-                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
+                                   uiUtilities:BindableStyleClasses.Classes="{Binding LastLogEntry.LogLevel,
+                                                                                      Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
+                                   Text="{Binding LastLogEntry.Message}"
+                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="!IsShowLog" />
+                                    <Binding Converter="{x:Static ObjectConverters.IsNotNull}"
+                                             Path="LastLogEntry" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
 
                         <Button x:Name="ShowLogButton"
                                 Grid.Row="1"
@@ -504,19 +523,7 @@
                                                        VerticalAlignment="Center"
                                                        uiUtilities:BindableStyleClasses.Classes="{Binding LogLevel,
                                                                                                           Converter={x:Static uiUtilities:LogLevelToStyleClassConverter.Instance}}"
-                                                       Text="{Binding LogLevel}">
-                                                <TextBlock.Styles>
-                                                    <Style Selector="TextBlock.LogDiagnostic">
-                                                        <Setter Property="Foreground" Value="{StaticResource DiagnosticBrush}" />
-                                                    </Style>
-                                                    <Style Selector="TextBlock.LogWarning">
-                                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
-                                                    </Style>
-                                                    <Style Selector="TextBlock.LogError">
-                                                        <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
-                                                    </Style>
-                                                </TextBlock.Styles>
-                                            </TextBlock>
+                                                       Text="{Binding LogLevel}" />
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>

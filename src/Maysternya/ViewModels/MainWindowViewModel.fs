@@ -170,14 +170,8 @@ type MainWindowViewModel(
     member this.NewLogEntryNotification =
         this.Bind(store, _.Display.NewLogEntryNotification)
 
-    member this.LastLogMessage =
-        this.Bind(
-            store,
-            fun _ ->
-                this.LogEntries.LastOrDefault()
-                |> Option.ofObj
-                |> Option.map _.Message
-                |> Option.defaultValue "")
+    member this.LastLogEntry =
+        this.Bind(store, fun _ -> this.LogEntries.LastOrDefault())
 
     member this.SelectSteamDirectory() =
         task {
