@@ -409,11 +409,15 @@
                 </SplitView.Content>
 
                 <SplitView.Pane>
-                    <Grid RowDefinitions="Auto,Auto,*">
+                    <Grid ColumnDefinitions="*,Auto"
+                          RowDefinitions="Auto,Auto,*">
                         <GridSplitter Grid.Row="0"
+                                      Grid.Column="0"
+                                      Grid.ColumnSpan="2"
                                       IsEnabled="False" />
 
                         <StackPanel Grid.Row="1"
+                                    Grid.Column="0"
                                     VerticalAlignment="Center"
                                     IsVisible="{Binding IsShowLog}"
                                     Orientation="Horizontal">
@@ -427,8 +431,18 @@
                                       SelectedValue="{Binding MinLogLevel}" />
                         </StackPanel>
 
+                        <TextBlock Grid.Row="1"
+                                   Grid.Column="0"
+                                   Margin="10 0"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding !IsShowLog}"
+                                   Text="{Binding LastLogMessage}"
+                                   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
+
                         <Button x:Name="ShowLogButton"
                                 Grid.Row="1"
+                                Grid.Column="1"
                                 Width="115"
                                 Margin="3"
                                 Padding="6 4"
@@ -474,6 +488,8 @@
                         </Button>
 
                         <DataGrid Grid.Row="2"
+                                  Grid.Column="0"
+                                  Grid.ColumnSpan="2"
                                   IsVisible="{Binding IsShowLog}"
                                   ItemsSource="{Binding LogEntries}">
                             <DataGrid.Columns>

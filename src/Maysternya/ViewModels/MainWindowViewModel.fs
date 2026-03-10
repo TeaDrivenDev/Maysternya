@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Linq
 open System.Reactive.Linq
 open System.Reflection
 
@@ -168,6 +169,15 @@ type MainWindowViewModel(
 
     member this.NewLogEntryNotification =
         this.Bind(store, _.Display.NewLogEntryNotification)
+
+    member this.LastLogMessage =
+        this.Bind(
+            store,
+            fun _ ->
+                this.LogEntries.LastOrDefault()
+                |> Option.ofObj
+                |> Option.map _.Message
+                |> Option.defaultValue "")
 
     member this.SelectSteamDirectory() =
         task {
