@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 		global.json = global.json
+		CHANGELOG.md = CHANGELOG.md
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Maysternya.Tests", "tests\Maysternya.Tests\Maysternya.Tests.fsproj", "{462A032F-E37F-4ED5-BA6A-58EDE7669743}"
