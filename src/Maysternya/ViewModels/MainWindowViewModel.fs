@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Linq
 open System.Reactive.Linq
 open System.Reflection
 
@@ -84,7 +85,9 @@ type MainWindowViewModel(
             .Connect()
             .TransformImmutable(fun logEntry -> new LogEntryViewModel<_>(logEntry))
             .Filter(byMinLogLevel)
-            .Bind(&logEntries)
+            .SortAndBind(
+                &logEntries,
+                Comparer.Create(fun (x: LogEntryViewModel<_>) (y: LogEntryViewModel<_>) -> x.Timestamp.CompareTo(y.Timestamp)))
             .DisposeMany()
             .Subscribe()
         |> this.AddDisposable
@@ -166,6 +169,9 @@ type MainWindowViewModel(
 
     member this.NewLogEntryNotification =
         this.Bind(store, _.Display.NewLogEntryNotification)
+
+    member this.LastLogEntry =
+        this.Bind(store, fun _ -> this.LogEntries.LastOrDefault())
 
     member this.SelectSteamDirectory() =
         task {
