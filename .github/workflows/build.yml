@@ -64,7 +64,7 @@ jobs:
         uses: KyoriPowered/action-regex-match@v3
         with:
           text: ${{ github.event.release.tag_name }}
-          regex: '^release-(.+)'
+          regex: '^v(.+)'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
