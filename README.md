@@ -24,8 +24,10 @@ You can also open each mod's directory and Steam Workshop page from here.
 - This does nothing you couldn't do manually; it just saves you the hassle of finding the mod directories in the forest of numbers, and is a bit faster if you need to unblock multiple mods.
 - The intended purpose for this is bridging the few weeks - at most - until a mod author updates their mod after a game update. The older the mods are that you reenable, the higher the risk for instabilities - again, as with any older mods. 
 
-Note:
+## Known Issues
+
 - There are some older mods with a differently formatted versions file that the parser currently cannot read. These will show errors in the log and not appear in the mod list, but they shouldn't have version restrictions anyway.
+- There are rare mods with extraneous attributes in the manifest file that the parser currently cannot tolerate. These will show errors in the log and not appear in the mod list.
 
 ## Miscellaneous
 
