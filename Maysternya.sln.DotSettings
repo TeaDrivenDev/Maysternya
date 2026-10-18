@@ -54,6 +54,7 @@ PageSource, PageIndex, Offset, Color, TargetName, Property, Value, StartPoint, E
 mc:Ignorable, d:IsDataSource, d:LayoutOverrides, d:IsStaticText
 Storyboard.*, From, To, Duration</s:String>
 	<s:String x:Key="/Default/CodeStyle/XamlStyler/ConfigPath/@EntryValue">D:\Development\Projects\Settings.XamlStyler</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/XamlStyler/FormatOnSave/@EntryValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeStyle/XamlStyler/KeepFirstAttributeOnSameLine/@EntryValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeStyle/XamlStyler/SearchToDriveRoot/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/CustomTools/CustomToolsData/@EntryValue"></s:String>

@@ -15,6 +15,17 @@ open TeaDriven.Maysternya.FileSystemTypes
 open TeaDriven.Maysternya.Localization
 open TeaDriven.Maysternya.LoggingTypes
 
+// TODO 270880\2897914907 compatible_versions in manifest
+// TODO 270880\3551790835 id in manifest -- Western Star 4900
+
+// TODO Progress
+// TODO Separate Steam directories for both games
+// TODO Test extractor
+// TODO Type provider for LocString keys
+// TODO Show mods with errors
+
+// TODO Replace action-gh-release
+
 module App =
     let inline withCommand command model = model, command
     let inline withoutCommand model = model, Cmd.none
